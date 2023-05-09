@@ -1,0 +1,21 @@
+{
+  "devDependencies": {
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "babel-loader": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "webpack": "^5.82.0",
+    "webpack-cli": "^5.0.2"
+  },
+  "scripts": {
+    "start": "node server",
+    "build": "cross-env NODE_ENV=production webpack",
+    "dev": "cross-env NODE_ENV=development webpack --watch"
+  },
+  "dependencies": {
+    "depcheck": "^1.4.3",
+    "node": "^20.1.0",
+    "nodemon": "^2.0.22",
+    "socket.io-client": "^4.6.1"
+  }
+}

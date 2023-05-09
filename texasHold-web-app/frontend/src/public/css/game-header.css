@@ -1,0 +1,37 @@
+#top-navigation-bar {
+    height: 9em;
+    width: 100%;
+    display: flex;
+}
+
+#placeholder {
+    height: 100%;
+    width: 33.3%;
+}
+
+#main-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    height: 100%;
+    width: 33.3%;
+}
+
+#exit-text {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+
+    height: 100%;
+    width: 33.3%;
+}
+
+#exit-text h1 {
+    text-decoration: none;
+    margin-right: 1em;
+}
+
+#return-button {
+    /* */
+}

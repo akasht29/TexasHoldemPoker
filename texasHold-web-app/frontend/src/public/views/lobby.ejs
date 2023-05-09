@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lobby</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <div id = "content" class="container">
+        <%- include('partials/navbar', { user: user }) %>
+        <h1>Welcome to the Game Lobby</h1>
+        <p>Hi <%= user.username %>, this is the game lobby!</p>
+
+        <h2>Available Games</h2>
+        <div id="game-list"></div>
+    </div>
+    <div id="message" class="message"></div>
+    <!-- Create Game Modal -->
+    <div id="create-game-modal" class="game-modal" hidden>
+        <div class="modal-content">
+           
+            <form id="create-game-form">
+                <label for="game_name">Game Name</label>
+                <input type="text" name="game_name" minlength="4" maxlength="20" required>
+                <label for="chips">Chips:</label>
+                <input type="number" name="chips" min="1" required>
+                <label for="num_players">Max Players:</label>
+                <input type="number" name="num_players" min="2" max="10" required>
+                <label for="num_rounds">Number of Rounds</label>
+                <input type="number" name="num_rounds" min="1" required>
+                <label for="min_bet">Min Buy-In:</label>
+                <input type="number" name="min_bet" min="1" required>
+                
+                <button id="submit-create-game">Create Game</button> <!-- Change the id here -->
+            </form>
+            <button id="close-create-game-modal" onclick="window.closeCreateGameModal()">Close</button>
+        </div>
+    </div>
+    <script defer src="/frontend/src/public/dist/bundle.js"></script>
+
+</body>
+</html>

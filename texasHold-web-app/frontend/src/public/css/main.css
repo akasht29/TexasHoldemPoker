@@ -1,0 +1,233 @@
+/* Set margin and padding to 0 for the whole page */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Set the font family and size for the whole page */
+body {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+.message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  color: #777;
+  text-align: center;
+}
+
+/* Add some spacing and styles for the navigation bar */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  color: #000;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 20px;
+  z-index: 1;
+}
+
+nav a {
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 20px;
+  transition: color 0.3s ease-in-out;
+  cursor: pointer;
+  
+  
+}
+
+nav a:first-child {
+  margin-left: 0;
+}
+
+nav a:hover {
+  color: #777;
+}
+
+nav button {
+  margin-left: 20px;
+  padding: 6px 12px;
+  border: none;
+  background-color: #0095f6;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background-color 0.3s ease-in-out;
+  border-radius: 5px;
+}
+
+nav button:hover {
+  background-color: #007ee5;
+}
+
+h1 {
+  margin-top: 100px;
+  font-size: 36px;
+  text-align: center;
+}
+
+.container {
+  margin-top: 100px;
+}
+
+form {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 350px;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 50px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #666;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+button[type="submit"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #0095f6;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+button[type="submit"]:hover {
+  background-color: #007ee5;
+}
+
+a {
+  display: block;
+  margin-top: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  transition: color 0.3s ease-in-out;
+}
+
+a:hover {
+  color: #333;
+}
+
+.message {
+  margin-top: 10px;
+  padding: 10px;
+  text-align: center;
+  }
+  
+  .game-lobby {
+  margin: 50px auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  }
+  
+  .username {
+  font-weight: bold;
+  margin-right: 10px;
+  }
+  
+  .user-info {
+  display: flex;
+  align-items: center;
+  }
+  
+  
+
+  
+  
+  button {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #0095f6;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background-color 0.3s ease-in-out;
+  }
+  
+  button:hover {
+  background-color: #007ee5;
+  }
+  
+  #game-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 20px;
+  margin-top: 20px;
+  }
+  
+  #game-list div {
+  width: 200px;
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  }
+
+ 
+  .game-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  /* Add this rule to hide the modal when the 'hidden' attribute is present */
+  
+  .game-modal[hidden] {
+    display: none;
+  }
