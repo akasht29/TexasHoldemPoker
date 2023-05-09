@@ -4,14 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Main Page</title>
-  <link rel="stylesheet" href="/css/ingame-view.css">
-  <link rel="stylesheet" href="/css/ingame-navbar.css">
-  <script src="/js/ingame-view.js"></script>
-  <script src="/js/ingame-requests.js"></script>
+  <link rel="stylesheet" href="/css/game-room.css">
+  <link rel="stylesheet" href="/css/game-room-navbar.css">
+  <script src="/js/game-room.js"></script>
 </head>
 
 <div id="main-container" class="thin-outline">
-  <% include("./partials/ingame-navbar") %>
+  <%- include("./partials/game-room-navbar") %>
 
   <div id="game-container" class="thin-outline">
     
@@ -29,16 +28,17 @@
       <div id="hand-cards" class="thin-outline">
         <!-- CARDS CAN BE ADDED AS CHILDREN WITH THE addCardToHand function -->
       </div>
-  
+
+
       <div id="game-controls" class="thin-outline">
 
-        <input class="controls-button" type="button" onclick="foldRequest()" value="FOLD">
+        <input class="controls-button" type="button" onclick="/*foldRequest()*/" value="FOLD">
 
-        <input class="controls-button" type="button" onclick="callRequest()" value="CALL">
+        <input class="controls-button" type="button" onclick="/*callRequest()*/" value="CALL">
 
-        <input class="controls-button" type="button" onclick="raiseRequest()" value="RAISE">
+        <input class="controls-button" type="button" onclick="/*raiseRequest()*/" value="RAISE">
 
-        <input class="controls-button" type="button" onclick="allInRequest()" value="ALL IN">
+        <input class="controls-button" type="button" onclick="/*allInRequest()*/" value="ALL IN">
         
       </div>
     </div>

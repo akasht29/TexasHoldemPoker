@@ -6,7 +6,7 @@ const gameModel = {};
 const playerModel = require("../players/playerModel");
 
 
-gameModel.createGame = (game_name, chips, num_players, num_rounds, min_bet) => {
+gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
     console.log(`
         ${game_name}, 
         ${chips}, 
@@ -14,31 +14,17 @@ gameModel.createGame = (game_name, chips, num_players, num_rounds, min_bet) => {
         ${num_rounds}, 
         ${min_bet}
     `)
-    return new Promise(async (resolve, reject) => {
-        try {
-            const query = `INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet) VALUES ('${game_name}', ${chips}, ${num_players}, ${num_rounds}, ${min_bet})`;
-            console.log(query);
-  
-            db.query(query)
-            .then(async (result) => {
-                console.log("greetings");
-                if (result.rowCount > 0) {
-                    const game = result.rows[0];
-  
-                    resolve(game); // Resolve after storing the token
-                } 
-                else {
-                    reject(new CustomError("No rows affected", 404));
-                }
-            })
-            .catch((err) => {
-                console.log("hi");
-                reject(err);
-            });
+    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet) ";
+    const valuesStr = `VALUES ('${game_name}', ${chips}, ${num_players}, ${num_rounds}, ${min_bet}) RETURNING game_id`
+    const query = insertStr + valuesStr;
+    db.query(query)
+    .then(async (result) => {
+        if (result.rowCount > 0) {
+            const game = result.rows[0]; // game variable is undefined.
+            return game;
         } 
-        catch (err) {
-            console.log("bye");
-            reject(err);
+        else {
+            reject(new CustomError("No rows affected", 404));
         }
     });
   };

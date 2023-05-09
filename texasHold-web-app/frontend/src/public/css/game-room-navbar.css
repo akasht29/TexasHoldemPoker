@@ -1,0 +1,30 @@
+#game-room-navbar {
+    height: 5em;
+    width: 100%;
+    display: flex;
+    outline: 1px solid black;
+}
+
+.one-third-of-navbar {
+    height: 100%;
+    width: 33.3%;
+}
+
+#game-room-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#game-room-return-container {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}
+
+#return-button {
+    margin-right: 2em;
+    height: 70%;
+    width: 20%;
+    box-shadow: 2px 2px rgb(87, 87, 87);
+}

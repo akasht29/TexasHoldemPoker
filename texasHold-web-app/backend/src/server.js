@@ -28,9 +28,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
 app.use(cookieMiddleware);
 
-
-
-
 app.use("/", root);
 app.use("/user", userRoutes);
 app.use("/game", gameRoutes);

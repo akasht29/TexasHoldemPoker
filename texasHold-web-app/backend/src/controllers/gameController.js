@@ -3,21 +3,20 @@ const tableModel  = require("../models/table/tableModel");
 const playerModel = require("../models/players/playerModel");
 const gameController = {};
 
-/*
-
-*/
-
 gameController.createGame = (req, res) => {
     console.log(req.body);
-    let gameName = req.body.game_name;
-    let chips = req.body.chips;
+    let gameName   = req.body.game_name;
+    let chips      = req.body.chips;
     let numPlayers = req.body.num_players;
-    let numRounds = req.body.num_rounds;
-    let minBet = req.body.min_bet;
+    let numRounds  = req.body.num_rounds;
+    let minBet     = req.body.min_bet;
   
     gameModel.createGame(gameName, chips, numPlayers, numRounds, minBet)
     .then((game) => {
         res.status(201).json({ message: 'User created successfully', game });
+        console.log(JSON.stringify(game));
+        
+        // TODO: REDIRECT USER TO WAITING ROOM HERE
     })
     .catch((err) => {
         res.status(err.status || 500).json({ message: err.message });
@@ -63,6 +62,7 @@ gameController.joinGame = async (req, res) => {
         result.message = "Player joined the game successfully.";
         result.player = player;
         res.status(200).json(result);
+        res.j
     } catch (err) {
         result.error = err.message;
         res.status(500).json(result);
