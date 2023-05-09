@@ -5,12 +5,12 @@ const {authMiddleware} = require('../middleware/auth');
 
 router.get('/list', authMiddleware, gameController.getGameList);
 
-router.get('/waiting-room', (_request, response) => {
-    response.render('game-waiting-room');
+router.get('/waiting-room/:gameId', (request, response) => {
+    response.render('game-waiting-room', { gameId: request.params.gameId,lobbyOwner: true });
 });
 
-router.get('/room', (_request, response) => {
-    response.render('game-room');
+router.get('/room/:gameId', (request, response) => {
+    response.render('game-room', { gameId: request.params.gameId });
 });
 
 router.post('/create', gameController.createGame);

@@ -9,5 +9,13 @@
 </head>
 
 <div>
-    <%- include("./partials/game-room-navbar") %>
+    <%- include("./partials/game-room-navbar", {gameId: gameId}) %>
+</div>
+<div id="waiting-room-view">
+<% if (lobbyOwner) { %>
+
+  <input id="start-game-button" type="button" value="START GAME">
+
+<% } %>
+
 </div>

@@ -13,10 +13,12 @@ gameController.createGame = (req, res) => {
   
     gameModel.createGame(gameName, chips, numPlayers, numRounds, minBet)
     .then((game) => {
-        console.log(JSON.stringify(game));
-        res.status(201).json({ message: 'User created successfully', game });
+        console.log(JSON.stringify(game.game_id));
+        res.status(201).json({ message: 'User created successfully', gameId: game.game_id });
         
-        // TODO: REDIRECT TO WAITING ROOM HERE
+        // TODO: REDIRECT TO WAITING ROOM HERE INSTEAD OF RETURNING 201?
+
+        // res.redirect(`/game/waiting-room/${game.game_id}`);
     })
     .catch((err) => {
         res.status(err.status || 500).json({ message: err.message });
