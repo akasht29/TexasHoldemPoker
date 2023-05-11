@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "connect-pg-simple": "^8.0.0",
+    "cookie-parser": "^1.4.6",
+    "node-pg-migrate": "^6.2.2",
+    "pg": "^8.10.0"
+  }
+}

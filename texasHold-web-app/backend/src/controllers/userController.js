@@ -1,5 +1,6 @@
 const userModel = require('../models/users/userModel');
-const jwt = require('jsonwebtoken');
+const jwt       = require('jsonwebtoken');
+const bcrypt    = require("bcrypt");
 const userController = {};
 
 userController.createUser = (req, res) => {
@@ -33,21 +34,24 @@ userController.getUserById = (req, res) => {
 
 
 
-userController.login = (req, res, next) => {
-  const { username, password } = req.body;
+userController.login = async (email, password) => {
+  let user = await userModel.getUserByEmail(email);
+  console.log("marker", user);
 
-  userModel.login(username, password)
-    .then(async (user) => {
-      req.session.userId = user.user_id;
-      const token = user.auth_token;
-      delete user.auth_token;
+  if (!user) {
+    return null;
+  }
 
-      res.status(200).json({ user, token });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+  if (
+    (user.email != email) ||
+    !bcrypt.compare(password, user.password)
+  ) {
+    console.log("passwords do not match");
+    return null;
+  }
+
+  return user;
+}
 
 userController.logout = async (req, res, next) => {
   if (req.method === 'POST' || req.method === 'GET') {
@@ -55,10 +59,11 @@ userController.logout = async (req, res, next) => {
       await userModel.clearAuthToken(req.user.sub);
       userModel.logout(req);
       res.status(200).json({ message: 'User logged out successfully' });
-    } catch (err) {
-      next(err);
+    } catch (error) {
+      next(error);
     }
-  } else {
+  } 
+  else {
     next(new CustomError('Invalid HTTP method', 405));
   }
 };

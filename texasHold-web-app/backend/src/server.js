@@ -1,16 +1,21 @@
 const path = require("path");
 require('dotenv').config({path:path.join(__dirname,'config','.env')});
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const http = require("http");
-const { sessionMiddleware, cookieMiddleware } = require("./middleware/sessionMiddleWare");
-const userRoutes = require("./router/userRoutes");
-const gameRoutes = require("./router/gamesRoutes");
-const root = require("./router/root");
+const express      = require("express");
+const session      = require("express-session");
+const pgSession    = require("connect-pg-simple")(session);
+
+
+const http         = require("http");
+const db           = require("./database/connection");
+const cookieParser = require("cookie-parser");
+
+const userRoutes   = require("./router/userRoutes");
+const gameRoutes   = require("./router/gamesRoutes");
+const root         = require("./router/root");
 const { customErrorHandler } = require("./middleware/customErrorHandler");
-const app = express();
-const server = http.createServer(app);
+const app          = express();
+const PORT         = process.env.PORT | 3000;
 
 
 // view engine setup
@@ -22,11 +27,28 @@ app.set("view engine", "ejs");
 
 app.use(express.static(path.join(__dirname, "../../frontend/src/public/")));
 
+app.use(cookieParser());
+
+const sessionMiddleware = session({
+    store: new pgSession({ pgPromise: db }),
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 },
+});
+
+const initSockets = require("./sockets/init.js");
+
 // middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
-app.use(cookieMiddleware);
+
+const server = initSockets(app, sessionMiddleware);
+
+server.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+});
 
 app.use("/", root);
 app.use("/user", userRoutes);
@@ -35,48 +57,10 @@ app.use("/game", gameRoutes);
 // Move customErrorHandler here, after the routes
 app.use(customErrorHandler);
 
-
 //Creates database
 const { CreateTableError, createTables } = require("./database/createTables");
+const exp     = require("constants");
+const { env } = require("process");
+console.log('post sessinoomiddleware')
 
 const result = {};
-
-createTables()
-    .then((resultStatus) => {
-        result.message = resultStatus.message;
-        // start server here
-        const port = process.env.PORT || 3000;
-        
-        // 404 error handling
-        app.use((req, res, next) => {
-            res.status(404).json({ message: "Not Found" });
-        });
-
-        // error handling
-        app.use((err, req, res, next) => {
-            console.error(err.stack);
-            res.status(err.statusCode || 500).json({ message: err.message });
-        });
-
-        return new Promise((resolve, reject) => {
-            server.listen(port, () => {
-                result.serverMessage = `Server running on port ${port}`;
-                console.log(result.serverMessage);
-                resolve(result);
-            });
-        });
-    })
-    .catch((error) => {
-        if (error instanceof CreateTableError) {
-            result.message = ("Error in creating table", error.message);
-        } else {
-            result.internal = ("Error in createTables", error);
-        }
-        return Promise.reject(result);
-    })
-    .then((result) => {
-        console.log("Server started successfully", result);
-    })
-    .catch((result) => {
-        console.log("Error starting server", result);
-    });
