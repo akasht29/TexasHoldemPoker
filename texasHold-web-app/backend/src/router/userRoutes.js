@@ -5,35 +5,41 @@ const { getUserByUsername } = require('../models/users/userModel');
 const router = express.Router();
 
 // User routes
-router.post('/register', (request, response) => {
-  const { username, email, password } = request.body;
+router.post('/register', async (request, response) => {
   try {
+    console.log(request);
     // check if request has necessary fields
     if (
-      !request.body.hasOwn("username") ||
-      !request.body.hasOwn("email")    ||
-      !request.body.hasOwn("password")
+      !('username' in request.body) ||
+      !('email'    in request.body) ||
+      !('password' in request.body)
     ) {
       response.status(400).json({ message: "Information missing." })
     }
 
-    const { id } = userController.createUser(
+    const { username, email, password } = request.body;
+
+    console.log("username:", username);
+
+    const newUser = await userController.createUser(
       username,
       email,
       password
     );
 
-    if (!id) {
+    if (!newUser) {
       throw new Error("Failed to create user");
     }
 
+    console.log(newUser);
+
     request.session.user = {
-      id,
-      username,
-      email
+      id: newUser.user_id,
+      username: newUser.username,
+      email: newUser.email
     };
 
-    response.status(200).json();
+    response.redirect("/user/lobby");
   }
   catch (error) {
     response.status(500).json({ message: error.message });
@@ -42,10 +48,10 @@ router.post('/register', (request, response) => {
 
 router.post('/login', async (request, response) => {
   try {
-    console.log(request.body);
+    console.log(request.sessionID);
 
     if (
-      !("email" in request.body) ||
+      !("email"    in request.body) ||
       !("password" in request.body)
     ) {
       console.log("oops");
@@ -61,7 +67,14 @@ router.post('/login', async (request, response) => {
       throw new Error("Could not log in.");
     }
 
-    response.locals.user = user;
+    const {user_id, username } = user;
+
+    request.session.user = {
+      user_id,
+      username,
+      email
+    };
+
     response.redirect("/user/lobby");
   }
   catch (error) {
@@ -83,7 +96,7 @@ router.get('/login', (_req, res) => {
 });
 
 router.get('/lobby', (req, res) => {
-  res.render('lobby');
+  res.render('lobby', { user: req.session.user } );
 });
 
 module.exports = router;

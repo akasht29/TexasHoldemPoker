@@ -4,16 +4,13 @@ require('dotenv').config({path:path.join(__dirname,'config','.env')});
 const express      = require("express");
 const session      = require("express-session");
 const pgSession    = require("connect-pg-simple")(session);
-
-
-const http         = require("http");
-const db           = require("./database/connection");
+const db           = require("./database/connection.js");
 const cookieParser = require("cookie-parser");
 
 const userRoutes   = require("./router/userRoutes");
 const gameRoutes   = require("./router/gamesRoutes");
 const root         = require("./router/root");
-const { customErrorHandler } = require("./middleware/customErrorHandler");
+
 const app          = express();
 const PORT         = process.env.PORT | 3000;
 
@@ -55,12 +52,10 @@ app.use("/user", userRoutes);
 app.use("/game", gameRoutes);
 
 // Move customErrorHandler here, after the routes
-app.use(customErrorHandler);
 
 //Creates database
 const { CreateTableError, createTables } = require("./database/createTables");
 const exp     = require("constants");
 const { env } = require("process");
-console.log('post sessinoomiddleware')
 
 const result = {};

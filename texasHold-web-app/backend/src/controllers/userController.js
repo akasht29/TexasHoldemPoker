@@ -3,33 +3,14 @@ const jwt       = require('jsonwebtoken');
 const bcrypt    = require("bcrypt");
 const userController = {};
 
-userController.createUser = (req, res) => {
-  const { username, password, email } = req.body;
-
-  userModel.createUser(username, password, email)
-    .then((user) => {
-      const token = user.auth_token;
-      delete user.auth_token;
-      res.status(201).json({ message: 'User created successfully', user, token });
-    })
-    .catch((err) => {
-      res.status(err.status || 500).json({ message: err.message });
-    })
+userController.createUser = async (newUsername, newEmail, newPassword) => {
+  // const salt = bcrypt.genSalt(process.env.SECRET);
+  // const hash = 
+  return await userModel.createUser(newUsername, newEmail, newPassword);
 };
 
-userController.getUserById = (req, res) => {
-  const { id } = req.params;
-
-  userModel.getUserById(id)
-    .then((user) => {
-      if (!user) {
-        throw new Error('User not found');
-      }
-      res.status(200).json(user);
-    })
-    .catch((err) => {
-      res.status(err.status || 500).json({ message: err.message });
-    });
+userController.getUserById = async (userId) => {
+  return await userModel.getUserById(userId);
 };
 
 
@@ -42,10 +23,7 @@ userController.login = async (email, password) => {
     return null;
   }
 
-  if (
-    (user.email != email) ||
-    !bcrypt.compare(password, user.password)
-  ) {
+  if ( !bcrypt.compare(password, user.password) ) {
     console.log("passwords do not match");
     return null;
   }
