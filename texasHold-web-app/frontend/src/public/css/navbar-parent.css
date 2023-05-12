@@ -1,0 +1,31 @@
+
+
+#navbar-container {
+    height: 5em;
+    width: 100%;
+    display: flex;
+    outline: 1px solid rgb(0, 0, 0);
+}
+
+.one-third-of-navbar {
+    height: 100%;
+    width: 33.3%;
+}
+
+#navbar-center-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#navbar-right-container {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+}
+
+#navbar-left-container {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}

@@ -6,11 +6,5 @@
  * #navbar-left-container
  * .one-third-of-navbar
  */
-@import url("./navbar-parent.css");
 
-#return-button {
-    margin-right: 2em;
-    height: 70%;
-    width: 20%;
-    box-shadow: 2px 2px rgb(87, 87, 87);
-}
+@import url("./navbar-parent.css");
