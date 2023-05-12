@@ -1,20 +1,21 @@
 const express          = require('express');
 const router           = express.Router();
 const gameController   = require('../controllers/gameController');
-const {authMiddleware} = require('../middleware/auth');
 const { getAllGames } = require('../models/game/gameModel');
 
-router.get('/waiting-room/:gameId', (request, response) => {
+router.get('/waiting-room/:gameId', async (request, response) => {
     try {
-        // TODO: ADD PLAYER TO GAME
         const gameId   = request.params.gameId;
         const playerId = request.session.user;
-    
-        // gameController.addPlayer(gameId, playerId);
+
+        // check if the game has started.
+        if (await gameController.gameStarted(gameId)) {
+            response.redirect(`/game/room/${gameId}`)
+        }
 
         response.render('game-waiting-room', { 
             gameId: gameId, 
-            lobbyOwner: true 
+            lobbyOwner: await gameController.firstPlayer(gameId) 
         });
     }
     catch (error) {
@@ -22,11 +23,10 @@ router.get('/waiting-room/:gameId', (request, response) => {
     }
 });
 
-router.get('/room/:gameId', (request, response) => {
+router.get('/room/:gameId/start', (request, response) => {
     try {
         // TODO: 
-        // Check if the player is in the game If there is room, add 
-        // the player otherwise, redirect the player back to the lobby
+        // Redirect all players to `/game/room/${gameId}`
 
         const gameId = request.params.gameId;
 
@@ -37,13 +37,34 @@ router.get('/room/:gameId', (request, response) => {
     }
 });
 
-router.post('/room/:gameId/leave', (request, response) => {
+router.get('/room/:gameId/leave'), (request, response) => {
+    // TODO:
+    // Remove request.session.user from game gameId. 
+    response.redirect('/user/lobby');
+}
+
+router.get('/room/:gameId', (request, response) => {
+    try {
+        // TODO: 
+        // Check if the player is in the game If there is room, add 
+        // the player. Otherwise, redirect the player back to the lobby
+
+        const gameId = request.params.gameId;
+
+        response.render('game-room', { gameId: gameId });
+    }
+    catch (error) {
+        console.log("game room error:",)
+    }
+});
+
+router.get('/room/:gameId/leave', (request, response) => {
     const gameId   = request.params.gameId;
-    const playerId = req.session.user;
+    const playerId = request.session.user;
 
     // gameController.removePlayer(gameId, playerId);
 
-    console.redirect('/lobby')
+    response.redirect('/user/lobby');
 });
 
 router.post('/create', async (request, response) => {

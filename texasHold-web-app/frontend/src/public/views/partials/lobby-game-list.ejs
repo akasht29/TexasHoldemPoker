@@ -1,4 +1,26 @@
 <div id="games-list" class="thin-outline">
   <!-- -->
-  <%= games %>
+  
+  <% for (let i = 0; i < games.length; i++) { %>
+    <div class="list-item-conainer">
+      <div class="one-fourth-horizontal">
+        <%= games[i].game_name; %>
+      </div>
+      <div class="one-fourth-horizontal">
+        <%= games[i].game_id; %>
+      </div>
+      <div class="one-fourth-horizontal">
+        <!-- PLACEHOLDER -->
+      </div>
+      <div class="one-fourth-horizontal">
+        <!-- 
+          TODO: THIS FUNCTION SHOULD REDIRECT TO THE GAME ROOM INSTEAD 
+          OF THE WAITING ROOM IF THE GAME HAS ALREADY STARTED. FIX THAT
+        -->
+        <form action="<%=`/game/waiting-room/${games[i].game_id}`%>">
+          <input type="submit" value="JOIN" class="join-button button-styling">
+        </form>
+      </div>
+    </div>
+  <% } %>
 </div>

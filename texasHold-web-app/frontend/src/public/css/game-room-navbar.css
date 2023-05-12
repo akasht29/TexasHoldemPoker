@@ -8,9 +8,16 @@
  */
 @import url("./navbar-parent.css");
 
+#return-button-container {
+    width: 20%; 
+    height: 80%; 
+    display: flex; 
+    justify-content: right; 
+    align-items: center;
+}
+
 #return-button {
     margin-right: 2em;
-    height: 70%;
-    width: 20%;
-    box-shadow: 2px 2px rgb(87, 87, 87);
+    height: 100%;
+    width: 100%;
 }

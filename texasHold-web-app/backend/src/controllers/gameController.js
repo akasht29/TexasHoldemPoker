@@ -18,6 +18,16 @@ gameController.getAllGames = async () => {
     return await gameModel.getAllGames();
 };
 
+gameController.gameStarted = async (gameId) => {
+    let gameData = await gameModel.getGameData(gameId);
+    console.log("game data:", gameData);
+    return gameData.curr_round > 0;
+}
+
+gameController.firstPlayer = async (gameId) => {
+    let gameData = await gameModel.getGameData(gameId);
+    return true; // will be something like gameData.cur_players == 0
+}
 
 gameController.joinGame = async (req, res) => {
     const result = {};
