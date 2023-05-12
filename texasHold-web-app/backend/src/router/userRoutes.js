@@ -1,5 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
+const gameController = require('../controllers/gameController');
 const { authMiddleware, redirectToLobbyIfAuthenticated } = require('../middleware/auth');
 const { getUserByUsername } = require('../models/users/userModel');
 const router = express.Router();
@@ -39,7 +40,12 @@ router.post('/register', async (request, response) => {
       email: newUser.email
     };
 
-    response.redirect("/user/lobby");
+    const games = await gameController.getAllGames();
+    console.log("games:", JSON.stringify(games));
+
+    response.redirect("/user/lobby",
+      { games: games }
+    );
   }
   catch (error) {
     response.status(500).json({ message: error.message });
@@ -75,7 +81,14 @@ router.post('/login', async (request, response) => {
       email
     };
 
-    response.redirect("/user/lobby");
+    const games = await gameController.getAllGames();
+    if (!games) {
+      console.log("Problem will rogers");
+    }
+    console.log("games:", typeof(games[0]));
+
+    request.session.games = games;
+    response.redirect("/user/lobby")
   }
   catch (error) {
     console.log("login error: ", error.message);
@@ -87,7 +100,7 @@ router.post('/login', async (request, response) => {
 router.post('/logout', userController.logout);
 
 // Front-end routes
-router.get('/register',(req, res) => {
+router.get('/register',(_req, res) => {
   res.render('register');
 });
 
@@ -96,7 +109,7 @@ router.get('/login', (_req, res) => {
 });
 
 router.get('/lobby', (req, res) => {
-  res.render('lobby', { user: req.session.user } );
+  res.render('lobby', { games: req.session.games } );
 });
 
 module.exports = router;

@@ -1,0 +1,51 @@
+<div id="game-icons" class="thin-outline">
+  <!-- ICONS -->
+  <button id="create-game-open" class="game-icon">NEW</button>
+  <dialog id="create-game-dialog" class="dialog-popup">
+    <div class="dialog-contents-header">
+      <h3>CREATE A NEW GAME</h3>
+    </div>
+    <div class="dialog-contents-body">
+      <form id="create-game-form" method="POST" action="/game/create">
+        <!-- CREATE -->
+        <div style="margin-top: 2em;">
+          <label for="gameName">Game Name: </label> <br>
+          <input type="text" id="gameName" name="gameName" placeholder="new game name" minlength="8" maxlength="24" required>
+        </div>
+        
+  
+        <div style="margin-top: 1em;">
+          <label for="minBet">Minimum Bet: </label> <br>
+          <input type="number" value="20" id="minBet" name="minBet" required>
+        </div>
+  
+        <div style="margin-top: 1em;">
+          <label for="maxPlayers">Maximum Players: </label> <br>
+          <input type="number" value="10" id="maxPlayers" name="maxPlayers" required>
+        </div>
+  
+        <div style="margin-top: 1em;">
+          <label for="maxRounds">Maximum Rounds: </label> <br>
+          <input type="number" value="10" id="maxRounds" name="maxRounds" required>
+        </div>
+      </form>
+    </div>
+    <div class="dialog-contents-footer">
+      <button type="submit" class="game-icon" form="create-game-form">CREATE</button>
+      <button id="create-game-close" class="game-icon">CLOSE</button>
+    </div>
+  </dialog>
+
+  <button id="filter-games-open" class="game-icon">FILTER</button>
+  <dialog id="filter-games-dialog" class="dialog-popup">
+    <div class="dialog-contents-header">
+      FILTER GAMES
+    </div>
+    <div class="dialog-contents-body">
+      FILTERS
+    </div>
+    <div class="dialog-contents-footer">
+      <button id="filter-games-close" class="game-icon">CLOSE</button>
+    </div>
+  </dialog>
+</div>
