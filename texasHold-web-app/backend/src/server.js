@@ -1,5 +1,5 @@
 const path = require("path");
-require('dotenv').config({path:path.join(__dirname,'config','.env')});
+require("dotenv").config();
 
 const express      = require("express");
 const session      = require("express-session");
@@ -27,7 +27,10 @@ app.use(express.static(path.join(__dirname, "../../frontend/src/public/")));
 app.use(cookieParser());
 
 const sessionMiddleware = session({
-    store: new pgSession({ pgPromise: db }),
+    store: new pgSession({ 
+      pgPromise: db,
+      createTableIfMissing: true 
+    }),
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,

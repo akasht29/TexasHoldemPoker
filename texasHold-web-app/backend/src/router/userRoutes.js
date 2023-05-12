@@ -28,7 +28,7 @@ router.post('/register', async (request, response) => {
     if (!newUser) {
       throw new Error("Failed to create user");
     }
-
+    
     request.session.user = {
       id: newUser.user_id,
       username: newUser.username,
@@ -36,7 +36,7 @@ router.post('/register', async (request, response) => {
     };
 
     const games = await gameController.getAllGames();
-    
+
     response.redirect("/user/lobby",
       { games: games }
     );
@@ -54,6 +54,7 @@ router.post('/login', async (request, response) => {
       !("email"    in request.body) ||
       !("password" in request.body)
     ) {
+
       response.status(400).json({ message: "Information missing." });
     }
 

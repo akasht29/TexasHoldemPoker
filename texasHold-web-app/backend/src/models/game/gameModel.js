@@ -18,6 +18,7 @@ gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet
 
     
 gameModel.getAllGames = async () => {
+    console.log("hicreategame");
     const query = `SELECT game_id, game_name, num_players FROM game`;
     return await db.any(query);
 };
