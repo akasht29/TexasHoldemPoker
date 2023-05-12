@@ -9,7 +9,8 @@ router.get('/waiting-room/:gameId', (request, response) => {
         // TODO: ADD PLAYER TO GAME
         const gameId   = request.params.gameId;
         const playerId = request.session.user;
-    
+        
+        // playerId = await playerController.createPlayer(userId);
         // gameController.addPlayer(gameId, playerId);
 
         response.render('game-waiting-room', { 

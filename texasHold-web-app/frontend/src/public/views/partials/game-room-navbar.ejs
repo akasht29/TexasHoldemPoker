@@ -6,6 +6,12 @@
     <h1>TEXAS HOLD'EM - GAME <%= gameId %></h1>
   </div>
   <div id="navbar-right-container" class="one-third-of-navbar">
-    <input id="return-button" type="button" value="RETURN TO LOBBY">
+    <!--
+      TODO: THIS ACTION SHOULD REMOVE THE USER FROM THE GAME
+      IN THE DATABASE. 
+    -->
+    <form action="<%=`/user/lobby`%>">
+      <input class="game-icon" id="return-button" type="submit" value="EXIT GAME">
+    </form>
   </div>
 </div>
