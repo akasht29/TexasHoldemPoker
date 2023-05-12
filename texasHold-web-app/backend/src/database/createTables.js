@@ -1,5 +1,5 @@
 const { Client } = require("pg");
-const config = require("../config/development");
+const config = require("../development");
 
 class CreateTableError extends Error {
     constructor(message) {

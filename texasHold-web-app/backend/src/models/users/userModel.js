@@ -1,55 +1,14 @@
-const db = require("../../database/db");
-const { CustomError } = require("../../middleware/customErrorHandler");
+const db     = require("../../database/connection");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 const userModel = {};
 
-userModel.createUser = (username, password, email) => {
-  return new Promise(async (resolve, reject) => {
-      try {
-          const existingUser = await userModel.getUserByUsername(username);
-          const existingEmail = await userModel.getUserByEmail(email);
-          if (existingUser) {
-              reject(new CustomError("Username already exists", 409));
-          }
-          if (existingEmail) {
-              reject(new CustomError("Email already exists", 409));
-          } else {
-              const hashedPassword = await bcrypt.hash(password, 10);
-              const query = `INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *`;
-              const values = [username, hashedPassword, email];
-
-              db.query(query, values)
-                  .then(async (result) => {
-                      if (result.rowCount > 0) {
-                          const user = result.rows[0];
-
-                          // Generate token for the new user
-                          const token = jwt.sign({ sub: user.user_id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-                          // Store the token in the database
-                          await userModel.storeAuthToken(user.user_id, token); // Add await here
-
-                          // Add the token to the user object
-                          user.auth_token = token;
-
-                          resolve(user); // Resolve after storing the token
-                      } else {
-                          reject(new CustomError("No rows affected", 404));
-                      }
-                  })
-                  .catch((err) => {
-                      reject(err);
-                  });
-          }
-      } catch (err) {
-          reject(err);
-      }
-  });
+userModel.createUser = async (username, email, password) => {
+    return await db.one(
+        "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *",
+        [username, email, password]
+    );
 };
-
-
 
 userModel.getUserById = (user_id) => {
     return new Promise((resolve, reject) => {
@@ -71,41 +30,30 @@ userModel.getUserById = (user_id) => {
 };
 
 userModel.getUserByUsername = (username) => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT user_id, username, password, email FROM users WHERE username = $1`;
-        const values = [username];
+    const query = `SELECT user_id, username, password, email FROM users WHERE username = $1`;
+    const values = [username];
+    db.one(
+        query,
+        values
+    )
+    .then((user) => {
+        console.log("user:", user);
+        return user;
+    })
 
-        db.query(query, values)
-            .then((result) => {
-                if (result.rowCount > 0) {
-                    resolve(result.rows[0]);
-                } else {
-                    resolve(null);
-                }
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
+    return null;
 };
 
-userModel.getUserByEmail = (username) => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT user_id, username, password, email FROM users WHERE email = $1`;
-        const values = [username];
+userModel.getUserByEmail = async (email) => {
+    const query = `SELECT user_id, username, password, email FROM users WHERE email = $1`;
+    const values = [email];
 
-        db.query(query, values)
-            .then((result) => {
-                if (result.rowCount > 0) {
-                    resolve(result.rows[0]);
-                } else {
-                    resolve(null);
-                }
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
+    let user = await db.one(
+        query,
+        values
+    )
+
+    return user;
 };
 
 userModel.comparePassword = (password, hashedPassword) => {
