@@ -27,8 +27,10 @@ app.use(express.static(path.join(__dirname, "../../frontend/src/public/")));
 app.use(cookieParser());
 
 const sessionMiddleware = session({
-    store: new pgSession({ pgPromise: db,
-        createTableIfMissing: true }),
+    store: new pgSession({ 
+      pgPromise: db,
+      createTableIfMissing: true 
+    }),
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,

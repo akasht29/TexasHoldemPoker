@@ -23,7 +23,10 @@ gameModel.getAllGames = async () => {
     return await db.any(query);
 };
 
-
+gameModel.getGameData = async (gameId) => {
+    const query = `SELECT * FROM game WHERE game_id=${gameId}`;
+    return await db.one(query);
+}
 
 gameModel.storeGame = (gameId, pokerGame) => {
     const query = `INSERT INTO games_data (game_id, game_data) VALUES ($1, $2)`;

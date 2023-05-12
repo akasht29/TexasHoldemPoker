@@ -1,7 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const gameController = require('../controllers/gameController');
-const { authMiddleware, redirectToLobbyIfAuthenticated } = require('../middleware/auth');
 const { getUserByUsername } = require('../models/users/userModel');
 const router = express.Router();
 
@@ -20,8 +19,6 @@ router.post('/register', async (request, response) => {
 
     const { username, email, password } = request.body;
 
-    console.log("username:", username);
-
     const newUser = await userController.createUser(
       username,
       email,
@@ -31,9 +28,7 @@ router.post('/register', async (request, response) => {
     if (!newUser) {
       throw new Error("Failed to create user");
     }
-
-    console.log(newUser);
-
+    
     request.session.user = {
       id: newUser.user_id,
       username: newUser.username,
@@ -41,7 +36,6 @@ router.post('/register', async (request, response) => {
     };
 
     const games = await gameController.getAllGames();
-    console.log("games:", JSON.stringify(games));
 
     response.redirect("/user/lobby",
       { games: games }
@@ -60,7 +54,7 @@ router.post('/login', async (request, response) => {
       !("email"    in request.body) ||
       !("password" in request.body)
     ) {
-      console.log("oops");
+
       response.status(400).json({ message: "Information missing." });
     }
 

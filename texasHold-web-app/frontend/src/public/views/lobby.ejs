@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="/css/lobby.css">
     <link rel="stylesheet" href="/css/lobby-navbar.css">
     <link rel="stylesheet" href="/css/lobby-create-filter.css">
+    <link rel="stylesheet" href="/css/lobby-game-list.css">
+    <link rel="stylesheet" href="/css/button-styling.css">
+
     
     <!-- TODO: LOOK INTO bundle.js -->
     <script defer src="/js/lobby-create-filter.js"></script>
@@ -20,8 +23,7 @@
   
   <%- include("./partials/lobby-create-filter"); %>
   
-  <%= games %>
-  <%- include("./partials/lobby-game-list", "{ games: games }"); %>
+  <%- include("./partials/lobby-game-list", { games: games }); %>
 
 </div>
 </html>
