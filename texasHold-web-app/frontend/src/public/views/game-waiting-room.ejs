@@ -6,16 +6,24 @@
   <title>Main Page</title>
   <link rel="stylesheet" href="/css/game-waiting-room.css">
   <link rel="stylesheet" href="/css/game-room-navbar.css">
+  <link rel="stylesheet" href="/css/button-styling.css">
 </head>
 
 <div>
     <%- include("./partials/game-room-navbar", {gameId: gameId}) %>
 </div>
 <div id="waiting-room-view">
-<% if (lobbyOwner) { %>
-
-  <input id="start-game-button" type="button" value="START GAME">
-
-<% } %>
+  <div class="left-half-horizontal">
+    <% if (lobbyOwner) { %>
+      <form action=<%=`/game/room/${gameId}/start`%>>
+        <input id="start-game-button" class="button-styling" type="submit" value="START GAME">
+      </form>
+    <% } else { %>
+      Waiting
+    <% } %>
+  </div>
+  <div class="left-half-horizontal">
+    CHAT HERE
+  </div>
 
 </div>
