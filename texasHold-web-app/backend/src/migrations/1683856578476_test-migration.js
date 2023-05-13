@@ -35,6 +35,7 @@ exports.up = pgm => {
     },
     game_id: {
       type: 'INTEGER',
+      notNull: true,
       references: 'game(game_id)'
     },
     chips: { type: 'INTEGER' },
