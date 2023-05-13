@@ -14,7 +14,9 @@ exports.up = pgm => {
     main_pot: { type: 'INTEGER', notNull: true, default: 0 },
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
     curr_player_turn: { type: 'INTEGER', notNull: true, default: 0 },
-    deck: { type: 'VARCHAR[]' }
+    deck: { type: 'VARCHAR[]' },
+    players : {type: 'INTEGER[]'},
+    gameStatus: { type: 'BOOLEAN', default: false }
   });
 
   pgm.createTable('users', {
@@ -22,7 +24,6 @@ exports.up = pgm => {
     username: { type: 'VARCHAR(255)', notNull: true, unique: true },
     password: { type: 'VARCHAR(255)', notNull: true },
     email: { type: 'VARCHAR(255)', notNull: true, unique: true },
-    auth_token: { type: 'VARCHAR(255)' }
   });
 
   pgm.createTable('players', {
@@ -34,6 +35,7 @@ exports.up = pgm => {
     },
     game_id: {
       type: 'INTEGER',
+      notNull: true,
       references: 'game(game_id)'
     },
     chips: { type: 'INTEGER' },

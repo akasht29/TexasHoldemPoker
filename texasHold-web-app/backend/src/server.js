@@ -10,9 +10,11 @@ const cookieParser = require("cookie-parser");
 const userRoutes   = require("./router/userRoutes");
 const gameRoutes   = require("./router/gamesRoutes");
 const root         = require("./router/root");
+const playerRoutes = require("./router/playerRoutes");
 
 const app          = express();
 const PORT         = process.env.PORT | 3000;
+
 
 
 // view engine setup
@@ -53,6 +55,7 @@ server.listen(PORT, () => {
 app.use("/", root);
 app.use("/user", userRoutes);
 app.use("/game", gameRoutes);
+app.use("/player", playerRoutes);
 
 // Move customErrorHandler here, after the routes
 
