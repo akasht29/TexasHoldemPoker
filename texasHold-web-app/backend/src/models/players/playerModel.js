@@ -1,7 +1,7 @@
 
 const db = require("../../database/connection");
 const playerModel = {};
-
+const pgarray = require('pg-array');
 
 
 playerModel.createPlayer = async (user_id, game_id) => {
@@ -9,11 +9,14 @@ playerModel.createPlayer = async (user_id, game_id) => {
 
 
     const insertStr = "INSERT INTO players (user_id, game_id, chips) ";
-    const valuesStr = "VALUES ($1, $2, $3) RETURNING game_id";
+    const valuesStr = "VALUES ($1, $2, $3) RETURNING player_id";
     const query = insertStr + valuesStr;
     const values = [user_id, game_id, chips];
 
-    return await db.one(query, values);
+    const player_id = await db.one(query, values);
+
+    
+    return player_id;
 };
 
 playerModel.getChips = async (game_id) => {
@@ -29,11 +32,33 @@ playerModel.getChips = async (game_id) => {
 
 
 
-playerModel.addPlayer = async () => {
+playerModel.addPlayer = async (game_id) => {
+    const playerArr = []
+    let query = "SELECT player_id FROM players WHERE game_id = $1"
+    let result = await db.many(query, [game_id])
+    for(let i = 0; i < result.length ; i++){
+        playerArr.push(result[i].player_id);
+
+    }
+
+    console.log(playerArr);
+    
+    query = "UPDATE game SET players = $1 WHERE game_id = $2";
+    const updateValues = [pgarray(playerArr), game_id];
+    await db.none(query, updateValues);
+    console.log()
+
+
+    
 
 };
 
 playerModel.changeStatus = async (player_id) => {
+  
+    query = "UPDATE players SET folded = True WHERE player_id = $1";
+    const updateValues = [player_id];
+    await db.none(query, updateValues);
+
 
 };
 
