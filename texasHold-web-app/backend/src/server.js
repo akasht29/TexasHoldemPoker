@@ -1,5 +1,5 @@
 const path = require("path");
-require('dotenv').config({path:path.join(__dirname,'config','.env')});
+require("dotenv").config();
 
 const express      = require("express");
 const session      = require("express-session");
@@ -10,9 +10,11 @@ const cookieParser = require("cookie-parser");
 const userRoutes   = require("./router/userRoutes");
 const gameRoutes   = require("./router/gamesRoutes");
 const root         = require("./router/root");
+const playerRoutes = require("./router/playerRoutes");
 
 const app          = express();
 const PORT         = process.env.PORT | 3000;
+
 
 
 // view engine setup
@@ -27,7 +29,10 @@ app.use(express.static(path.join(__dirname, "../../frontend/src/public/")));
 app.use(cookieParser());
 
 const sessionMiddleware = session({
-    store: new pgSession({ pgPromise: db }),
+    store: new pgSession({ 
+      pgPromise: db,
+      createTableIfMissing: true 
+    }),
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
@@ -50,6 +55,7 @@ server.listen(PORT, () => {
 app.use("/", root);
 app.use("/user", userRoutes);
 app.use("/game", gameRoutes);
+app.use("/player", playerRoutes);
 
 // Move customErrorHandler here, after the routes
 

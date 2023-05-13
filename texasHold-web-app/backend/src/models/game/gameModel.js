@@ -3,12 +3,13 @@ const tableModel  = require("../table/tableModel");
 const gameModel   = {};
 const playerModel = require("../players/playerModel");
 const db          = require("../../database/connection");
-
+const pgarray = require('pg-array');
 gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
-    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet) ";
-    const valuesStr = `VALUES ($1, $2, $3, $4, $5) RETURNING game_id`;
+    const deck = await gameModel.generateDeck();
+    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet, deck) ";
+    const valuesStr = `VALUES ($1, $2, $3, $4, $5, $6) RETURNING game_id`;
     const query     = insertStr + valuesStr;
-    const values    = [ game_name, chips, num_players, num_rounds, min_bet ];
+    const values    = [ game_name, chips, num_players, num_rounds, min_bet, pgarray(deck) ];
 
     return await db.one(
         query,
@@ -16,8 +17,24 @@ gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet
     );
 };
 
+gameModel.generateDeck = async () => {
+    const suits = ["C", "D", "H", "S"];
+    console.log("inside gen deck")
+
+    const deck = [];
+
+    for (let i = 1; i <= 13; i++) {
+        for (let j = 0; j < suits.length; j++) {
+            deck.push(suits[j] + i);
+        }
+    }
+    console.log(deck);
+
+    return deck;
+}
     
 gameModel.getAllGames = async () => {
+    console.log("hicreategame");
     const query = `SELECT game_id, game_name, num_players FROM game`;
     return await db.any(query);
 };

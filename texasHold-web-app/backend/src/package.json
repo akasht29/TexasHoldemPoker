@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "db:create": "node-pg-migrate create -- ",
+    "db:migrate": "node-pg-migrate up",
+    "db:rollback": "node-pg-migrate down"
+  },
   "dependencies": {
     "bcrypt": "^5.1.0",
     "connect-pg-simple": "^8.0.0",
@@ -9,7 +14,9 @@
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.0",
     "node": "^20.1.0",
+    "node-pg-migrate": "^6.2.2",
     "pg": "^8.10.0",
+    "pg-array": "^0.5.0",
     "pg-promise": "^11.4.3",
     "socket.io": "^4.6.1",
     "socketio-auth": "^0.1.1"

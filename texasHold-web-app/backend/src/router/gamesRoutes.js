@@ -49,6 +49,7 @@ router.get('/room/:gameId', (request, response) => {
         // Check if the player is in the game If there is room, add 
         // the player. Otherwise, redirect the player back to the lobby
 
+
         const gameId = request.params.gameId;
 
         response.render('game-room', { gameId: gameId });
@@ -79,9 +80,7 @@ router.post('/create', async (request, response) => {
         if (!newGameInfo) {
             throw new Error("Could not make game");
         }
-
-        console.log(newGameInfo);
-
+      
         response.redirect(`/game/waiting-room/${newGameInfo.game_id}`);
     }
     catch (error) {

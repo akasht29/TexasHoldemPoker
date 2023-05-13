@@ -1,5 +1,5 @@
 const {Pool} = require('pg');
-const dbConfig = require('../config/development');
+const dbConfig = require('../development');
 const pool = new Pool(dbConfig.database);
 
 const db = {
