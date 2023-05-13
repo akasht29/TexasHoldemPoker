@@ -44,9 +44,11 @@ playerModel.addPlayer = async (game_id) => {
     console.log(playerArr);
     
     query = "UPDATE game SET players = $1 WHERE game_id = $2";
-    const updateValues = [pgarray(playerArr), game_id];
-    await db.none(query, updateValues);
-    console.log()
+    const values = [pgarray(playerArr), game_id];
+    await db.none(query, values);
+
+    await playerModel.changeStatus(2)
+    await playerModel.getAllPlayers(1);
 
 
     
@@ -56,13 +58,16 @@ playerModel.addPlayer = async (game_id) => {
 playerModel.changeStatus = async (player_id) => {
   
     query = "UPDATE players SET folded = True WHERE player_id = $1";
-    const updateValues = [player_id];
-    await db.none(query, updateValues);
+    const values = [player_id];
+    await db.none(query, values);
 
 
 };
 
 playerModel.getAllPlayers = async (game_id) => {
+    query = "SELECT players FROM game WHERE game_id = $1";
+    const values = [game_id];
+    await db.one(query, values);
 
 };
 
