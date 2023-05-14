@@ -47,8 +47,8 @@ playerModel.addPlayer = async (game_id) => {
     const values = [pgarray(playerArr), game_id];
     await db.none(query, values);
 
-    await playerModel.changeStatus(2)
-    await playerModel.getAllPlayers(1);
+    // await playerModel.changeStatus(2)
+    // await playerModel.getAllPlayers(1);
 
 
     
