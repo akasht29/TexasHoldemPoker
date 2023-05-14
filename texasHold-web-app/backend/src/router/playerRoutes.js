@@ -31,4 +31,24 @@ router.post('/create', async (request, response) => {
         response.status(500).json({ message: error.message });
     }
 });
+
+router.post('/add', async (request, response) => {
+    try {
+        let newPlayerInfo = await playerController.addPLayer(
+
+            request.body.game_id,
+            
+        );
+    
+        if (!newPlayerInfo) {
+            throw new Error("Could not make add players");
+        }
+
+        console.log("Print the game room",newPlayerInfo);
+    }
+    catch (error) {
+        console.log(error.message);
+        response.status(500).json({ message: error.message });
+    }
+});
 module.exports = router;
