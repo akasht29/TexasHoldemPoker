@@ -41,7 +41,7 @@ exports.up = pgm => {
     chips: { type: 'INTEGER' },
     folded: { type: 'BOOLEAN', default: false },
     curr_bet: { type: 'INTEGER' },
-    hand: { type: 'VARCHAR(4)' }
+    hand: { type: 'VARCHAR[]' }
   });
 };
 
