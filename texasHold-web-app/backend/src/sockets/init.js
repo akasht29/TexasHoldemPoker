@@ -7,9 +7,19 @@ const initSockets = (app, sessionMiddleware) => {
 
     io.engine.use(sessionMiddleware);
 
-    io.on("connection", (_socket) => {
-        console.log("Connection");
-    });
+    io.on("connection", (socket) => {
+        socket.on("new-user", (roomID) => {
+          socket.join(roomID);
+        });
+    
+        socket.on("send-message", (message, roomID) => {
+          socket.to(roomID).emit("chat_message", message);
+        });
+    
+        socket.on("disconnect", (roomID) => {
+            socket.leave(roomID);
+          });
+      });
 
     app.set("io", io);
 
