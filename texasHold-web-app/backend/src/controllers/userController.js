@@ -13,11 +13,8 @@ userController.getUserById = async (userId) => {
   return await userModel.getUserById(userId);
 };
 
-
-
 userController.login = async (email, password) => {
   let user = await userModel.getUserByEmail(email);
-  console.log("marker", user);
 
   if (!user) {
     return null;
