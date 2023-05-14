@@ -15,8 +15,9 @@ exports.up = pgm => {
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
     curr_player_turn: { type: 'INTEGER', notNull: true, default: 0 },
     deck: { type: 'VARCHAR[]' },
-    players : {type: 'INTEGER[]'},
-    gameStatus: { type: 'BOOLEAN', default: false }
+    players: { type: 'INTEGER[]' },
+    gameStatus: { type: 'BOOLEAN', default: false },
+    communityCards: { type: 'VARCHAR[]' }
   });
 
   pgm.createTable('users', {

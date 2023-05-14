@@ -22,16 +22,31 @@ gameModel.generateDeck = async () => {
     const suits = ["C", "D", "H", "S"];
     console.log("inside gen deck")
 
-    const deck = [];
+    let deck = [];
 
     for (let i = 1; i <= 13; i++) {
         for (let j = 0; j < suits.length; j++) {
             deck.push(suits[j] + i);
         }
     }
+
     console.log(deck);
 
+    deck = gameModel.shuffleDeck(deck)
+
     return deck;
+}
+
+gameModel.shuffleDeck = async (deck) => {
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+    
+      console.log(deck);
+
+      return deck;
+
 }
     
 gameModel.getAllGames = async () => {
