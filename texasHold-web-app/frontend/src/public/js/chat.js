@@ -24,11 +24,7 @@ messageForm.addEventListener('submit', e => {
   messageInput.value = '';
 });
 
-function appendMessageOLD(message) {
-  const messageElement = document.createElement('div');
-  messageElement.innerText = message;
-  messageContainer.append(messageElement);
-};
+
 
 function appendMessage(message) {
   const chatDiv        = document.getElementById("chat-view");
