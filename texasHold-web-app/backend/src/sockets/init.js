@@ -1,6 +1,6 @@
 const http = require("http");
 const { Server } = require("socket.io");
-const { GAME_UPDATED, CHAT_MESSAGE } = require("./constants");
+import events from "./constants";
 
 const initSockets = (app, sessionMiddleware) => {
   const server = http.createServer(app);
@@ -28,7 +28,7 @@ const initSockets = (app, sessionMiddleware) => {
 
     if (game_id !== 0) {
       Games.state(game_id).then(({ lookup }) => {
-        socket.emit(GAME_UPDATED, lookup(user_id));
+        socket.emit(events.GAME_UPDATED, lookup(user_id));
       });
     }
 
@@ -37,7 +37,7 @@ const initSockets = (app, sessionMiddleware) => {
     });
 
     socket.on("send-message", (message, roomID) => {
-      socket.emit(CHAT_MESSAGE, lookup(roomID));
+      socket.emit(events.CHAT_MESSAGE, lookup(roomID));
     });
   });
 
