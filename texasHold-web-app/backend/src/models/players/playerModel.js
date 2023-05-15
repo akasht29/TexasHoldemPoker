@@ -13,10 +13,9 @@ playerModel.createPlayer = async (user_id, game_id) => {
     const query = insertStr + valuesStr;
     const values = [user_id, game_id, chips];
 
-    const player_id = await db.one(query, values);
+    const playerInfo = await db.one(query, values);
 
-    
-    return player_id;
+    return playerInfo.player_id;
 };
 
 playerModel.getChips = async (game_id) => {
@@ -54,6 +53,14 @@ playerModel.addPlayer = async (game_id) => {
     
 
 };
+
+playerModel.removePlayer = async (playerId) => {
+    const query = "DELETE FROM players WHERE player_id = $1";
+    await db.none(
+        query,
+        [ playerId ]
+    );
+}
 
 playerModel.changeStatus = async (player_id) => {
   

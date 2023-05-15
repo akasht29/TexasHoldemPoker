@@ -1,9 +1,10 @@
-const PokerGame  = require("./pokerGame");
+const PokerGame   = require("./pokerGame");
 const tableModel  = require("../table/tableModel");
 const gameModel   = {};
 const playerModel = require("../players/playerModel");
 const db          = require("../../database/connection");
-const pgarray = require('pg-array');
+const pgarray     = require('pg-array');
+
 gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
     const deck = await gameModel.generateDeck();
     const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet, deck) ";
@@ -34,7 +35,6 @@ gameModel.generateDeck = async () => {
 }
     
 gameModel.getAllGames = async () => {
-    console.log("hicreategame");
     const query = `SELECT game_id, game_name, num_players FROM game`;
     return await db.any(query);
 };
@@ -83,23 +83,21 @@ gameModel.updatePlayerData = (user_id, game_id, playerData) => {
 };
 
 
-gameModel.updateGame = (gameId, pokerGame) => {
-    const updateGameQuery = `UPDATE games_data SET game_data = $2 WHERE game_id = $1`;
-
-    const values = [gameId, pokerGame.toJson()];
-
-    return (
-        db.query(updateGameQuery, values)
-        .then((result) => {
-            if (result.rowCount === 0) {
-                throw new CustomError("Failed to update game data", 500);
-            }
-        })
-        .catch((err) => {
-            throw err;
-        })
-    );
+gameModel.updateGamePlayers = async (gameId, newPlayers) => {
+    const query = `UPDATE game SET players = $2 WHERE game_id = $1 RETURNING game_id`;
+    values      = [ gameId, newPlayers ];
+    return await db.one(query, values);
 };
 
+gameModel.deleteGame = async (gameId) => {
+    console.log("wtfwtfwtf");
+    const query = `DELETE FROM game WHERE game_id = $1`;
+    const value = [ gameId ]
+
+    await db.none(
+        query,
+        value
+    );
+}
 
 module.exports = gameModel;
