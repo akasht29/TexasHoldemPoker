@@ -64,9 +64,9 @@ playerController.removePlayer = async (gameId, playerId) => {
 
 
 //test funtion 
-playerController.testController = async(game_id, player_id) =>{
-    await playerModel.addCards(game_id, player_id);
-    console.log("controller success")
+playerController.testController = async(game_id) =>{
+    await gameModel.getBigBlind(game_id);
+    console.log("controller success");
 }
 
 module.exports = playerController;

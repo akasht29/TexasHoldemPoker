@@ -37,6 +37,44 @@ gameModel.generateDeck = async () => {
     return deck;
 }
 
+gameModel.resetDeck = async(game_id) => {
+    newDeck = await gameModel.generateDeck();
+
+    query = "UPDATE game SET deck = $1 WHERE game_id = $2";
+    const values = [pgarray(newDeck), game_id];
+    await db.none(query, values);
+
+}
+
+gameModel.updateBigBlind = async(game_id, player_id) =>{
+    query = "UPDATE game SET big_blind = $1 WHERE game_id = $2";
+    const values = [player_id, game_id];
+    await db.none(query, values);
+
+
+}
+
+gameModel.getBigBlind = async(game_id) =>{
+    query = "SELECT big_blind FROM game WHERE game_id = $1";
+    const values = [game_id];
+    let blind = await db.one(query, values);
+    return blind.big_blind;
+    
+}
+
+gameModel.updateSmallBlind = async(game_id, player_id) =>{
+    query = "UPDATE game SET small_blind = $1 WHERE game_id = $2";
+    const values = [player_id, game_id];
+    await db.none(query, values);
+    
+}
+
+gameModel.getSmallBlind = async(game_id) =>{
+    query = "SELECT small_blind FROM game WHERE game_id = $1";
+    const values = [game_id];
+    await db.one(query, values);
+}
+
 gameModel.shuffleDeck = async (deck) => {
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

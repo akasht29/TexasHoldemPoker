@@ -83,7 +83,7 @@ playerModel.getAllPlayers = async (game_id) => {
 playerModel.updateDeck = async(game_id, deck) => {
     let query = "Update game SET deck = $1 WHERE game_id = $2"
     let values = [pgarray(deck), game_id];
-    db.none(query, values);
+    await db.none(query, values);
 }
 
 
@@ -94,7 +94,7 @@ playerModel.addCards = async(game_id, player_id) => {
     let query = "Update players SET hand = $1 WHERE player_id = $2"
     let values = [playerHand, player_id];
 
-    db.none(query, values);
+    await db.none(query, values);
 
     await playerModel.updateDeck(game_id, deck);
    
