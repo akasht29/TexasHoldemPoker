@@ -17,9 +17,9 @@ exports.up = pgm => {
     deck: { type: 'VARCHAR[]' },
     players: { type: 'INTEGER[]' },
     gameStatus: { type: 'BOOLEAN', default: false },
-    communityCards: { type: 'VARCHAR[]' },
-    big_blind : {type: 'INTEGER'},
-    small_blind: {type: 'INTEGER'}
+    communitycards: { type: 'VARCHAR[]', default: '{}' },
+    big_blind: { type: 'INTEGER' },
+    small_blind: { type: 'INTEGER' }
 
   });
 
@@ -46,7 +46,7 @@ exports.up = pgm => {
     folded: { type: 'BOOLEAN', default: false },
     curr_bet: { type: 'INTEGER' },
     hand: { type: 'VARCHAR[]' }
-    
+
   });
 };
 
