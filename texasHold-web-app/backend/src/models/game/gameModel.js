@@ -46,6 +46,34 @@ gameModel.resetDeck = async(game_id) => {
 
 }
 
+gameModel.updateDeck = async(game_id, deck) => {
+    let query = "Update game SET deck = $1 WHERE game_id = $2"
+    let values = [pgarray(deck), game_id];
+    await db.none(query, values);
+}
+
+gameModel.getDeck = async(game_id) => {
+    query = "SELECT deck FROM game WHERE game_id = $1";
+    result = await db.one(query, [game_id] );
+
+    console.log(result.deck);
+    return result.deck;
+    
+
+}
+
+gameModel.addCards = async(game_id, player_id) => {
+    let deck = await gameModel.getDeck(game_id);
+    let playerHand = deck.splice(0,2);
+    console.log(deck);
+    let query = "Update players SET hand = $1 WHERE player_id = $2"
+    let values = [playerHand, player_id];
+
+    await db.none(query, values);
+
+    await gameModel.updateDeck(game_id, deck);
+   
+}
 gameModel.updateBigBlind = async(game_id, player_id) =>{
     query = "UPDATE game SET big_blind = $1 WHERE game_id = $2";
     const values = [player_id, game_id];
