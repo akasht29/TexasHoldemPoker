@@ -1,5 +1,3 @@
-const { CHAT_MESSAGE, GAME_UPDATED } = require("../../../shared/constants");
-const userModel = require("../models/users/userModel");
 const http = require("http");
 const { Server } = require("socket.io");
 

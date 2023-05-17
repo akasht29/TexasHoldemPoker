@@ -1,4 +1,3 @@
-import  events  from "../../../../shared/constants.js";
 import socket   from "./common/index.js";
 
 const messageForm = document.getElementById('send-container');

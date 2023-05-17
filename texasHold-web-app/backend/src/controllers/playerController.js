@@ -15,6 +15,7 @@ playerController.addPlayer = async (gameId, userId) => {
     if (!gameData.players) {
         gameData.players = [];
     }
+
     gameData.players.push(playerId);
     
     await gameModel.updateGamePlayers(
