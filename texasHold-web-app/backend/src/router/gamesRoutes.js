@@ -2,6 +2,7 @@ const express          = require('express');
 const router           = express.Router();
 const gameController   = require('../controllers/gameController');
 const playerController = require('../controllers/playerController');
+const { GAME_STARTING } = require('../../../shared/constants');
 
 router.get('/waiting-room/:gameId', async (request, response) => {
     try {
@@ -52,6 +53,8 @@ router.get('/room/:gameId/start', (request, response) => {
         // Redirect all players to `/game/room/${gameId}`
 
         const gameId = request.params.gameId;
+
+        io.to(gameId).emit(GAME_STARTING);
 
         response.render('game-room', { gameId: gameId });
     }

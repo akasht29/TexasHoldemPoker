@@ -23,7 +23,9 @@
     <% } %>
   </div>
   <div class="left-half-horizontal">
-    <%- include("./partials/chat") %>
+    <div id="chat-view" class="thin-outline">
+      <%- include("./partials/chat", {gameId: gameId}) %>
+    </div>
   </div>
 
 </div>

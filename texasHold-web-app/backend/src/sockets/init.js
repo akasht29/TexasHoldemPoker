@@ -1,6 +1,6 @@
+const { CHAT_MESSAGE, GAME_UPDATED } = require("../../../shared/constants");
 const http = require("http");
 const { Server } = require("socket.io");
-import events from "./constants";
 
 const initSockets = (app, sessionMiddleware) => {
   const server = http.createServer(app);
@@ -24,20 +24,23 @@ const initSockets = (app, sessionMiddleware) => {
       game_id = parseInt(game_id.substring(game_id.lastIndexOf("/") + 1));
     }
 
-    Sockets.add(game_id, user_id, socket.id);
+    socket.join(game_id);
+
+    //Sockets.add(game_id, user_id, socket.id);
 
     if (game_id !== 0) {
       Games.state(game_id).then(({ lookup }) => {
-        socket.emit(events.GAME_UPDATED, lookup(user_id));
+        socket.emit(GAME_UPDATED);
       });
     }
 
     socket.on("disconnect", () => {
-      Sockets.remove(socket_id);
+
+      //Sockets.remove(socket_id);
     });
 
     socket.on("send-message", (message, roomID) => {
-      socket.emit(events.CHAT_MESSAGE, lookup(roomID));
+      socket.emit(CHAT_MESSAGE, lookup(roomID));
     });
   });
 

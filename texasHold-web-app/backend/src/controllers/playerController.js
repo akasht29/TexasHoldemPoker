@@ -1,8 +1,6 @@
 const playerModel      = require('../models/players/playerModel');
 const gameModel        = require('../models/game/gameModel')
 const playerController = {};
-const io = request.app.get("io");
-
 /**
  * Returns the id of the player that was added/created
  */
@@ -25,10 +23,6 @@ playerController.addPlayer = async (gameId, userId) => {
     );
     
     await playerModel.addPlayer(gameId);
-
-    io.emit(events.PLAYER_JOINED, {
-        playerId,
-      });
 
     return playerId;
 };
@@ -61,10 +55,6 @@ playerController.removePlayer = async (gameId, playerId) => {
 
     await gameModel.updateGamePlayers(gameId, gameData.players);
     await playerModel.removePlayer(playerId);
-
-    io.emit(events.PLAYER_LEFT, {
-        playerId,
-      });
 
     // TODO:
     // ALERT ALL REMAINING PLAYERS
