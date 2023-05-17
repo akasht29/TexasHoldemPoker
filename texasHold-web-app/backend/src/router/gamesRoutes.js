@@ -48,13 +48,15 @@ router.get('/waiting-room/:gameId', async (request, response) => {
 });
 
 router.get('/room/:gameId/start', (request, response) => {
+    const io = request.app.get("io");
     try {
         // TODO: 
         // Redirect all players to `/game/room/${gameId}`
 
         const gameId = request.params.gameId;
-
-        io.to(gameId).emit(GAME_STARTING);
+        const roomId = parseInt(gameId);
+        
+        io.in(roomId).emit('GAME-STARTING');
 
         response.render('game-room', { gameId: gameId });
     }

@@ -9,14 +9,11 @@ const initSockets = (app, sessionMiddleware) => {
   io.engine.use(sessionMiddleware);
 
   io.on("connection", (socket) => {
-    const { id: user_id } = socket.request.session.user;
-    const { id: socket_id } = socket;
+    let game_id = socket.handshake.query?.path.substring(1);
 
-    if (user_id === undefined || game_id === undefined) {
+    if (game_id === undefined) {
       return;
     }
-
-    let game_id = socket.handshake.query?.path.substring(1);
 
     if (game_id === "lobby") {
       game_id = 0;
@@ -25,17 +22,10 @@ const initSockets = (app, sessionMiddleware) => {
     }
 
     socket.join(game_id);
-
-    //Sockets.add(game_id, user_id, socket.id);
-
-    if (game_id !== 0) {
-      Games.state(game_id).then(({ lookup }) => {
-        socket.emit(GAME_UPDATED);
-      });
-    }
+    console.log("user connected4");
 
     socket.on("disconnect", () => {
-
+      console.log("disconnection");
       //Sockets.remove(socket_id);
     });
 

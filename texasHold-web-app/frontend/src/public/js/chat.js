@@ -1,7 +1,6 @@
-//import io from "socket.io-client";
-import events from "../../../../shared/constants.js";
-import socket from "./common/index.js";
-//const socket = io({ query: { path: window.location.pathname } });
+import  events  from "../../../../shared/constants.js";
+import socket   from "./common/index.js";
+
 const messageForm = document.getElementById('send-container');
 const messageInput = document.getElementById('message-input');
 

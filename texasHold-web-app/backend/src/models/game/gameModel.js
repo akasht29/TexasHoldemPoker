@@ -45,10 +45,12 @@ gameModel.getGameData = async (gameId) => {
 }
 
 gameModel.getGameIdByUserId = async (userId) => {
-    const query = `SELECT * FROM player WHERE user_id=${userId}`;
-    const playerId = await db.one(query);
-    query = `SELECT * FROM game WHERE user_id IN (${userId})`;
-    return await db.one(query);
+    const value = parseInt(userId, 10);
+    const query = `SELECT game_id FROM players WHERE user_id = ${userId}`; 
+
+    const result = await db.one(query, [value]);
+    console.log(result.game_id)
+    return result.game_id;
 }
 
 gameModel.storeGame = (gameId, pokerGame) => {
@@ -65,8 +67,6 @@ gameModel.storeGame = (gameId, pokerGame) => {
             throw err;
         });
 };
-
-
 
 gameModel.updatePlayerData = (user_id, game_id, playerData) => {
     const updatePlayerDataQuery = `
@@ -88,7 +88,6 @@ gameModel.updatePlayerData = (user_id, game_id, playerData) => {
             throw err;
         });
 };
-
 
 gameModel.updateGamePlayers = async (gameId, newPlayers) => {
     const query = `UPDATE game SET players = $2 WHERE game_id = $1 RETURNING game_id`;

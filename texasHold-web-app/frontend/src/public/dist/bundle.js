@@ -9,17 +9,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./public/js/chat.js":
-/*!***************************!*\
-  !*** ./public/js/chat.js ***!
-  \***************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"chat\": () => (/* binding */ chat),\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var _shared_constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../shared/constants.js */ \"../../shared/constants.js\");\n/* harmony import */ var _shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_shared_constants_js__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _common_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./common/index.js */ \"./public/js/common/index.js\");\n//import io from \"socket.io-client\";\n\n\n//const socket = io({ query: { path: window.location.pathname } });\nvar messageForm = document.getElementById('send-container');\nvar messageInput = document.getElementById('message-input');\nvar chat = function chat() {\n  _common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on((_shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default().CHAT_MESSAGE), function (_ref) {\n    var username = _ref.username,\n      message = _ref.message;\n    console.log(\"message recieved\");\n    appendMessage(\"\".concat(username, \": \").concat(message));\n  });\n  _common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on((_shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default().PLAYER_JOINED), function (username) {\n    console.log(\"player connected\");\n    appendMessage(\"\".concat(username, \" connected\"));\n  });\n  _common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on((_shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default().PLAYER_LEFT), function (username) {\n    console.log(\"player disconnected\");\n    appendMessage(\"\".concat(username, \" disconnected\"));\n  });\n  messageForm.addEventListener('submit', function (e) {\n    e.preventDefault();\n    var message = messageInput.value;\n    appendMessage(\"You: \".concat(message));\n    fetch(\"/chat/0\", {\n      method: \"post\",\n      headers: {\n        \"Content-Type\": \"application/json\"\n      },\n      body: JSON.stringify({\n        message: message\n      })\n    });\n    messageInput.value = '';\n  });\n  function appendMessage(username, message) {\n    var chatDiv = document.getElementById(\"chat-view\");\n    chatDiv.style = \"margin-bottom: 2em; padding-left: 0.5em;\";\n    var newMessageDiv = document.createElement(\"div\");\n    var newMessageText = document.createTextNode(\"\".concat(username, \": \").concat(message));\n    newMessageDiv.appendChild(newMessageText);\n    chatDiv.appendChild(newMessageDiv);\n  }\n  function clearChat() {\n    var chatDiv = document.getElementById(\"chat-view\");\n    chatDiv.innerHTML = '';\n  }\n  return chat;\n};\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (chat);\n\n//# sourceURL=webpack:///./public/js/chat.js?");
-
-/***/ }),
-
 /***/ "./public/js/common/index.js":
 /*!***********************************!*\
   !*** ./public/js/common/index.js ***!
@@ -28,6 +17,17 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 
 "use strict";
 eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony import */ var socket_io_client__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! socket.io-client */ \"./node_modules/socket.io-client/build/esm/index.js\");\n\nvar socket = (0,socket_io_client__WEBPACK_IMPORTED_MODULE_0__[\"default\"])({\n  query: {\n    path: window.location.pathname\n  }\n});\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (socket);\n\n//# sourceURL=webpack:///./public/js/common/index.js?");
+
+/***/ }),
+
+/***/ "./public/js/main.js":
+/*!***************************!*\
+  !*** ./public/js/main.js ***!
+  \***************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _shared_constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../../shared/constants.js */ \"../../shared/constants.js\");\n/* harmony import */ var _shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_shared_constants_js__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony import */ var _common_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./common/index.js */ \"./public/js/common/index.js\");\n\n\nvar messageForm = document.getElementById('send-container');\nvar messageInput = document.getElementById('message-input');\n_common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on('error', function (err) {\n  console.log(err);\n});\n_common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on('CHAT_MESSAGE', function (_ref) {\n  var username = _ref.username,\n    message = _ref.message;\n  console.log(\"message recieved\");\n  appendMessage(\"\".concat(username, \": \"), \"\".concat(message));\n});\n_common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on((_shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default().PLAYER_JOINED), function (username) {\n  console.log(\"player connected\");\n  appendMessage(\"\".concat(username, \" connected\"));\n});\n_common_index_js__WEBPACK_IMPORTED_MODULE_1__[\"default\"].on((_shared_constants_js__WEBPACK_IMPORTED_MODULE_0___default().PLAYER_LEFT), function (username) {\n  console.log(\"player disconnected\");\n  appendMessage(\"\".concat(username, \" disconnected\"));\n});\nmessageForm.addEventListener('submit', function (e) {\n  e.preventDefault();\n  var message = messageInput.value;\n  fetch(\"/chat/0\", {\n    method: \"post\",\n    headers: {\n      \"Content-Type\": \"application/json\"\n    },\n    body: JSON.stringify({\n      message: message\n    })\n  });\n  messageInput.value = '';\n});\nfunction appendMessage(username, message) {\n  var chatDiv = document.getElementById(\"chat-view\");\n  chatDiv.style = \"margin-bottom: 2em; padding-left: 0.5em;\";\n  var newMessageDiv = document.createElement(\"div\");\n  var newMessageText = document.createTextNode(\"\".concat(username, \": \").concat(message));\n  newMessageDiv.appendChild(newMessageText);\n  chatDiv.appendChild(newMessageDiv);\n}\nfunction clearChat() {\n  var chatDiv = document.getElementById(\"chat-view\");\n  chatDiv.innerHTML = '';\n}\n\n//# sourceURL=webpack:///./public/js/main.js?");
 
 /***/ }),
 
@@ -432,7 +432,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module can't be inlined because the eval devtool is used.
-/******/ 	var __webpack_exports__ = __webpack_require__("./public/js/chat.js");
+/******/ 	var __webpack_exports__ = __webpack_require__("./public/js/main.js");
 /******/ 	
 /******/ })()
 ;
