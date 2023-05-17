@@ -44,15 +44,6 @@ gameModel.getGameData = async (gameId) => {
     return await db.one(query);
 }
 
-gameModel.getGameIdByUserId = async (userId) => {
-    const value = parseInt(userId, 10);
-    const query = `SELECT game_id FROM players WHERE user_id = ${userId}`; 
-
-    const result = await db.one(query, [value]);
-    console.log(result.game_id)
-    return result.game_id;
-}
-
 gameModel.storeGame = (gameId, pokerGame) => {
     const query = `INSERT INTO games_data (game_id, game_data) VALUES ($1, $2)`;
     const values = [gameId, pokerGame.toJson()];

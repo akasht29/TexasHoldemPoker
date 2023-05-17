@@ -10,17 +10,17 @@ socket.on('error', function (err) {
 
 socket.on('CHAT_MESSAGE', ({ username, message }) => {
   console.log("message recieved");
-  appendMessage(`${username}: `,`${message}`);
+  appendMessage(`${username}`,`${message}`);
 });
 
-socket.on(events.PLAYER_JOINED, username => {
-  console.log("player connected");
-  appendMessage(`${username} connected`);
+socket.on('PLAYER_JOINED', ({username}) => {
+  console.log(username + " connected ");
+  appendMessage(`${username}`, `connected`);
 });
 
-socket.on(events.PLAYER_LEFT, username => {
-  console.log("player disconnected");
-  appendMessage(`${username} disconnected`);
+socket.on('PLAYER_LEFT', ({username}) => {
+  console.log(username + " disconnected ");
+  appendMessage(`${username}`, `disconnected`);
 });
 
 messageForm.addEventListener('submit', e => {

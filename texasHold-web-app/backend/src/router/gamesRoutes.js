@@ -2,6 +2,7 @@ const express          = require('express');
 const router           = express.Router();
 const gameController   = require('../controllers/gameController');
 const playerController = require('../controllers/playerController');
+const userModel = require("../models/players/playerModel");
 const { GAME_STARTING } = require('../../../shared/constants');
 
 router.get('/waiting-room/:gameId', async (request, response) => {
@@ -85,6 +86,7 @@ router.get('/room/:gameId', async (request, response) => {
 });
 
 router.get('/room/:gameId/leave', async (request, response) => {
+    
     console.log("SUPERDOUBLYGIGANTICMARKEREXTRAVAGANZA!!!!");
     console.log("playerId:", JSON.stringify(request.session.player.playerId));
     await playerController.removePlayer(
@@ -94,6 +96,14 @@ router.get('/room/:gameId/leave', async (request, response) => {
     request.session.player = null;
     console.log("SUPERDOUBLYGIGANTICMARKEREXTRAVAGANZA!!!!");
     await gameController.deleteGameIfEmpty(request.params.gameId);
+
+    const io = request.app.get("io");
+    let username = request.session.user.username;
+    const roomId = parseInt(request.params.gameId);
+  
+    io.in(roomId).emit('PLAYER_LEFT', {
+      username,
+    });
 
     response.redirect('/user/lobby');
 });

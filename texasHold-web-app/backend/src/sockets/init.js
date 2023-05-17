@@ -1,4 +1,5 @@
 const { CHAT_MESSAGE, GAME_UPDATED } = require("../../../shared/constants");
+const userModel = require("../models/users/userModel");
 const http = require("http");
 const { Server } = require("socket.io");
 
@@ -10,6 +11,7 @@ const initSockets = (app, sessionMiddleware) => {
 
   io.on("connection", (socket) => {
     let game_id = socket.handshake.query?.path.substring(1);
+    const username = socket.request?.session?.user?.username;
 
     if (game_id === undefined) {
       return;
@@ -22,15 +24,13 @@ const initSockets = (app, sessionMiddleware) => {
     }
 
     socket.join(game_id);
-    console.log("user connected4");
+
+    io.in(game_id).emit("PLAYER_JOINED", {
+      username,
+    });
 
     socket.on("disconnect", () => {
       console.log("disconnection");
-      //Sockets.remove(socket_id);
-    });
-
-    socket.on("send-message", (message, roomID) => {
-      socket.emit(CHAT_MESSAGE, lookup(roomID));
     });
   });
 

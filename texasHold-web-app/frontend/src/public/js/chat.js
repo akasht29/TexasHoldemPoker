@@ -5,7 +5,7 @@ const messageForm = document.getElementById('send-container');
 const messageInput = document.getElementById('message-input');
 
 export const chat = () => {
-
+/*
   socket.on(events.CHAT_MESSAGE, ({ username, message }) => {
     console.log("message recieved");
     appendMessage(`${username}: ${message}`);
@@ -49,7 +49,7 @@ export const chat = () => {
     chatDiv.innerHTML = '';
   }
 
-
+*/
   return chat;
 };
 

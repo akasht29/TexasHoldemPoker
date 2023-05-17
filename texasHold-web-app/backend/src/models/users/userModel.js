@@ -10,6 +10,14 @@ userModel.createUser = async (username, email, password) => {
     );
 };
 
+userModel.getUserNameById = async (user_id) => {
+    const value = parseInt(user_id, 10);
+    const query = `SELECT username FROM users WHERE user_id = ${user_id}`; 
+    const result = await db.one(query, [value]);
+    console.log("backend = " + result.username);
+    return result.username;
+};
+
 userModel.getUserById = (user_id) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT user_id, username, email FROM users WHERE user_id = $1`;
@@ -19,8 +27,6 @@ userModel.getUserById = (user_id) => {
             .then((result) => {
                 if (result.rowCount > 0) {
                     resolve(result.rows[0]);
-                } else {
-                    reject(new CustomError("User not found", 404));
                 }
             })
             .catch((err) => {
