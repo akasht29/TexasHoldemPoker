@@ -61,4 +61,12 @@ playerController.removePlayer = async (gameId, playerId) => {
     // ALERT ALL REMAINING PLAYERS
 }
 
+
+
+//test funtion 
+playerController.testController = async(game_id,player_id) =>{
+    await gameModel.addToCommunityCards(game_id);
+    console.log("controller success");
+}
+
 module.exports = playerController;

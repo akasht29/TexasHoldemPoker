@@ -1,5 +1,6 @@
 
 const db = require("../../database/connection");
+const gameModel  = require('../game/gameModel')
 const playerModel = {};
 const pgarray = require('pg-array');
 
@@ -77,6 +78,15 @@ playerModel.getAllPlayers = async (game_id) => {
     await db.one(query, values);
 
 };
+
+
+
+
+
+
+
+
+
 
 
 

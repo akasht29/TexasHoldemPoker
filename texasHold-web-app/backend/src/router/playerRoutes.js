@@ -16,7 +16,7 @@ router.post('/create', async (request, response) => {
     try {
         let newPlayerInfo = await playerController.createPlayer(
             request.body.user_id,
-            request.body.game_id,
+            request.body.game_id
             
         );
     
@@ -36,7 +36,7 @@ router.post('/add', async (request, response) => {
     try {
         let newPlayerInfo = await playerController.addPLayer(
 
-            request.body.game_id,
+            request.body.game_id
             
         );
     
@@ -45,6 +45,27 @@ router.post('/add', async (request, response) => {
         }
 
         console.log("Print the game room",newPlayerInfo);
+    }
+    catch (error) {
+        console.log(error.message);
+        response.status(500).json({ message: error.message });
+    }
+});
+
+
+//test routes
+router.post('/test', async (request, response) => {
+    try {
+        let newGameInfo = await playerController.testController(
+            request.body.game_id,
+            request.body.player_id
+        );
+
+        if (!newGameInfo) {
+            throw new Error("Test failed");
+        }
+        
+        console.log("end of test")
     }
     catch (error) {
         console.log(error.message);
