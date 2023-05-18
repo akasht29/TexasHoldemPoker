@@ -127,6 +127,8 @@ router.get("/room/:gameId/leave", async (request, response) => {
       username,
     });
 
+    io.socketsLeave(roomId);
+
     await playerController.removePlayer(
       request.params.gameId,
       request.session.player.playerId
