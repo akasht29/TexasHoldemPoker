@@ -16,6 +16,11 @@ socket.on('CHAT_MESSAGE', ({ username, message }) => {
   appendMessage(`${username}`,`${message}`);
 });
 
+socket.on('GAME_UPDATE', ({ placeholder1, placeholder2}) => {
+  console.log("Game updated");
+  appendMessage(`server`,`${placeholder1}`);
+});
+
 socket.on('SESSION_ERROR', () => {
   console.log("SESSION_ERROR");
   appendMessage(`Server`,`Browser session error`);
@@ -46,7 +51,7 @@ messageForm.addEventListener('submit', e => {
 
 function appendMessage(username, message) {
   const chatDiv        = document.getElementById("chat-view");
-  chatDiv.style        = "margin-bottom: 2em; padding-left: 0.5em;"
+  chatDiv.style        = "padding-left: 0.5em;"
   const newMessageDiv  = document.createElement("div");
   const newMessageText = document.createTextNode(`${username}: ${message}`);
   newMessageDiv.appendChild(newMessageText);

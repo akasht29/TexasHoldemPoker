@@ -29,11 +29,18 @@
 
 #chat-view {
     height: 100%;
-    width: 15%;
+
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
     justify-content: top;
+    padding-top: 40px;
+    padding-right: 10px;
+}
+
+#chat-container {
+    height: 100%;
+    width: 80%;
     padding: 10px;
 }
 
