@@ -35,6 +35,7 @@ exports.up = pgm => {
     user_id: {
       type: 'INTEGER',
       notNull: true,
+      unique: true,
       references: 'users(user_id)'
     },
     game_id: {

@@ -3,12 +3,11 @@ const path = require("path");
 const isProduction = process.env.NODE_ENV === "production";
 
 module.exports = {
-  
     mode: isProduction ? "production" : "development",
 
-    entry: {
-        main: "./public/js/main.js",
-    },
+    entry: [
+        "./public/js/main.js",
+    ],
     output: {
         filename: "bundle.js",
         path: path.resolve(__dirname, "public", "dist"),

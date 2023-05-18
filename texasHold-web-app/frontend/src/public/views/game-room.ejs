@@ -6,6 +6,7 @@
   <title>Main Page</title>
   <link rel="stylesheet" href="/css/game-room.css">
   <link rel="stylesheet" href="/css/game-room-navbar.css">
+
   <script src="/js/game-room.js"></script>
 </head>
 
@@ -44,7 +45,7 @@
     </div>
 
     <div id="chat-view" class="thin-outline">
-      <!-- CHAT -->
+      <%- include("./partials/chat", {gameId: gameId}) %>
     </div>
   </div>
 </div>

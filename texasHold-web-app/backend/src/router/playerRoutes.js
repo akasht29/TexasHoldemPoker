@@ -1,8 +1,7 @@
-const express          = require('express');
-const router           = express.Router();
+const express = require("express");
+const router = express.Router();
 const playerController = require("../controllers/playerController");
-
-
+const userModel = require("../models/players/playerModel");
 /*
 todo
 
@@ -12,46 +11,41 @@ router.post("/player/leave", playerController.leaveGame);
 
 // router.post("/create", playerController.createPlayer);
 
-router.post('/create', async (request, response) => {
-    try {
-        let newPlayerInfo = await playerController.createPlayer(
-            request.body.user_id,
-            request.body.game_id
-            
-        );
-    
-        if (!newPlayerInfo) {
-            throw new Error("Could not make player");
-        }
+router.post("/create", async (request, response) => {
 
-        console.log("Print the game room",newPlayerInfo);
+  try {
+    let newPlayerInfo = await playerController.createPlayer(
+      request.body.user_id,
+      request.body.game_id
+    );
+
+    if (!newPlayerInfo) {
+      throw new Error("Could not make player");
     }
-    catch (error) {
-        console.log(error.message);
-        response.status(500).json({ message: error.message });
-    }
+
+    console.log("Socket message sent", username);
+    //console.log("Print the game room",newPlayerInfo);
+  } 
+  catch (error) {
+    console.log(error.message);
+    response.status(500).json({ message: error.message });
+  }
 });
 
-router.post('/add', async (request, response) => {
-    try {
-        let newPlayerInfo = await playerController.addPLayer(
+router.post("/add", async (request, response) => {
+  try {
+    let newPlayerInfo = await playerController.addPLayer(request.body.game_id);
 
-            request.body.game_id
-            
-        );
-    
-        if (!newPlayerInfo) {
-            throw new Error("Could not make add players");
-        }
+    if (!newPlayerInfo) {
+      throw new Error("Could not make add players");
+    }
 
-        console.log("Print the game room",newPlayerInfo);
-    }
-    catch (error) {
-        console.log(error.message);
-        response.status(500).json({ message: error.message });
-    }
+    console.log("Print the game room", newPlayerInfo);
+  } catch (error) {
+    console.log(error.message);
+    response.status(500).json({ message: error.message });
+  }
 });
-
 
 //test routes
 router.post('/test', async (request, response) => {
@@ -72,4 +66,5 @@ router.post('/test', async (request, response) => {
         response.status(500).json({ message: error.message });
     }
 });
+    
 module.exports = router;

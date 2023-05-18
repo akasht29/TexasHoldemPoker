@@ -1,7 +1,6 @@
 const playerModel      = require('../models/players/playerModel');
 const gameModel        = require('../models/game/gameModel')
 const playerController = {};
-
 /**
  * Returns the id of the player that was added/created
  */
@@ -16,6 +15,7 @@ playerController.addPlayer = async (gameId, userId) => {
     if (!gameData.players) {
         gameData.players = [];
     }
+
     gameData.players.push(playerId);
     
     await gameModel.updateGamePlayers(
@@ -28,14 +28,15 @@ playerController.addPlayer = async (gameId, userId) => {
     return playerId;
 };
 
+
 /**
  * Returns the id of the player that was removed/deleted
  */
 playerController.removePlayer = async (gameId, playerId) => {
     let gameData = await gameModel.getGameData(gameId);
     
-    console.log("removePlayerGameData:", gameData);
-    console.log("removePLayerPlayers:", gameData.players);
+    //console.log("removePlayerGameData:", gameData);
+    //console.log("removePLayerPlayers:", gameData.players);
     // find player to remove
     let playerTargetIndex = -1;
     for (let i = 0; i < gameData.players.length; i++) {
@@ -56,9 +57,6 @@ playerController.removePlayer = async (gameId, playerId) => {
 
     await gameModel.updateGamePlayers(gameId, gameData.players);
     await playerModel.removePlayer(playerId);
-
-    // TODO:
-    // ALERT ALL REMAINING PLAYERS
 }
 
 

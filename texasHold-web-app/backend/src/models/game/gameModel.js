@@ -1,9 +1,6 @@
-const PokerGame = require("./pokerGame");
-const tableModel = require("../table/tableModel");
-const gameModel = {};
-const playerModel = require("../players/playerModel");
-const db = require("../../database/connection");
-const pgarray = require('pg-array');
+const gameModel   = {};
+const db          = require("../../database/connection");
+const pgarray     = require('pg-array');
 
 gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
     const deck = await gameModel.generateDeck();
@@ -165,8 +162,6 @@ gameModel.storeGame = (gameId, pokerGame) => {
         });
 };
 
-
-
 gameModel.updatePlayerData = (user_id, game_id, playerData) => {
     const updatePlayerDataQuery = `
         INSERT INTO player_data (player_id, game_id, game_data)
@@ -188,7 +183,6 @@ gameModel.updatePlayerData = (user_id, game_id, playerData) => {
         });
 };
 
-
 gameModel.updateGamePlayers = async (gameId, newPlayers) => {
     const query = `UPDATE game SET players = $2 WHERE game_id = $1 RETURNING game_id`;
     values = [gameId, newPlayers];
@@ -196,7 +190,6 @@ gameModel.updateGamePlayers = async (gameId, newPlayers) => {
 };
 
 gameModel.deleteGame = async (gameId) => {
-    console.log("wtfwtfwtf");
     const query = `DELETE FROM game WHERE game_id = $1`;
     const value = [gameId]
 
