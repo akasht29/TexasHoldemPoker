@@ -7,6 +7,10 @@ socket.on('error', function (err) {
   console.log(err);
 });
 
+socket.on('GAME_STARTING', function(destination) {
+  window.location.href = destination;
+});
+
 socket.on('CHAT_MESSAGE', ({ username, message }) => {
   console.log("message recieved");
   appendMessage(`${username}`,`${message}`);

@@ -89,15 +89,14 @@ router.get("/waiting-room/:gameId", async (request, response) => {
 router.get("/room/:gameId/start", (request, response) => {
   const io = request.app.get("io");
   try {
-    // TODO:
     // Redirect all players to `/game/room/${gameId}`
-
     const gameId = request.params.gameId;
     const roomId = parseInt(gameId);
+    const redirectURL = `/game/room/${gameId}`;
 
-    io.in(roomId).emit("GAME-STARTING");
+    io.in(roomId).emit("GAME_STARTING", redirectURL);
+    response.redirect(redirectURL);
 
-    response.render("game-room", { gameId: gameId });
   } catch (error) {
     console.log("game room start error:");
   }
@@ -105,19 +104,16 @@ router.get("/room/:gameId/start", (request, response) => {
 
 router.get("/room/:gameId", async (request, response) => {
   try {
-    // TODO:
-    // Check if the player is in the game If there is room, add
-    // the player. Otherwise, redirect the player back to the lobby
-
     const gameId = request.params.gameId;
 
     if (await gameController.gameFull(gameId)) {
-      redirect("user/lobby");
+        response.redirect("user/lobby");
     }
 
     response.render("game-room", { gameId: gameId });
   } catch (error) {
     console.log("game room error:", error.message);
+    response.redirect("user/lobby");
   }
 });
 
