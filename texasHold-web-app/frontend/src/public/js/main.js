@@ -16,6 +16,11 @@ socket.on('CHAT_MESSAGE', ({ username, message }) => {
   appendMessage(`${username}`,`${message}`);
 });
 
+socket.on('SESSION_ERROR', () => {
+  console.log("SESSION_ERROR");
+  appendMessage(`Server`,`Browser session error`);
+});
+
 socket.on('PLAYER_JOINED', ({username}) => {
   console.log(username + " connected ");
   appendMessage(`${username}`, `connected`);

@@ -30,7 +30,6 @@ router.get("/waiting-room/:gameId", async (request, response) => {
     let playerId;
     let tempPlayerId;
     if (connectedGameId) {
-
       if (parseInt(gameId) == connectedGameId) {
         // if this block executes, it just means (at least in theory)
         // that the the player refreshed the page.
@@ -96,7 +95,6 @@ router.get("/room/:gameId/start", (request, response) => {
 
     io.in(roomId).emit("GAME_STARTING", redirectURL);
     response.redirect(redirectURL);
-
   } catch (error) {
     console.log("game room start error:");
   }
@@ -107,7 +105,7 @@ router.get("/room/:gameId", async (request, response) => {
     const gameId = request.params.gameId;
 
     if (await gameController.gameFull(gameId)) {
-        response.redirect("user/lobby");
+      response.redirect("user/lobby");
     }
 
     response.render("game-room", { gameId: gameId });
@@ -118,24 +116,25 @@ router.get("/room/:gameId", async (request, response) => {
 });
 
 router.get("/room/:gameId/leave", async (request, response) => {
-  console.log("SUPERDOUBLYGIGANTICMARKEREXTRAVAGANZA!!!!");
-  console.log("playerId:", JSON.stringify(request.session.player.playerId));
-  await playerController.removePlayer(
-    request.params.gameId,
-    request.session.player.playerId
-  );
-  request.session.player = null;
-  console.log("SUPERDOUBLYGIGANTICMARKEREXTRAVAGANZA!!!!");
-  await gameController.deleteGameIfEmpty(request.params.gameId);
-
+  //console.log("playerId:", JSON.stringify(request.session.player.playerId));
   const io = request.app.get("io");
-  let username = request.session.user.username;
   const roomId = parseInt(request.params.gameId);
+  if (request.session.player == null) {
+    io.in(roomId).emit("SESSION_ERROR");
+  } else {
+    let username = request.session.user.username;
+    io.in(roomId).emit("PLAYER_LEFT", {
+      username,
+    });
 
-  io.in(roomId).emit("PLAYER_LEFT", {
-    username,
-  });
+    await playerController.removePlayer(
+      request.params.gameId,
+      request.session.player.playerId
+    );
 
+    await gameController.deleteGameIfEmpty(request.params.gameId);
+    request.session.player = null;
+  }
   response.redirect("/user/lobby");
 });
 
