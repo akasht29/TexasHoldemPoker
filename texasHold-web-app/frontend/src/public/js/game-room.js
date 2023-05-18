@@ -86,16 +86,4 @@ function clearTable() {
     handDiv.innerHTML = '';
 }
 
-function logMessage(user, message) {
-    const chatDiv        = document.getElementById("chat-view");
-    chatDiv.style        = "margin-bottom: 2em; padding-left: 0.5em;"
-    const newMessageDiv  = document.createElement("div");
-    const newMessageText = document.createTextNode(`${user}: ${message}`);
-    newMessageDiv.appendChild(newMessageText);
-    chatDiv.appendChild(newMessageDiv);
-}
 
-function clearChat() {
-    const chatDiv = document.getElementById("chat-view");
-    chatDiv.innerHTML = '';
-}

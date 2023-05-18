@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/game-waiting-room.css">
   <link rel="stylesheet" href="/css/game-room-navbar.css">
   <link rel="stylesheet" href="/css/button-styling.css">
+
 </head>
 
 <div>
@@ -23,7 +24,9 @@
     <% } %>
   </div>
   <div class="left-half-horizontal">
-    CHAT HERE
+    <div id="chat-view" class="thin-outline">
+      <%- include("./partials/chat", {gameId: gameId}) %>
+    </div>
   </div>
 
 </div>

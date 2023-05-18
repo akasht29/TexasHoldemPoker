@@ -15,8 +15,12 @@ exports.up = pgm => {
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
     curr_player_turn: { type: 'INTEGER', notNull: true, default: 0 },
     deck: { type: 'VARCHAR[]' },
-    players : {type: 'INTEGER[]'},
-    gameStatus: { type: 'BOOLEAN', default: false }
+    players: { type: 'INTEGER[]' },
+    gameStatus: { type: 'BOOLEAN', default: false },
+    communitycards: { type: 'VARCHAR[]', default: '{}' },
+    big_blind: { type: 'INTEGER' },
+    small_blind: { type: 'INTEGER' }
+
   });
 
   pgm.createTable('users', {
@@ -31,6 +35,7 @@ exports.up = pgm => {
     user_id: {
       type: 'INTEGER',
       notNull: true,
+      unique: true,
       references: 'users(user_id)'
     },
     game_id: {
@@ -42,6 +47,7 @@ exports.up = pgm => {
     folded: { type: 'BOOLEAN', default: false },
     curr_bet: { type: 'INTEGER' },
     hand: { type: 'VARCHAR[]' }
+
   });
 };
 

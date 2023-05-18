@@ -15,6 +15,7 @@
     "jsonwebtoken": "^9.0.0",
     "node": "^20.1.0",
     "node-pg-migrate": "^6.2.2",
+    "nodemon": "^2.0.22",
     "pg": "^8.10.0",
     "pg-array": "^0.5.0",
     "pg-promise": "^11.4.3",
