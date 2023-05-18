@@ -17,12 +17,12 @@ router.get("/waiting-room/:gameId", async (request, response) => {
     }
 
     try {
-      //connectedGameId = await playerModel.getGameIdByUserId(userId);
       const value = parseInt(userId, 10);
       const query = `SELECT game_id FROM players WHERE user_id = ${userId}`;
       const result = await db.one(query, [value]);
       var connectedGameId = parseInt(result.game_id);
-      console.log("Fetched game_id from player: ", connectedGameId);
+
+      console.log("Player in game_id: ", connectedGameId);
     } catch (error) {
       console.log("Player not connected to a game");
     }
@@ -31,10 +31,8 @@ router.get("/waiting-room/:gameId", async (request, response) => {
     let tempPlayerId;
     if (connectedGameId) {
       if (parseInt(gameId) == connectedGameId) {
-        // if this block executes, it just means (at least in theory)
-        // that the the player refreshed the page.
         console.log(
-          "Playerid " + tempPlayerId + " already present in the game"
+          "Playerid " + tempPlayerId + " already present in this game"
         );
 
         try {
@@ -42,7 +40,6 @@ router.get("/waiting-room/:gameId", async (request, response) => {
           const query = `SELECT player_id FROM players WHERE user_id = ${userId}`;
           const result = await db.one(query, [value]);
           tempPlayerId = parseInt(result.player_id);
-          console.log("Fetched player_id from player: ", tempPlayerId);
 
           //placing the fetched playerid into the session object
           player = {

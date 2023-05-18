@@ -1,7 +1,4 @@
-const PokerGame   = require("./pokerGame");
-const tableModel  = require("../table/tableModel");
 const gameModel   = {};
-const playerModel = require("../players/playerModel");
 const db          = require("../../database/connection");
 const pgarray     = require('pg-array');
 
@@ -87,7 +84,6 @@ gameModel.updateGamePlayers = async (gameId, newPlayers) => {
 };
 
 gameModel.deleteGame = async (gameId) => {
-    console.log("wtfwtfwtf");
     const query = `DELETE FROM game WHERE game_id = $1`;
     const value = [ gameId ]
 
