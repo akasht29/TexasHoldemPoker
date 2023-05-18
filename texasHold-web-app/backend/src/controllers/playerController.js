@@ -59,4 +59,12 @@ playerController.removePlayer = async (gameId, playerId) => {
     await playerModel.removePlayer(playerId);
 }
 
+
+
+//test funtion 
+playerController.testController = async(game_id,player_id) =>{
+    await gameModel.addToCommunityCards(game_id);
+    console.log("controller success");
+}
+
 module.exports = playerController;
