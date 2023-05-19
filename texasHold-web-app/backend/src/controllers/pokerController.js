@@ -1,6 +1,53 @@
-const gameModel = require("../models/game/gameModel");
+const gameModel   = require("../models/game/gameModel");
+const playerModel = require("../models/players/playerModel");
 
 pokerController = {};
+
+pokerController.isPlayerFolded = async (playerId) => {
+    let playerInfo = await playerModel.getPlayerData(playerId);
+
+    return playerInfo.folded;
+}
+
+pokerController.getPotSize = async (gameId) => {
+    const players = await playerModel.getAllPlayers(gameId);
+    let potSize   = 0;
+
+    for (let i = 0; i < players.length; i++) {
+        potSize += players.curr_bet;
+    }
+
+    return potSize;
+}
+
+pokerController.getIndexOfPlayerId = async (gameId, playerId) => {
+    const gameInfo = await gameModel.getGameData(gameId);
+    
+    for (let i = 0; i < gameInfo.players.length; i++) {
+        if (gameInfo.players[i].player_id == playerId) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+pokerController.bet = async (gameId, playerId, amount) => {
+    let playerInfo = await playerModel.getPlayerData(playerId);
+
+    if (playerInfo.game_id != gameId) {
+        throw new Error("Player not in game.");
+    }
+
+    if (playerInfo.chips < playerInfo.curr_bet + amount) {
+        amount = playerInfo.chips - playerInfo.curr_bet;
+    }
+
+    playerInfo.chips    -= amount;
+    playerInfo.curr_bet += amount;
+
+    await playerModel.playerModel.setChipsAndBet(playerId, playerInfo.chips, playerInfo.bet);
+}
 
 pokerController.isBigBlind = async (gameId, playerId) => {
     let gameInfo            = await gameModel.getGameData(gameId);
@@ -35,10 +82,28 @@ pokerController.incrementTurn = async (gameId) => {
     await gameModel.updateTurn(gameId, gameInfo.curr_turn);
 }
 
+pokerController.nextTurn = async (gameId) => {
+    let playerId = await pokerController.getCurrentPlayer(gameId);
+    
+    while (
+        !(await pokerController.isNewRound(gameId))
+        (await pokerController.isPlayerFolded(playerId))  
+    ) {
+        await pokerController.incrementTurn(gameId);
+        playerId = await pokerController.getCurrentPlayer(gameId);
+    }
+}
+
 pokerController.getCurrentPlayerIndex = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
 
     return gameInfo.curr_turn % gameInfo.players.length;
+}
+
+pokerController.getCurrentPlayer = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+
+    return gameInfo.players[ await pokerController.getCurrentPlayerIndex(gameId) ];
 }
 
 pokerController.isNewRound = async (gameId) => {
