@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../database/connection");
 
 router.post("/:id", async (request, response) => {
   const io = request.app.get("io");
