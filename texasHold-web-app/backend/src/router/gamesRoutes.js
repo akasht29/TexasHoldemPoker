@@ -108,7 +108,7 @@ router.get("/room/:gameId", async (request, response) => {
       response.redirect("user/lobby");
     }
 
-    response.render("game-room", { gameId: gameId });
+    response.render("game-room", { gameId: gameId, baseUrl: process.env.API_BASE_URL });
   } catch (error) {
     console.log("game room error:", error.message);
     response.redirect("user/lobby");

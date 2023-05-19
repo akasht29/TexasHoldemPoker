@@ -86,4 +86,55 @@ function clearTable() {
     handDiv.innerHTML = '';
 }
 
+const foldButton  = document.getElementById("fold-button");
+const callButton  = document.getElementById("call-button");
+const raiseButton = document.getElementById("raise-button");
+const allInButton = document.getElementById("all-in-button");
 
+foldButton.addEventListener("click", () => {
+    fetch(`${baseUrl}/poker/${gameId}/fold`, {
+        method: "HEAD"
+    })
+    .then((response) => {
+        console.log(response);
+    })
+    .catch((error) => {
+        console.log(error.message);
+    })
+});
+
+callButton.addEventListener("click", () => {
+    fetch(`${baseUrl}/poker/${gameId}/call`, {
+        method: "HEAD"
+    })
+    .then((response) => {
+        console.log(response);
+    })
+    .catch((error) => {
+        console.log(error.message);
+    })
+});
+
+raiseButton.addEventListener("click", () => {
+    fetch(`${baseUrl}/poker/${gameId}/raise`, {
+        method: "POST"
+    })
+    .then((response) => {
+        console.log(response);
+    })
+    .catch((error) => {
+        console.log(error.message);
+    })
+});
+
+allInButton.addEventListener("click", () => {
+    fetch(`${baseUrl}/poker/${gameId}/allIn`, {
+        method: "HEAD"
+    })
+    .then((response) => {
+        console.log(response);
+    })
+    .catch((error) => {
+        console.log(error.message);
+    })
+});

@@ -37,7 +37,7 @@ pokerController.incrementTurn = async (gameId) => {
 
 pokerController.getCurrentPlayerIndex = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
-    console.log("curr_turn:", gameInfo)
+
     return gameInfo.curr_turn % gameInfo.players.length;
 }
 
@@ -51,7 +51,7 @@ pokerController.isPlayersTurn = async (gameId, playerId) => {
     let gameInfo    = await gameModel.getGameData(gameId);
     let playerIndex = await pokerController.getCurrentPlayerIndex(gameId);
     
-    if (gameInfo[playerIndex] == playerId) {
+    if (gameInfo.players[playerIndex] == playerId) {
         return true;
     }
 
