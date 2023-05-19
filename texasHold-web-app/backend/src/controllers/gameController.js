@@ -4,7 +4,7 @@ const playerModel = require("../models/players/playerModel");
 const gameController = {};
 
 gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
-    let chips = 10;
+    let chips = 1000;
     return await gameModel.createGame(
         gameName, 
         chips,
