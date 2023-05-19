@@ -33,7 +33,13 @@ gameModel.resetDeck = async (game_id) => {
     query = "UPDATE game SET deck = $1 WHERE game_id = $2";
     const values = [pgarray(newDeck), game_id];
     await db.none(query, values);
+}
 
+gameModel.getMinBet = async (gameId) => {
+    query = "SELECT min_bet FROM game WHERE game_id = $1";
+
+    let gameInfo = await db.one(db.query, [gameId]);
+    return gameInfo.min_bet;
 }
 
 gameModel.updateDeck = async (game_id, deck) => {
@@ -75,7 +81,6 @@ gameModel.getBigBlind = async (game_id) => {
     const values = [game_id];
     let blind = await db.one(query, values);
     return blind.big_blind;
-
 }
 
 gameModel.updateSmallBlind = async (game_id, player_id) => {

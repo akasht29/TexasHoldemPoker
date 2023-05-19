@@ -14,8 +14,8 @@ playerModel.createPlayer = async (user_id, game_id) => {
   try {
     const playerInfo = await db.one(query, values);
     return playerInfo.player_id;
-  } catch (error) {
-    //console.log("Error creating player:", error);
+  } 
+  catch (error) {
     throw error;
   }
 };
@@ -39,52 +39,51 @@ playerModel.addPlayer = async (game_id) => {
     playerArr.push(result[i].player_id);
   }
 
-  console.log(playerArr);
-
   query = "UPDATE game SET players = $1 WHERE game_id = $2";
   const values = [pgarray(playerArr), game_id];
   await db.none(query, values);
-
-  // await playerModel.changeStatus(2)
-  // await playerModel.getAllPlayers(1);
 };
 
 playerModel.removePlayer = async (playerId) => {
   const query = "DELETE FROM players WHERE player_id = $1";
+
   await db.none(query, [playerId]);
 };
 
-playerModel.changeStatus = async (player_id) => {
+playerModel.changeStatus = async (playerId) => {
   query = "UPDATE players SET folded = True WHERE player_id = $1";
-  const values = [player_id];
-  await db.none(query, values);
+
+  await db.none(query, [playerId]);
 };
 
-playerModel.getAllPlayers = async (game_id) => {
+playerModel.getAllPlayers = async (gameId) => {
   query = "SELECT players FROM game WHERE game_id = $1";
-  const values = [game_id];
-  await db.one(query, values);
+
+  await db.one(query, [gameId]);
 };
 
-playerModel.getPlayerByUserId = async (user_id) => {
+playerModel.getPlayerData = async (playerId) => {
+  query = "SELECT * FROM players WHERE player_id = $1";
+
+  return await db.one(query, [playerId]);
+};
+
+playerModel.setChipsAndBet = async (playerId, chips, bet) => {
+  query = "UPDATE players SET chips = $2, bet = $3 WHERE player_id = $1";
+
+  return await db.none(db.query, [playerId, chips, bet])
+}
+
+playerModel.getPlayerByUserId = async (userId) => {
   query = "SELECT player_id FROM players WHERE user_id = $1";
-  const values = [user_id];
-  return await db.one(query, values);
+  
+  return await db.one(query, [userId]);
 };
 
-playerModel.getGameIdByUserId = async (user_id) => {
+playerModel.getGameIdByUserId = async (userId) => {
   query = "SELECT game_id FROM players WHERE user_id = $1";
-  const values = [user_id];
-  return await db.one(query, values);
+ 
+  return await db.one(query, [userId]);
 };
-
-
-
-
-
-
-
-
-
 
 module.exports = playerModel;
