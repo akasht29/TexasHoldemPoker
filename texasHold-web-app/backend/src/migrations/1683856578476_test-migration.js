@@ -5,22 +5,19 @@ exports.shorthands = undefined;
 exports.up = pgm => {
   pgm.createTable('game', {
     game_id: 'SERIAL PRIMARY KEY',
-    game_name: { type: 'VARCHAR(255)', notNull: true },
-    chips: { type: 'INTEGER', notNull: true },
-    num_players: { type: 'INTEGER', notNull: true },
-    num_rounds: { type: 'INTEGER', notNull: true },
-    min_bet: { type: 'INTEGER', notNull: true },
-    curr_round: { type: 'INTEGER', default: 0 },
-    main_pot: { type: 'INTEGER', notNull: true, default: 0 },
+    game_name:      { type: 'VARCHAR(255)', notNull: true },
+    chips:          { type: 'INTEGER', notNull: true },
+    num_players:    { type: 'INTEGER', notNull: true }, // the maxiumum number of players in the game
+    num_turns:      { type: 'INTEGER', notNull: true }, // the maxiumum number of rounds in the game
+    min_bet:        { type: 'INTEGER', notNull: true },
+    main_pot:       { type: 'INTEGER', notNull: true, default: 0 },
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
-    curr_player_turn: { type: 'INTEGER', notNull: true, default: 0 },
-    deck: { type: 'INTEGER[]' },
-    players: { type: 'INTEGER[]' },
-    gameStatus: { type: 'BOOLEAN', default: false },
+    deck:           { type: 'INTEGER[]' },
+    players:        { type: 'INTEGER[]' }, // stores player id
+    gameStatus:     { type: 'BOOLEAN', default: false },
     communitycards: { type: 'INTEGER[]', default: '{}' },
-    big_blind: { type: 'INTEGER' },
-    small_blind: { type: 'INTEGER' }
-
+    big_blind:      { type: 'INTEGER' },
+    small_blind:    { type: 'INTEGER' }
   });
 
   pgm.createTable('users', {

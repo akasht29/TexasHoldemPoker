@@ -9,7 +9,7 @@ gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
         gameName, 
         chips,
         numPlayers, 
-        numRounds, 
+        numRounds * numPlayers, 
         minBet
     );
 };

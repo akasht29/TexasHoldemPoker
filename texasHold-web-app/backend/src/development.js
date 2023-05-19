@@ -1,6 +1,6 @@
 //todo set your .env
-module.exports ={
-    database:{
+module.exports = {
+    database: {
         host: process.env.HOST,
         port: process.env.DATA_BASE_PORT,
         user: process.env.DB_USERNAME,
