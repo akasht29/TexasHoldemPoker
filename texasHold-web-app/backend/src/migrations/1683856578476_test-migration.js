@@ -11,6 +11,7 @@ exports.up = pgm => {
     num_turns:      { type: 'INTEGER', notNull: true }, // the maxiumum number of rounds in the game
     min_bet:        { type: 'INTEGER', notNull: true },
     main_pot:       { type: 'INTEGER', notNull: true, default: 0 },
+    curr_turn:      { type: 'INTEGER', notNull: true, default: 0  },
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
     deck:           { type: 'INTEGER[]' },
     players:        { type: 'INTEGER[]' }, // stores player id
