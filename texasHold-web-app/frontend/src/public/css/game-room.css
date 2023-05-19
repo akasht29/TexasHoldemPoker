@@ -100,8 +100,7 @@
     justify-content: space-evenly;
 }
 
-.controls-button {
+.button-action-container {
     height: 80%;
     width: 15%;
-    box-shadow: 2px 2px rgb(87, 87, 87);
 }

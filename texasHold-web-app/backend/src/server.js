@@ -1,10 +1,10 @@
 const path = require("path");
 require("dotenv").config();
 
-const express = require("express");
-const session = require("express-session");
-const pgSession = require("connect-pg-simple")(session);
-const db = require("./database/connection.js");
+const express      = require("express");
+const session      = require("express-session");
+const pgSession    = require("connect-pg-simple")(session);
+const db           = require("./database/connection.js");
 const cookieParser = require("cookie-parser");
 
 const userRoutes   = require("./router/userRoutes");

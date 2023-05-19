@@ -6,6 +6,7 @@
   <title>Main Page</title>
   <link rel="stylesheet" href="/css/game-room.css">
   <link rel="stylesheet" href="/css/game-room-navbar.css">
+  <link rel="stylesheet" href="/css/button-styling">
 
   <script src="/js/game-room.js"></script>
 </head>
@@ -33,13 +34,22 @@
 
       <div id="game-controls" class="thin-outline">
 
-        <input class="controls-button" type="button" onclick="/*foldRequest()*/" value="FOLD">
+        <!-- Using forms rather than the fetch command is basic, but it might be all we need. -->
+        <form class="button-action-container" method="GET" action=<%=`/poker/${gameId}/fold`%>>
+          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="FOLD">
+        </form>
 
-        <input class="controls-button" type="button" onclick="/*callRequest()*/" value="CALL">
+        <form class="button-action-container" method="GET" action=<%=`/poker/${gameId}/call`%>>
+          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="CALL">
+        </form>
+        
+        <form class="button-action-container" method="POST" action=<%=`/poker/${gameId}/raise`%>>
+          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="RAISE">
+        </form>
 
-        <input class="controls-button" type="button" onclick="/*raiseRequest()*/" value="RAISE">
-
-        <input class="controls-button" type="button" onclick="/*allInRequest()*/" value="ALL IN">
+        <form class="button-action-container" method="GET" action=<%=`/poker/${gameId}/allIn`%>>
+          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="ALL IN">
+        </form>
         
       </div>
     </div>

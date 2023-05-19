@@ -2,47 +2,69 @@ const gameModel = require("../models/game/gameModel");
 
 pokerController = {};
 
-pokerController.bet = async (gameId, playerId, amount) => {
-    // if the amount bet is less than or equal to the player's balance.
-    //     add the money to the pot
-    //     add the money to the player's current bet
-    // else:
-    //     return some error code to the user (no crashes)
-}
-
-pokerController.pass = async (gameId, playerId) => {
-    // if (bet == 0):
-    //     incrment the current player
-}
-
-pokerController.fold = async (gameId, playerId) => {
-    // currentPlayer = (currentPlayer + 1) % playerCount;
-}
-
-pokerController.allIn = async (gameId, playerId) => {
-    const playerFunds = await playerModel.getPlayerMoney(gameId, playerId); // this is how much money the player has.
-    playerController.bet(gameId, playerId, playerFunds);
-}
-
-
-pokerController.raise = async (gameId, playerId) => {
-    // check if the player has enough money
-}
-
-pokerController.checkForWin = async (gameId) => {
-    /*
-    let winner = -1;
-    let winnerScore = 0;
-    for (let i = 0; i < player.length; i++) {
-        let currentScore = await this.rateHand(gameId, players[i].id);
-        if (currentScore > winnerScore) {
-            winner = players[i].id;
-            winnerScore = winnerScore;
-        }
+pokerController.isBigBlind = async (gameId, playerId) => {
+    let gameInfo            = await gameModel.getGameData(gameId);
+    let curPlayerIndex      = await getCurrentPlayerIndex(gameId);
+    let bigBlindPlayerIndex = (curPlayerIndex + 2) % gameInfo.players.length;
+    
+    if (gameInfo.players[bigBlindPlayerIndex].player_id == playerId) {
+        return true
     }
 
-    return winner; // the id of the layer who won
-    */
+    return false;
+}
+
+pokerController.isSmallBlind = async (gameId, playerId) => {
+    let gameInfo              = await gameModel.getGameData(gameId);
+    let curPlayerIndex        = await getCurrentPlayerIndex(gameId);
+    let smallBlindPlayerIndex = (curPlayerIndex + 1) % gameInfo.players.length;
+    
+    if (gameInfo.players[smallBlindPlayerIndex].player_id == playerId) {
+        return true
+    }
+
+    return false;
+}
+
+pokerController.incrementTurn = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_turn++;
+    
+    await gameModel.updateTurn(gameId, gameInfo.curr_turn);
+}
+
+pokerController.getCurrentPlayerIndex = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    return gameInfo.curr_turn % gameInfo.players.length;
+}
+
+pokerController.isNewRound = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+
+    return (gameInfo.curr_turn % gameInfo.players.length) == 0;
+}
+
+pokerController.isPlayersTurn = async (gameId, playerId) => {
+    let gameInfo    = await gameModel.getGameData(gameId);
+    let playerIndex = await pokerController.getCurrentPlayerIndex(gameId);
+    
+    if (gameInfo[playerIndex] == playerId) {
+        return true;
+    }
+
+    return false;
+}
+
+pokerController.isGameOver = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    if (gameInfo.curr_turn >= gameInfo.num_turns) {
+        return true;
+    }
+
+    return false;
 }
 
 getScore = (bigRank, littleRank) => {

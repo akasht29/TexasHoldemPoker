@@ -2,12 +2,12 @@ const gameModel   = {};
 const db          = require("../../database/connection");
 const pgarray     = require('pg-array');
 
-gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
+gameModel.createGame = async (game_name, chips, num_players, num_turns, min_bet) => {
     const deck      = await gameModel.generateDeck();
-    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet, deck) ";
+    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_turns, min_bet, deck) ";
     const valuesStr = `VALUES ($1, $2, $3, $4, $5, $6) RETURNING game_id`;
     const query     = insertStr + valuesStr;
-    const values    = [game_name, chips, num_players, num_rounds, min_bet, pgarray(deck)];
+    const values    = [game_name, chips, num_players, num_turns, min_bet, pgarray(deck)];
 
     return await db.one(
         query,
@@ -119,11 +119,7 @@ gameModel.addToCommunityCards = async (game_id) => {
     await db.none(query, values);
 
     await gameModel.updateDeck(game_id, deck);
-
-    
 }
-
-
 
 gameModel.getAllGames = async () => {
     const query = `SELECT game_id, game_name, num_players FROM game`;
@@ -133,6 +129,11 @@ gameModel.getAllGames = async () => {
 gameModel.getGameData = async (gameId) => {
     const query = `SELECT * FROM game WHERE game_id=${gameId}`;
     return await db.one(query);
+}
+
+gameModel.updateTurn = async (gameId, newTurnValue) => {
+    const query = `UPDATE game SET curr_turn = $1`;
+    await db.none(query, [newTurnValue]);
 }
 
 gameModel.storeGame = (gameId, pokerGame) => {
