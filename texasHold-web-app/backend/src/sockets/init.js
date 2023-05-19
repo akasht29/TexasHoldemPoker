@@ -11,6 +11,8 @@ const initSockets = (app, sessionMiddleware) => {
     let game_id = socket.handshake.query?.path.substring(1);
     const username = socket.request?.session?.user?.username;
 
+    socket.rooms.forEach(room => socket.leave(room));
+
     if (game_id === undefined) {
       return;
     }

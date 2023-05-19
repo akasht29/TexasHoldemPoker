@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const gameController = require("../controllers/gameController");
 const playerController = require("../controllers/playerController");
-const playerModel = require("../models/players/playerModel");
 const db = require("../database/connection");
 
 router.get("/waiting-room/:gameId", async (request, response) => {
@@ -16,6 +15,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       response.redirect("/user/lobby");
     }
 
+    
     try {
       const value = parseInt(userId, 10);
       const query = `SELECT game_id FROM players WHERE user_id = ${userId}`;
@@ -44,6 +44,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
           //placing the fetched playerid into the session object
           player = {
             playerId: tempPlayerId,
+            game_id: connectedGameId,
           };
           request.session.player = player;
           playerId = tempPlayerId;
@@ -62,6 +63,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       // generate a new player id for the user if needed
       player = {
         playerId: await playerController.addPlayer(gameId, userId),
+        game_id: parseInt(gameId),
       };
       request.session.player = player;
       playerId = player.playerId;
@@ -156,8 +158,5 @@ router.post("/create", async (request, response) => {
     response.status(500).json({ message: error.message });
   }
 });
-
-
-
 
 module.exports = router;

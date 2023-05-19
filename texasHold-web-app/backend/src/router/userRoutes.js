@@ -1,8 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const gameController = require('../controllers/gameController');
-const { getUserByUsername } = require('../models/users/userModel');
-const playerController = require('../controllers/playerController');
 const router = express.Router();
 
 // User routes
@@ -79,7 +77,7 @@ router.post('/login', async (request, response) => {
 });
 
 // we will handle the authMiddleware part differently
-router.post('/logout', userController.logout);
+router.get('/logout', userController.logout);
 
 // Front-end routes
 router.get('/register',(_req, res) => {
