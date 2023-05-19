@@ -79,7 +79,7 @@ router.post('/login', async (request, response) => {
 });
 
 // we will handle the authMiddleware part differently
-router.post('/logout', userController.logout);
+router.get('/logout', userController.logout);
 
 // Front-end routes
 router.get('/register',(_req, res) => {
