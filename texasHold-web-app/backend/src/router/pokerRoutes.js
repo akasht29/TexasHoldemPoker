@@ -12,37 +12,59 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
     //
 });
 
+
 universalActionsWrapper = async (request, response, gameData, action, localActions) => {
     const io = request.app.get("io");
     const username = request.session.user.username;
-
     
     console.log(request.params);
 
-    //something here is broken
+    const gameId  = request.params.gameId;
+    const playerId = request.session.player.playerId;
+    
+    if (await pokerController.isPlayerFolded(playerId)) {
+        response.status(400).json({ message: "You have folded. Please wait for the next round." });
+    }
 
-    /*
-    if (!(await pokerController.isPlayersTurn(request.params.gameId, request.session.player.playerId))) {
+    if (!(await pokerController.isPlayersTurn(gameId, playerId))) {
         response.status(400).json({ message: "Please wait for your turn." });
     }
     
-    if (await pokerController.isBigBlind(request.session.player.playerId)) {
-        // add more than min_bet to pot
-        // consider making this min_bet * 2 for simplicity.
+    const minBet = await gameModel.getMinBet(gameId);
+
+    if (
+        (await pokerController.isBigBlind(playerId)) &&
+        ((await pokerController.getPotSize(playerId)) == 0)
+    ) {
+        pokerController.bet(
+            gameId,
+            playerId,
+            minBet
+        );
     }
 
-    if (await pokerController.isSmallBlind(request.session.player.playerId)) {
-        // add min_bet to pot?
+    if (
+        (await pokerController.isSmallBlind(playerId)) &&
+        ((await pokerController.getPotSize(playerId)) <= minBet)
+    ) {
+        pokerController.bet(
+            gameId,
+            playerId,
+            minBet / 2
+        );
     }
 
     localActions();
     
-    await pokerController.incrementTurn(request.params.gameId);
+    await pokerController.nextTurn(gameId);
 
-    if (await pokerController.isGameOver(request.params.gameId)) {
+    if (await pokerController.isGameOver(gameId)) {
         // display standings
+        response.redirect(`poker/${gameId}/standings`);
+
+        // TODO: Somehow, we have to rediret all players in the current game to the standings.
     }
-    else if (await pokerController.isNewRound(request.params.gameId)) {
+    else if (await pokerController.isNewRound(gameId)) {
         // deal cards
     }
     */
