@@ -1,6 +1,4 @@
 const gameModel   = require("../models/game/gameModel");
-const tableModel  = require("../models/table/tableModel");
-const playerModel = require("../models/players/playerModel");
 const gameController = {};
 
 gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {

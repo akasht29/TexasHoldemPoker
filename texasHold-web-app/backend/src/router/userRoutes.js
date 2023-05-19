@@ -1,8 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const gameController = require('../controllers/gameController');
-const { getUserByUsername } = require('../models/users/userModel');
-const playerController = require('../controllers/playerController');
 const router = express.Router();
 
 // User routes

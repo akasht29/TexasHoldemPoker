@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const gameController = require("../controllers/gameController");
 const playerController = require("../controllers/playerController");
-const playerModel = require("../models/players/playerModel");
 const db = require("../database/connection");
 
 router.get("/waiting-room/:gameId", async (request, response) => {

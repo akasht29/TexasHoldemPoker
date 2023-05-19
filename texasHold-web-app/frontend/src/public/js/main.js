@@ -14,27 +14,28 @@ socket.on("GAME_STARTING", function (destination) {
 
 socket.on("CHAT_MESSAGE", ({ username, message }) => {
   console.log("message recieved");
-  appendMessage(`${username}`, `${message}`);
+  appendMessage(`${username}: `, `${message}`);
 });
 
-socket.on("GAME_UPDATE", ({ placeholder1, placeholder2 }) => {
-  console.log("Game updated");
-  appendMessage(`server`, `${placeholder1}`);
+socket.on("GAME_UPDATE", ({ username, action, gameData }) => {
+  console.log(username + " performed " + action);
+  console.log("New game data fetched");
+  appendMessage(`Server: `, `${action} from ${username}`);
 });
 
 socket.on("SESSION_ERROR", () => {
   console.log("SESSION_ERROR");
-  appendMessage(`Server`, `Browser session error`);
+  appendMessage(`Server: `, `Browser session error`);
 });
 
 socket.on("PLAYER_JOINED", ({ username }) => {
   console.log(username + " connected ");
-  appendMessage(`${username}`, `connected`);
+  appendMessage(`${username} `, `connected`);
 });
 
 socket.on("PLAYER_LEFT", ({ username }) => {
   console.log(username + " disconnected ");
-  appendMessage(`${username}`, `disconnected`);
+  appendMessage(`${username} `, `disconnected`);
 });
 
 //Chat event
@@ -52,19 +53,19 @@ messageForm.addEventListener("submit", (e) => {
 });
 
 function appendMessage(username, message) {
-  console.log("append");
-
   const chatDiv = document.getElementById("chat-view");
   const newMessageDiv = document.createElement("div");
   if (message === `connected`) {
     newMessageDiv.style = "color:green;font-size: 16px; padding-bottom: 2px;";
   } else if (message === `disconnected`) {
     newMessageDiv.style = "color:red;font-size: 16px; padding-bottom: 2px;";
+  } else if (username === `Server: `) {
+    newMessageDiv.style = "color:orange;font-size: 16px; padding-bottom: 2px;";
   } else {
     newMessageDiv.style = "font-size: 16px; padding-bottom: 2px;";
   }
 
-  const newMessageText = document.createTextNode(`${username}: ${message}`);
+  const newMessageText = document.createTextNode(`${username}${message}`);
   newMessageDiv.appendChild(newMessageText);
   chatDiv.prepend(newMessageDiv);
 }
