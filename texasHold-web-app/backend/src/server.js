@@ -7,11 +7,12 @@ const pgSession = require("connect-pg-simple")(session);
 const db = require("./database/connection.js");
 const cookieParser = require("cookie-parser");
 
-const userRoutes = require("./router/userRoutes");
-const gameRoutes = require("./router/gamesRoutes");
-const root = require("./router/root");
+const userRoutes   = require("./router/userRoutes");
+const gameRoutes   = require("./router/gamesRoutes");
+const root         = require("./router/root");
 const playerRoutes = require("./router/playerRoutes");
-const chatRoutes = require("./router/chatRoutes");
+const chatRoutes   = require("./router/chatRoutes");
+const pokerRoutes  = require("./router/pokerRoutes");
 
 const app = express();
 const PORT = process.env.PORT | 3000;
@@ -56,11 +57,11 @@ app.use("/user", userRoutes);
 app.use("/game", gameRoutes);
 app.use("/player", playerRoutes);
 app.use("/chat", chatRoutes);
+app.use("/poker", pokerRoutes);
 
 // Move customErrorHandler here, after the routes
 
 //Creates database
-const { CreateTableError, createTables } = require("./database/createTables");
 const exp = require("constants");
 const { env } = require("process");
 
