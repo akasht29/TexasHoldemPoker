@@ -6,9 +6,14 @@
   <title>Main Page</title>
   <link rel="stylesheet" href="/css/game-room.css">
   <link rel="stylesheet" href="/css/game-room-navbar.css">
-  <link rel="stylesheet" href="/css/button-styling">
-
-  <script src="/js/game-room.js"></script>
+  <link rel="stylesheet" href="/css/button-styling.css">
+  <script>
+    // this is a supper nooby code, and the compiler thinks there is an error, but there isn't.
+    const gameId = <%= gameId %>;
+    const baseUrl = "<%= baseUrl %>";
+  </script>
+  <script defer src="/js/game-room.js">
+  </script>
 </head>
 
 <div id="main-container" class="thin-outline">
@@ -35,21 +40,13 @@
       <div id="game-controls" class="thin-outline">
 
         <!-- Using forms rather than the fetch command is basic, but it might be all we need. -->
-        <form class="button-action-container" method="GET" action=<%=`/poker/${gameId}/fold`%>>
-          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="FOLD">
-        </form>
+        <input id="fold-button" style="width: 20%; height: 90%;" class="button-styling" type="button" value="FOLD">
 
-        <form class="button-action-container" method="GET" action=<%=`/poker/${gameId}/call`%>>
-          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="CALL">
-        </form>
+        <input id="call-button" style="width: 20%; height: 90%;" class="button-styling" type="button" value="CALL">
         
-        <form class="button-action-container" method="POST" action=<%=`/poker/${gameId}/raise`%>>
-          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="RAISE">
-        </form>
+        <input id="raise-button" style="width: 20%; height: 90%;" class="button-styling" type="button" value="RAISE">
 
-        <form class="button-action-container" method="GET" action=<%=`/poker/${gameId}/allIn`%>>
-          <input style="width: 100%; height: 100%;" class="button-styling" type="button" value="ALL IN">
-        </form>
+        <input id="all-in-button" style="width: 20%; height: 90%;" class="button-styling" type="button" value="ALL IN">
         
       </div>
     </div>
