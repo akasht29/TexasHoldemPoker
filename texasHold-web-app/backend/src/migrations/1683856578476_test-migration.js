@@ -14,10 +14,10 @@ exports.up = pgm => {
     main_pot: { type: 'INTEGER', notNull: true, default: 0 },
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
     curr_player_turn: { type: 'INTEGER', notNull: true, default: 0 },
-    deck: { type: 'VARCHAR[]' },
+    deck: { type: 'INTEGER[]' },
     players: { type: 'INTEGER[]' },
     gameStatus: { type: 'BOOLEAN', default: false },
-    communitycards: { type: 'VARCHAR[]', default: '{}' },
+    communitycards: { type: 'INTEGER[]', default: '{}' },
     big_blind: { type: 'INTEGER' },
     small_blind: { type: 'INTEGER' }
 
@@ -46,7 +46,7 @@ exports.up = pgm => {
     chips: { type: 'INTEGER' },
     folded: { type: 'BOOLEAN', default: false },
     curr_bet: { type: 'INTEGER' },
-    hand: { type: 'VARCHAR[]' }
+    hand: { type: 'INTEGER[]' }
 
   });
 };

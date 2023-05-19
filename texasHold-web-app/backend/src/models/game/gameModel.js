@@ -3,11 +3,11 @@ const db          = require("../../database/connection");
 const pgarray     = require('pg-array');
 
 gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
-    const deck = await gameModel.generateDeck();
+    const deck      = await gameModel.generateDeck();
     const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet, deck) ";
     const valuesStr = `VALUES ($1, $2, $3, $4, $5, $6) RETURNING game_id`;
-    const query = insertStr + valuesStr;
-    const values = [game_name, chips, num_players, num_rounds, min_bet, pgarray(deck)];
+    const query     = insertStr + valuesStr;
+    const values    = [game_name, chips, num_players, num_rounds, min_bet, pgarray(deck)];
 
     return await db.one(
         query,
@@ -15,23 +15,16 @@ gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet
     );
 };
 
+// ok, this is dumb, but pgarray likes decks as strings
 gameModel.generateDeck = async () => {
-    const suits = ["C", "D", "H", "S"];
-    console.log("inside gen deck")
-
     let deck = [];
-
-    for (let i = 1; i <= 13; i++) {
-        for (let j = 0; j < suits.length; j++) {
-            deck.push(suits[j] + i);
-        }
+    for (let i = 0; i < 52; i++) {
+        deck.push(i);
     }
 
-    console.log(deck);
-
-    deck = gameModel.shuffleDeck(deck)
-
-    return deck;
+    deck = gameModel.shuffleDeck(deck);
+    deck = JSON.stringify(deck);
+    return deck.substring(1, deck.length - 1);
 }
 
 gameModel.resetDeck = async (game_id) => {
@@ -55,8 +48,6 @@ gameModel.getDeck = async (game_id) => {
 
     console.log(result.deck);
     return result.deck;
-
-
 }
 
 gameModel.addCards = async (game_id, player_id) => {
@@ -106,10 +97,7 @@ gameModel.shuffleDeck = async (deck) => {
         [deck[i], deck[j]] = [deck[j], deck[i]];
     }
 
-    console.log(deck);
-
     return deck;
-
 }
 
 gameModel.getCommunityCards = async(game_id) => {
