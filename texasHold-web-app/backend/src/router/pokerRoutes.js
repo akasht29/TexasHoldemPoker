@@ -16,7 +16,6 @@ universalActionsWrapper = async (request, response, gameData, action, localActio
     const io = request.app.get("io");
     const username = request.session.user.username;
 
-    
     console.log(request.params);
 
     //something here is broken
