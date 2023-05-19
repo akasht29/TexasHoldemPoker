@@ -4,7 +4,8 @@ pokerController = {};
 
 pokerController.isBigBlind = async (gameId, playerId) => {
     let gameInfo            = await gameModel.getGameData(gameId);
-    let curPlayerIndex      = await getCurrentPlayerIndex(gameId);
+    let curPlayerIndex      = await pokerController.getCurrentPlayerIndex(gameId);
+    // ERROR HERE curPlayerIndex is NaN?
     let bigBlindPlayerIndex = (curPlayerIndex + 2) % gameInfo.players.length;
     
     if (gameInfo.players[bigBlindPlayerIndex].player_id == playerId) {
@@ -16,9 +17,9 @@ pokerController.isBigBlind = async (gameId, playerId) => {
 
 pokerController.isSmallBlind = async (gameId, playerId) => {
     let gameInfo              = await gameModel.getGameData(gameId);
-    let curPlayerIndex        = await getCurrentPlayerIndex(gameId);
+    let curPlayerIndex        = await pokerController.getCurrentPlayerIndex(gameId);
     let smallBlindPlayerIndex = (curPlayerIndex + 1) % gameInfo.players.length;
-    
+
     if (gameInfo.players[smallBlindPlayerIndex].player_id == playerId) {
         return true
     }
@@ -36,7 +37,7 @@ pokerController.incrementTurn = async (gameId) => {
 
 pokerController.getCurrentPlayerIndex = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
-    
+    console.log("curr_turn:", gameInfo)
     return gameInfo.curr_turn % gameInfo.players.length;
 }
 
