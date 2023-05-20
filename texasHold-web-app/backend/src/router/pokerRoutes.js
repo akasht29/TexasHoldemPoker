@@ -13,15 +13,13 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
 });
 
 
-universalActionsWrapper = async (request, response, gameData, action, localActions) => {
+universalActionsWrapper = async (request, response, action, localActions) => {
     const io = request.app.get("io");
     const username = request.session.user.username;
-
-    
-    console.log(request.params);
-
     const gameId  = request.params.gameId;
     const playerId = request.session.player.playerId;
+
+    console.log(request.params);
     
     if (await pokerController.isPlayerFolded(playerId)) {
         response.status(400).json({ message: "You have folded. Please wait for the next round." });
@@ -69,11 +67,10 @@ universalActionsWrapper = async (request, response, gameData, action, localActio
         // deal cards
     }
 
-    io.in(parseInt(request.params.gameId)).emit("GAME_UPDATE", {
+    //you can use emit wherever you want as long as you have the gameid and are able to use const io = request.app.get("io");
+    io.in(parseInt(gameId)).emit(action, {
         // info passed to clients goes here
         username,
-        action,
-        gameData,
       });
 
     response.status(200).json({ message: "success" });
@@ -81,9 +78,7 @@ universalActionsWrapper = async (request, response, gameData, action, localActio
 
 router.head('/:gameId/pass', async (request, response) => {
     try {
-        const gameData = await gameModel.getGameData(request.params.gameId);
-        const action = "PASS";
-        await universalActionsWrapper(request, response, gameData, action, () => {
+        await universalActionsWrapper(request, response, action, () => {
             // pass logic here
         });
     }
@@ -95,9 +90,7 @@ router.head('/:gameId/pass', async (request, response) => {
 
 router.head('/:gameId/allIn', async (request, response) => {
     try {
-        const gameData = await gameModel.getGameData(request.params.gameId);
-        const action = "ALLIN";
-        await universalActionsWrapper(request, response, gameData, action, () => {
+        await universalActionsWrapper(request, response, action, () => {
             // all in logic here
         });
     }
@@ -109,9 +102,7 @@ router.head('/:gameId/allIn', async (request, response) => {
 
 router.head('/:gameId/call', async (request, response) => {
     try {
-        const gameData = await gameModel.getGameData(request.params.gameId);
-        const action = "CALL";
-        await universalActionsWrapper(request, response, gameData, action, () => {
+        await universalActionsWrapper(request, response, action, () => {
             // call logic here
         });
     }
@@ -123,9 +114,7 @@ router.head('/:gameId/call', async (request, response) => {
 
 router.head('/:gameId/fold', async (request, response) => {
     try {
-        const gameData = await gameModel.getGameData(request.params.gameId);
-        const action = "FOLD";
-        await universalActionsWrapper(request, response, gameData, action, () => {
+        await universalActionsWrapper(request, response, action, () => {
             // fold logic here
         });
     }
@@ -137,9 +126,7 @@ router.head('/:gameId/fold', async (request, response) => {
 
 router.post('/:gameId/raise', async (request, response) => {
     try {
-        const gameData = await gameModel.getGameData(request.params.gameId);
-        const action = "RAISE";
-        await universalActionsWrapper(request, response, gameData, action, () => {
+        await universalActionsWrapper(request, response, action, () => {
             // raise logic here
         });
     }
