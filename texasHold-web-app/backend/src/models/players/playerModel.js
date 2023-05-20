@@ -31,6 +31,17 @@ playerModel.getChips = async (game_id) => {
   return result.chips;
 };
 
+playerModel.getHand = async (playerId) => {
+  query  = "SELECT hand FROM players WHERE player_id = $1";
+  result = await db.one(query, [playerId]);
+
+  return result.hand;
+}
+
+playerModel.setHand = async (playerId, newHand) => {
+  //
+}
+
 playerModel.addPlayer = async (game_id) => {
   const playerArr = [];
   let query = "SELECT player_id FROM players WHERE game_id = $1";
@@ -50,10 +61,10 @@ playerModel.removePlayer = async (playerId) => {
   await db.none(query, [playerId]);
 };
 
-playerModel.changeStatus = async (playerId) => {
-  query = "UPDATE players SET folded = True WHERE player_id = $1";
+playerModel.setFolded = async (playerId, folded) => {
+  query = "UPDATE players SET folded = $2 WHERE player_id = $1";
 
-  await db.none(query, [playerId]);
+  await db.none(query, [playerId, folded]);
 };
 
 playerModel.getAllPlayers = async (gameId) => {

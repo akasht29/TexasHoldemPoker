@@ -30,7 +30,7 @@ universalActionsWrapper = async (request, response, action, localActions) => {
     const minBet = await gameModel.getMinBet(gameId);
 
     if (
-        (await pokerController.isBigBlind(playerId)) &&
+        (await  pokerController.isBigBlind(playerId)) &&
         ((await pokerController.getPotSize(playerId)) == 0)
     ) {
         pokerController.bet(

@@ -3,6 +3,18 @@ const playerModel = require("../models/players/playerModel");
 
 pokerController = {};
 
+pokerController.dealCardsToCommunity = async (gameId) => {
+    let playerInfo = await playerModel.getGameData(playerId);
+
+    return playerInfo.folded;
+}
+
+pokerController.dealCardsToPlayer = async (gameId) => {
+    let playerInfo = await playerModel.getPlayerData(playerId);
+
+    return playerInfo.folded;
+}
+
 pokerController.isPlayerFolded = async (playerId) => {
     let playerInfo = await playerModel.getPlayerData(playerId);
 
