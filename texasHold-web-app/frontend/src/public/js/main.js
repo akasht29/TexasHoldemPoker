@@ -74,3 +74,16 @@ function clearChat() {
   const chatDiv = document.getElementById("chat-view");
   chatDiv.innerHTML = "";
 }
+
+socket.on("CARDS_DEALT", ({ playername, amount }) => {
+  // remove the current cards being displayed
+  //
+});
+
+socket.on("FOLD", ({ playername, amount }) => {
+  // Update the frontend indicateing that the player has bet
+});
+
+socket.on("BET", ({ playername, amount }) => {
+  // Update the frontend indicateing that the player has bet
+});
