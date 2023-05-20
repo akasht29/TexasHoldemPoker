@@ -1,7 +1,10 @@
-const express = require('express');
-const router  = express.Router();
-const pokerController = require("../controllers/pokerController");
-const gameModel   = require("../models/game/gameModel");
+const express          = require('express');
+const router           = express.Router();
+const pokerController  = require("../controllers/pokerController");
+const playerController = require("../controllers/playerController");
+const gameModel        = require("../models/gameModel");
+const playerModel      = require('../models/playerModel');
+const gameController = require('../controllers/gameController');
 
 // returns the players current hand as a json object to the client
 router.get('/:gameId/getHandCards', async (_request, _response) => {
@@ -12,25 +15,26 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
     //
 });
 
-
 universalActionsWrapper = async (request, response, action, localActions) => {
     const io       = request.app.get("io");
     const username = request.session.user.username;
     const gameId   = request.params.gameId;
     const playerId = request.session.player.playerId;
     
-    if (await pokerController.isPlayerFolded(playerId)) {
+    if (await playerController.isPlayerFolded(playerId)) {
         response.status(400).json({ message: "You have folded. Please wait for the next round." });
+        return;
     }
 
-    if (!(await pokerController.isPlayersTurn(gameId, playerId))) {
+    if (!(await playerController.isPlayersTurn(playerId))) {
         response.status(400).json({ message: "Please wait for your turn." });
+        return;
     }
     
     const minBet = await gameModel.getMinBet(gameId);
-
+    
     if (
-        (await  pokerController.isBigBlind(playerId)) &&
+        (await  playerController.isBigBlind(playerId)) &&
         ((await pokerController.getPotSize(playerId)) == 0)
     ) {
         pokerController.bet(
@@ -39,9 +43,9 @@ universalActionsWrapper = async (request, response, action, localActions) => {
             minBet
         );
     }
-
+    
     if (
-        (await pokerController.isSmallBlind(playerId)) &&
+        (await playerController.isSmallBlind(playerId)) &&
         ((await pokerController.getPotSize(playerId)) <= minBet)
     ) {
         pokerController.bet(
@@ -51,20 +55,30 @@ universalActionsWrapper = async (request, response, action, localActions) => {
         );
     }
 
-    localActions();
+    await localActions();
     
-    await pokerController.nextTurn(gameId);
+    if (await pokerController.roundOver(gameId)) {
+        console.log('round over! round over! round over! round over! ')
+        await gameController.incrementRound(gameId);
+        
+        if (await gameController.isGameOver(gameId)) {
+            console.log("game over! game over! game over! game over! game over!");
 
-    if (await pokerController.isGameOver(gameId)) {
-        // display standings
-        response.redirect(`poker/${gameId}/standings`);
+            // TODO: Rediret all players in the current game to the standings page.
+            response.redirect(`poker/${gameId}/standings`);
+            return;
+        }
 
-        // TODO: Somehow, we have to rediret all players in the current game to the standings.
+        await pokerController.clearCards(gameId);
+        await pokerController.dealCardsToPlayers(gameId);
+        await pokerController.unfoldPlayers(gameId);
+        let newDealer = await gameController.incrementDealer(gameId);
+        await gameModel.setTurn(gameId, newDealer);
     }
-    else if (await pokerController.isNewRound(gameId)) {
-        // deal cards
+    else {
+        await pokerController.nextTurn(gameId);
     }
-
+    
     const gameInfo = await gameModel.getGameData(gameId);
     io.in(parseInt(request.params.gameId)).emit("GAME_UPDATE", {
         // info passed to clients goes here
@@ -79,7 +93,7 @@ universalActionsWrapper = async (request, response, action, localActions) => {
 router.head('/:gameId/pass', async (request, response) => {
     try {
         const action = "PASS";
-        await universalActionsWrapper(request, response, action, () => {
+        await universalActionsWrapper(request, response, action, async () => {
             // pass logic here
         });
     }
@@ -92,7 +106,7 @@ router.head('/:gameId/pass', async (request, response) => {
 router.head('/:gameId/allIn', async (request, response) => {
     try {
         const action = "ALLIN";
-        await universalActionsWrapper(request, response, action, () => {
+        await universalActionsWrapper(request, response, action, async () => {
             // all in logic here
         });
     }
@@ -105,7 +119,7 @@ router.head('/:gameId/allIn', async (request, response) => {
 router.head('/:gameId/call', async (request, response) => {
     try {
         const action = "CALL";
-        await universalActionsWrapper(request, response, action, () => {
+        await universalActionsWrapper(request, response, action, async () => {
             // call logic here
         });
     }
@@ -118,7 +132,7 @@ router.head('/:gameId/call', async (request, response) => {
 router.head('/:gameId/fold', async (request, response) => {
     try {
         const action = "FOLD";
-        await universalActionsWrapper(request, response, action, () => {
+        await universalActionsWrapper(request, response, action, async () => {
             // fold logic here
         });
     }
@@ -131,7 +145,7 @@ router.head('/:gameId/fold', async (request, response) => {
 router.post('/:gameId/raise', async (request, response) => {
     try {
         const action = "RAISE";
-        await universalActionsWrapper(request, response, action, () => {
+        await universalActionsWrapper(request, response, action, async () => {
             // raise logic here
         });
     }
