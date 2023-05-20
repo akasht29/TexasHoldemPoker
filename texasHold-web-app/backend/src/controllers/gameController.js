@@ -1,4 +1,4 @@
-const gameModel   = require("../models/game/gameModel");
+const gameModel      = require("../models/gameModel");
 const gameController = {};
 
 gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
@@ -7,7 +7,7 @@ gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
         gameName, 
         chips,
         numPlayers, 
-        numRounds * numPlayers, 
+        numRounds, 
         minBet
     );
 };
@@ -44,8 +44,7 @@ gameController.gameStarted = async (gameId) => {
 
 gameController.firstPlayer = async (gameId, playerId) => {
     let gameData = await gameModel.getGameData(gameId);
-    console.log("firstPlayerGameData:", gameData);
-    console.log('PlayerId:', playerId);
+    
     return (
         !gameData.players ||
         gameData.players.length == 0 ||
@@ -53,6 +52,63 @@ gameController.firstPlayer = async (gameId, playerId) => {
         // from lowest to highest
         gameData.players[0] == playerId
     );
+}
+
+gameController.incrementTurn = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_turn++;
+    
+    await gameModel.setTurn(gameId, gameInfo.curr_turn);
+}
+
+gameController.incrementRound = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_round++;
+    
+    await gameModel.setRound(gameId, gameInfo.curr_round);
+}
+
+gameController.incrementDealer = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_dealer = (gameInfo.curr_dealer + 1) % gameInfo.players.length;
+    
+    await gameModel.setDealer(gameId, gameInfo.curr_dealer);
+
+    return gameInfo.curr_dealer;
+}
+
+gameController.isGameOver = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    if (gameInfo.curr_round >= gameInfo.num_rounds) {
+        return true;
+    }
+
+    return false;
+}
+
+gameController.dealCardToCommunity = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId)
+    let card     = await gameModel.popCardOffDeck(gameId);
+    
+    gameInfo.communityCards.push(card);
+
+    await gameModel.setCommunityCards(gameId);
+}
+
+gameController.getCurrentPlayerIndex = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+
+    return gameInfo.curr_turn % gameInfo.players.length;
+}
+
+gameController.getCurrentPlayer = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+
+    return gameInfo.players[ await gameController.getCurrentPlayerIndex(gameId) ];
 }
 
 module.exports = gameController;

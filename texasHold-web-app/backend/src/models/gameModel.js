@@ -1,13 +1,14 @@
-const gameModel   = {};
-const db          = require("../../database/connection");
-const pgarray     = require('pg-array');
+const gameModel = {};
+const db        = require("../database/connection");
+const pgarray   = require('pg-array');
 
-gameModel.createGame = async (game_name, chips, num_players, num_turns, min_bet) => {
+gameModel.createGame = async (game_name, chips, num_players, num_rounds, min_bet) => {
     const deck      = await gameModel.generateDeck();
-    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_turns, min_bet, deck) ";
+    console.log(deck)
+    const insertStr = "INSERT INTO game (game_name, chips, num_players, num_rounds, min_bet, deck) ";
     const valuesStr = `VALUES ($1, $2, $3, $4, $5, $6) RETURNING game_id`;
     const query     = insertStr + valuesStr;
-    const values    = [game_name, chips, num_players, num_turns, min_bet, pgarray(deck)];
+    const values    = [game_name, chips, num_players, num_rounds, min_bet, deck];
 
     return await db.one(
         query,
@@ -15,45 +16,56 @@ gameModel.createGame = async (game_name, chips, num_players, num_turns, min_bet)
     );
 };
 
-// ok, this is dumb, but pgarray likes decks as strings
+gameModel.shuffleDeck = async (deck) => {
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+
+    return deck;
+}
+
 gameModel.generateDeck = async () => {
     let deck = [];
+
     for (let i = 0; i < 52; i++) {
         deck.push(i);
     }
 
-    deck = gameModel.shuffleDeck(deck);
-    deck = JSON.stringify(deck);
-    return deck.substring(1, deck.length - 1);
-}
-
-gameModel.resetDeck = async (game_id) => {
-    newDeck = await gameModel.generateDeck();
-
-    query = "UPDATE game SET deck = $1 WHERE game_id = $2";
-    const values = [pgarray(newDeck), game_id];
-    await db.none(query, values);
+    deck = await gameModel.shuffleDeck(deck);
+    const deckStr = JSON.stringify(deck);
+    return pgarray(deckStr.substring(1, deckStr.length - 1));
 }
 
 gameModel.getMinBet = async (gameId) => {
-    query = "SELECT min_bet FROM game WHERE game_id = $1";
+    const query = "SELECT min_bet FROM game WHERE game_id = $1";
 
-    let gameInfo = await db.one(db.query, [gameId]);
+    let gameInfo = await db.one(query, [gameId]);
     return gameInfo.min_bet;
 }
 
-gameModel.updateDeck = async (game_id, deck) => {
-    let query = "Update game SET deck = $1 WHERE game_id = $2"
-    let values = [pgarray(deck), game_id];
+gameModel.setDeck = async (game_id, deck) => {
+    let query = "UPDATE game SET deck = $1 WHERE game_id = $2";
+    const deckStr = JSON.stringify(deck);
+    let values = [pgarray(deckStr.substring(1, deckStr.length - 1)), game_id];
+    
     await db.none(query, values);
 }
 
 gameModel.getDeck = async (game_id) => {
-    query = "SELECT deck FROM game WHERE game_id = $1";
-    result = await db.one(query, [game_id]);
-
-    console.log(result.deck);
+    const query = "SELECT deck FROM game WHERE game_id = $1";
+    const result = await db.one(query, [game_id]);
+    
     return result.deck;
+}
+
+gameModel.popCardOffDeck = async (gameId) => {
+    let deck = await gameModel.getDeck(gameId);
+    let card = deck.pop();
+    
+    await gameModel.setDeck(gameId, deck);
+
+    return card;
 }
 
 gameModel.addCards = async (game_id, player_id) => {
@@ -65,37 +77,27 @@ gameModel.addCards = async (game_id, player_id) => {
 
     await db.none(query, values);
 
-    await gameModel.updateDeck(game_id, deck);
+    await gameModel.setDeck(game_id, deck);
 }
 
-gameModel.shuffleDeck = async (deck) => {
-    for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-
-    return deck;
-}
-
-gameModel.getCommunityCards = async(game_id) => {
-    query = "SELECT * FROM game WHERE game_id = $1";
-    result = await db.one(query, [game_id]);
+gameModel.getCommunityCards = async (game_id) => {
+    const query = "SELECT * FROM game WHERE game_id = $1";
+    const result = await db.one(query, [game_id]);
 
     return result.communityCards;
 }
 
-gameModel.addToCommunityCards = async (game_id) => {
+gameModel.clearCommunityCards = async (game_id) => {
+    const query = "UPDATE game SET communitycards = {} WHERE game_id = $1";
 
-    let deck = await gameModel.getDeck(game_id);
-    let card = deck.splice(0, 1);
-    console.log(card[0])
-    let cc = await gameModel.getCommunityCards(game_id);
-    let query = "UPDATE game SET communitycards = array_append(communitycards, $1) WHERE game_id = $2";
-    let values = [card[0], game_id];
+    await db.none(query, [game_id]);
+}
+
+gameModel.setCommunityCards = async (game_id, cards) => {
+    let query = "UPDATE game SET communitycards = $2 WHERE game_id = $1";
+    let values = [game_id, pgarray(cards)];
 
     await db.none(query, values);
-
-    await gameModel.updateDeck(game_id, deck);
 }
 
 gameModel.getAllGames = async () => {
@@ -108,9 +110,22 @@ gameModel.getGameData = async (gameId) => {
     return await db.one(query);
 }
 
-gameModel.updateTurn = async (gameId, newTurnValue) => {
-    const query = `UPDATE game SET curr_turn = $1`;
-    await db.none(query, [newTurnValue]);
+gameModel.setTurn = async (gameId, newTurn) => {
+    const query = `UPDATE game SET curr_turn = $2 WHERE game_id = $1`;
+    
+    await db.none(query, [gameId, newTurn]);
+}
+
+gameModel.setRound = async (gameId, newRound) => {
+    const query = `UPDATE game SET curr_round = $2 WHERE game_id = $1`;
+    
+    await db.none(query, [gameId, newRound]);
+}
+
+gameModel.setDealer = async (gameId, newDealer) => {
+    const query = `UPDATE game SET curr_dealer = $2 WHERE game_id = $1`;
+    
+    await db.none(query, [gameId, newDealer]);
 }
 
 gameModel.storeGame = (gameId, pokerGame) => {
@@ -151,7 +166,7 @@ gameModel.updatePlayerData = (user_id, game_id, playerData) => {
 
 gameModel.updateGamePlayers = async (gameId, newPlayers) => {
     const query = `UPDATE game SET players = $2 WHERE game_id = $1 RETURNING game_id`;
-    values = [gameId, newPlayers];
+    const values = [gameId, newPlayers];
     return await db.one(query, values);
 };
 

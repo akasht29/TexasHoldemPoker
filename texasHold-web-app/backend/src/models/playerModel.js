@@ -1,7 +1,7 @@
-const db = require("../../database/connection");
-const gameModel  = require('../game/gameModel')
+const db          = require("../database/connection");
+const gameModel   = require('./gameModel')
 const playerModel = {};
-const pgarray = require("pg-array");
+const pgarray     = require("pg-array");
 
 playerModel.createPlayer = async (user_id, game_id) => {
   const chips = await playerModel.getChips(game_id);
@@ -39,13 +39,16 @@ playerModel.getHand = async (playerId) => {
 }
 
 playerModel.setHand = async (playerId, newHand) => {
-  //
+  query = "UPDATE players SET hand = $2 WHERE player_id = $1";
+  
+  await db.none(query, [playerId, newHand]);
 }
 
 playerModel.addPlayer = async (game_id) => {
-  const playerArr = [];
+  let playerArr = [];
   let query = "SELECT player_id FROM players WHERE game_id = $1";
   let result = await db.many(query, [game_id]);
+  
   for (let i = 0; i < result.length; i++) {
     playerArr.push(result[i].player_id);
   }
@@ -61,16 +64,28 @@ playerModel.removePlayer = async (playerId) => {
   await db.none(query, [playerId]);
 };
 
-playerModel.setFolded = async (playerId, folded) => {
-  query = "UPDATE players SET folded = $2 WHERE player_id = $1";
+playerModel.setToFolded = async (playerId) => {
+  query = "UPDATE players SET status = $2 WHERE player_id = $1";
 
-  await db.none(query, [playerId, folded]);
+  await db.none(query, [playerId, 0]);
+};
+
+playerModel.setToCalled = async (playerId) => {
+  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+
+  await db.none(query, [playerId, 1]);
+};
+
+playerModel.setToOther = async (playerId) => {
+  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+
+  await db.none(query, [playerId, 2]);
 };
 
 playerModel.getAllPlayers = async (gameId) => {
-  query = "SELECT players FROM game WHERE game_id = $1";
+  query = "SELECT * FROM players WHERE game_id = $1";
 
-  await db.one(query, [gameId]);
+  return await db.any(query, [gameId]);
 };
 
 playerModel.getPlayerData = async (playerId) => {
