@@ -166,6 +166,8 @@ router.head('/:gameId/call', async (request, response) => {
         const io       = request.app.get("io");
         const username = request.session.user.username;
 
+        
+
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
             return;
@@ -178,12 +180,15 @@ router.head('/:gameId/call', async (request, response) => {
             const playerInfo = await playerModel.getPlayerData(playerId);
             const highestBet = await pokerController.getHighestBet(gameId);
             console.log("highestBet:", highestBet, "currentBet:", playerInfo.curr_bet, highestBet - playerInfo.curr_bet);
+            
             await pokerController.bet(
                 gameId,
                 playerId,
                 highestBet - playerInfo.curr_bet
             );
         }
+
+        
 
         await pokerController.nextTurn(gameId);
 
@@ -208,12 +213,13 @@ router.head('/:gameId/call', async (request, response) => {
             let newDealer = await gameController.incrementDealer(gameId);
             await gameModel.setTurn(gameId, newDealer);
         }
+        
 
         if (await gameController.isGameOver(gameId)) {
             console.log("game over");
             response.redirect(`poker/${gameId}/standings`);
         }
-        
+
         response.status(200).send("player cant move");
     }
     catch (error) { 

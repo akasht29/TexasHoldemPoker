@@ -142,8 +142,9 @@ pokerController.bet = async (gameId, playerId, amount) => {
 
     playerInfo.chips    -= amount;
     playerInfo.curr_bet += amount;
-
+    // console.log("players 3:", await playerModel.getAllPlayers(gameId));
     await playerModel.setChipsAndBet(playerId, playerInfo.chips, playerInfo.curr_bet);
+    // console.log("players 4:", await playerModel.getAllPlayers(gameId));
 }
 
 pokerController.nextTurn = async (gameId) => {

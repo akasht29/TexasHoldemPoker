@@ -110,7 +110,7 @@ playerController.isBigBlind = async (gameId, playerId) => {
     const players = await playerModel.getAllPlayers(gameId);
     let dealer    = await gameModel.getDealer(gameId);
     let index     = (dealer + 2) % players.length;
-
+    
     return players[index].player_id == playerId;
 }
 

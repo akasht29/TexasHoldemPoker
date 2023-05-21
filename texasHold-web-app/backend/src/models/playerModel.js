@@ -90,13 +90,13 @@ playerModel.setToOther = async (playerId) => {
 };
 
 playerModel.getAllPlayers = async (gameId) => {
-  const query = "SELECT * FROM players WHERE game_id = $1";
+  const query = "SELECT * FROM players WHERE game_id = $1 ORDER BY player_id";
 
   return await db.any(query, [gameId]);
 };
 
 playerModel.getPlayerData = async (playerId) => {
-  const query = "SELECT * FROM players WHERE player_id = $1";
+  const query = "SELECT * FROM players WHERE player_id = $1 ";
 
   return await db.one(query, [playerId]);
 };
