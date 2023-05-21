@@ -167,7 +167,8 @@ router.head('/:gameId/call', async (request, response) => {
         const username = request.session.user.username;
 
         if (!(await pokerController.canPlayerMove(playerId))) {
-            response.status(400);
+            response.status(400).send("player cant move");
+            return;
         }
 
         await pokerController.handleBlindBets(gameId, playerId);
@@ -189,12 +190,12 @@ router.head('/:gameId/call', async (request, response) => {
         if (await pokerController.isNewCycle(gameId)) {
             console.log('new cycle!');
             const gameInfo   = await gameModel.getGameData(gameId);
-            if (gameInfo.communitycards.length < 4) {
+            if (gameInfo.communitycards.length < 5) {
                 console.log('dealing a card to the community cards!');
 
                 await pokerController.dealCardToCommunity(gameId);
 
-                io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
                     // info passed to clients goes here
                     communityCards: (await gameModel.getGameData(gameId)).communitycards
                 });
@@ -213,11 +214,11 @@ router.head('/:gameId/call', async (request, response) => {
             response.redirect(`poker/${gameId}/standings`);
         }
         
-        response.status(200);
+        response.status(200).send("player cant move");
     }
     catch (error) { 
         console.log(error.message);
-        response.status(500).json({ message: error.message });
+        response.status(500).send("server error");
     }
 });
 
