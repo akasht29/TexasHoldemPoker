@@ -10,7 +10,7 @@ exports.up = pgm => {
     num_players:    { type: 'INTEGER', notNull: true, default: 3 }, // the maxiumum number of players in the game
     num_rounds:     { type: 'INTEGER', notNull: true, default: 5 }, // the maxiumum number of rounds in the game
     min_bet:        { type: 'INTEGER', notNull: true, default: 0 },
-    curr_turn:      { type: 'INTEGER', notNull: true, default: -1 },
+    curr_turn:      { type: 'INTEGER', notNull: true, default: 0 },
     curr_dealer:    { type: 'INTEGER', notNull: true, default: 0 },
     curr_round:     { type: 'INTEGER', notNull: true, default: 0 },
     curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
@@ -40,8 +40,8 @@ exports.up = pgm => {
       references: 'game(game_id)'
     },
     chips:    { type: 'INTEGER', notNull: true, default: 1000 },
-    status:   { type: 'INTEGER', default: 3 }, // 0 == folded, 1 == called, 2 == all in, 3 == other
-    curr_bet: { type: 'INTEGER', default: 0 },
+    status:   { type: 'INTEGER', notNull: true, default: 3 }, // 0 == folded, 1 == called, 2 == all in, 3 == other
+    curr_bet: { type: 'INTEGER', notNull: true, default: 0 },
     hand: { type: 'INTEGER[]' }
 
   });
