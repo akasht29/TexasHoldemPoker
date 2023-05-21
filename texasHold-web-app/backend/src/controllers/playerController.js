@@ -97,7 +97,7 @@ playerController.isPlayersTurn = async (playerId) => {
     let playerInfo  = await playerModel.getPlayerData(playerId);
     let gameInfo    = await gameModel.getGameData(playerInfo.game_id);
     let playerIndex = await gameController.getCurrentPlayerIndex(playerInfo.game_id);
-    console.log("current player's turn:", gameInfo.players[playerIndex], playerIndex);
+    
     if (gameInfo.players[playerIndex] == playerId) {
         return true;
     }

@@ -104,6 +104,7 @@ foldButton.addEventListener("click", () => {
 });
 
 callButton.addEventListener("click", () => {
+    console.log('sending request to call')
     fetch(`${baseUrl}/poker/${gameId}/call`, {
         method: "HEAD"
     })

@@ -71,7 +71,6 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       playerId = player.playerId;
     }
 
-    console.log("playerData:", request.session.player, playerId);
     // check if the game has started.
     if (await gameController.gameStarted(gameId)) {
       response.redirect(`/game/room/${gameId}`);

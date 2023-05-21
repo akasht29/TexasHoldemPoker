@@ -16,15 +16,18 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
 });
 
 universalActionsWrapper = async (request, response, io, localActions) => {
+    console.log('entering wrapper');
     const username = request.session.user.username;
     const gameId   = request.params.gameId;
     const playerId = request.session.player.playerId;
     
     if (await playerController.isPlayerFolded(playerId)) {
+        console.log('exiting wrapper');
         return false;
     }
 
     if (!(await playerController.isPlayersTurn(playerId))) {
+        console.log('exiting wrapper');
         return false;
     }
     
@@ -57,6 +60,26 @@ universalActionsWrapper = async (request, response, io, localActions) => {
     if (!ret) {
         return ret;
     }
+
+    const gameInfo = await gameModel.getGameData(gameId);
+    let players = JSON.parse(JSON.stringify(gameInfo.players)); 
+    
+    if (pokerController.isNewCycle(gameId)) {
+
+        let communityCards = await gameModel.getCommunityCards(
+            request.params.gameId
+        );
+        
+        if (communityCards.length < 4) {
+            console.log("dealing a card to the community!");
+            await pokerController.dealCardToCommunity(gameId);
+
+            io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                // info passed to clients goes here
+                communityCards: communityCards
+            });
+        }
+    }
     
     if (await pokerController.roundOver(gameId)) {
         console.log('round is over!');
@@ -74,6 +97,16 @@ universalActionsWrapper = async (request, response, io, localActions) => {
             await pokerController.unfoldPlayers(gameId);
             let newDealer = await gameController.incrementDealer(gameId);
             await gameModel.setTurn(gameId, newDealer);
+
+            console.log("community cards:", await gameModel.getCommunityCards(
+                request.params.gameId
+            ));
+            io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                // info passed to clients goes here
+                communityCards: await gameModel.getCommunityCards(
+                    request.params.gameId
+                )
+            });
         }
     }
     else {
@@ -81,6 +114,7 @@ universalActionsWrapper = async (request, response, io, localActions) => {
         await pokerController.nextTurn(gameId);
     }
 
+    console.log('exiting wrapper');
     return ret;
 }
 
@@ -142,7 +176,7 @@ router.head('/:gameId/allIn', async (request, response) => {
 
             return true;
         });
-
+        
         if (success) {
             response.status(200);
         }
@@ -166,13 +200,17 @@ router.head('/:gameId/call', async (request, response) => {
         let success = await universalActionsWrapper(request, response, io, async () => {
             let highestBet = await pokerController.getHighestBet(request.params.gameId);
             let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
-            let amount = highestBet - playerInfo.curr_bet;
+            let amount     = highestBet - playerInfo.curr_bet;
             
+            console.log('marker')
+
             await pokerController.bet(
                 request.params.gameId,
                 request.session.player.playerId,
                 amount
             );
+
+            console.log('marker')
 
             playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
 
@@ -185,6 +223,8 @@ router.head('/:gameId/call', async (request, response) => {
                 chips: playerInfo.chips,
                 curr_bet: playerInfo.curr_bet
             });
+
+            return true;
         });
 
         if (success) {
@@ -197,6 +237,8 @@ router.head('/:gameId/call', async (request, response) => {
         console.log(error.message);
         response.status(500).json({ message: error.message });
     }
+
+    response.status(200);
 });
 
 router.head('/:gameId/fold', async (request, response) => {

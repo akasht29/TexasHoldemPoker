@@ -75,9 +75,8 @@ function clearChat() {
   chatDiv.innerHTML = "";
 }
 
-socket.on("", ({ playername, amount }) => {
-  // remove the current cards being displayed
-  //
+socket.on("NEW_COMMUNITY_CARDS", function (cards) {
+  console.log(cards.communityCards);
 });
 
 socket.on("FOLD", ({ playername, amount }) => {
