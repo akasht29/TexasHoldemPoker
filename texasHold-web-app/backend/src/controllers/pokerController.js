@@ -1,4 +1,4 @@
-const pgarray = require("pg-array");
+const pgarray     = require("pg-array");
 const gameModel   = require("../models/gameModel");
 const playerModel = require("../models/playerModel");
 const playerController = require("./playerController");
@@ -44,16 +44,21 @@ pokerController.dealCardsToPlayers = async (gameId) => {
 }
 
 pokerController.dealCardToCommunity = async (gameId) => {
-    let gameInfo = gameModel.getGameData(gameId);
-    
-    for (let i = 0; i < gameInfo.players.length; i++) {
-        await gameModel.setCommunityCards(
-            gameId,
-            gameInfo.communityCards.push(
-                await gameModel.popCardOffDeck(gameId)
-            )
-        );
-    }
+    let gameInfo = await gameModel.getGameData(gameId);
+    const card   = await gameModel.popCardOffDeck(gameId);
+
+    gameInfo.communitycards.push(
+        card
+    );
+
+    const communityCardStr = JSON.stringify(gameInfo.communitycards);
+
+    await gameModel.setCommunityCards(
+        gameId,
+        pgarray(
+            communityCardStr.substring(1, communityCardStr.length - 1)
+        )
+    );
 }
 
 pokerController.getIndexOfPlayerId = async (gameId, playerId) => {
@@ -95,26 +100,28 @@ pokerController.bet = async (gameId, playerId, amount) => {
     playerInfo.chips    -= amount;
     playerInfo.curr_bet += amount;
 
-    console.log('hi');
     await playerModel.setChipsAndBet(playerId, playerInfo.chips, playerInfo.curr_bet);
-    console.log('bye');
 }
 
 pokerController.nextTurn = async (gameId) => {
+    console.log('in nextTurn')
+    await gameController.incrementTurn(gameId);
     let playerId = await gameController.getCurrentPlayer(gameId);
     
-    while (
-        !(await pokerController.isNewRound(gameId)) && (
+    let players = await playerModel.getAllPlayers(gameId);
+
+    for (let i = 0; i < players.length; i++) {
+        if (
             (await playerController.isPlayerFolded(playerId)) ||
-            (await playerController.isPlayerCalled(playerId)) ||
             (await playerController.isPlayerAllIn(playerId))
-        )
-    ) {
-        playerId = await gameController.getCurrentPlayer(gameId);
-        console.log('before inc:', playerId);
-        await gameController.incrementTurn(gameId);
-        playerId = await gameController.getCurrentPlayer(gameId);
-        console.log('after inc:', playerId);
+        ) {
+            await gameController.incrementTurn(gameId);
+            playerId = await gameController.getCurrentPlayer(gameId);
+            
+            continue;
+        }        
+        
+        break;
     }
 }
 
@@ -143,10 +150,14 @@ pokerController.roundOver = async (gameId) => {
     return remaining <= 1;
 }
 
-pokerController.isNewRound = async (gameId) => {
+pokerController.isNewCycle = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
+    const players = await playerModel.getAllPlayers(gameId);
 
-    return gameInfo.curr_turn == -1;
+    return (
+        (gameInfo.curr_turn % players.length == 0) &&
+        (gameInfo.curr_turn >= players.length)
+    );
 }
 
 getScore = (bigRank, littleRank) => {

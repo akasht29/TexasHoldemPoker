@@ -82,8 +82,8 @@ gameModel.addCards = async (game_id, player_id) => {
 gameModel.getCommunityCards = async (game_id) => {
     const query = "SELECT * FROM game WHERE game_id = $1";
     const result = await db.one(query, [game_id]);
-
-    return result.communityCards;
+    
+    return result.communitycards;
 }
 
 gameModel.clearCommunityCards = async (game_id) => {
@@ -94,7 +94,7 @@ gameModel.clearCommunityCards = async (game_id) => {
 
 gameModel.setCommunityCards = async (game_id, cards) => {
     let query = "UPDATE game SET communitycards = $2 WHERE game_id = $1";
-    let values = [game_id, pgarray(cards)];
+    let values = [game_id, cards];
 
     await db.none(query, values);
 }
