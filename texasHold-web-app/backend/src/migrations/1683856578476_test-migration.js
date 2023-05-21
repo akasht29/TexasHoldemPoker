@@ -40,8 +40,8 @@ exports.up = pgm => {
       references: 'game(game_id)'
     },
     chips:    { type: 'INTEGER' },
-    status:   { type: 'INTEGER', default: 2 }, // 0 == folded, 1 == called, 2 == all in, 3 == other
-    curr_bet: { type: 'INTEGER' },
+    status:   { type: 'INTEGER', default: 3 }, // 0 == folded, 1 == called, 2 == all in, 3 == other
+    curr_bet: { type: 'INTEGER', default: 0 },
     hand: { type: 'INTEGER[]' }
 
   });
