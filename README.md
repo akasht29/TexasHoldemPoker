@@ -1,20 +1,26 @@
-# term-project-sl3zt1nhcs-gupeht
+# CSC 667/867 Spring 2023 Term Project
+
 Project management Link: [https://www.notion.so/c9bb896ddb6d4fbaa63981ied939eff08?v=05286ec6f8d946cca526923d529179d4&pvs=4](https://global-authority-ffd.notion.site/c9bb896ddb6d4fbaa63981ed939eff08?v=05286ec6f8d946cca526923d529179d4)
 
+## Team Information
 
-   MAKE SURE YOU HAVE A .ENV INSIDE BACKEND/SRC/CONFIG FOLDER AND SET THE ENV VARIABLE OTHERWISE AUTHORIZATION WILL FAIL
+| Full Name         | Course (Select one) | Section (Select one) |
+| ----------------- | ------------------- | -------------------- |
+| Antonio Indindoli | 667                 | 1                    |
+|                   | 667                 | 1                    |
+|                   | 667                 | 1                    |
+|                   | 667                 | 1                    |
 
-    You need to run node database.js in your local computer
-    but before this make sure you have installed vs code extension for postgresql. Check package.json for dependencies.
+## Setup
 
-    1.install postgress  on your machine
+    1. Ensure postgres is installed and db is setup
 
-    3. Ensure your db server is running in your local 
+    2. Ensure correct information is placed in the .env inside of backend/src
 
-    4. make sure you have a default db name postgres or change the code to reflect the db name you have
+    3. In backend/src use npm run db:migrate to create db tables
 
-    5. when you run nodemon server.js it will create the tables automatically if dont exist
-
+    4. In backend/src use npm start to launch the server
+    
     To run webpack and nodemon as dev:
 
          in your branch do  a git reset  --hard development
@@ -24,6 +30,14 @@ Project management Link: [https://www.notion.so/c9bb896ddb6d4fbaa63981ied939eff0
                           do nodemon server.js
                           make sure if you dont have to do npm install but inside frontend/src and backend/src
 
+## Description of Architecture
 
+Describe the overall architecture of the system with a class diagram, followed by a description of the class diagram.
 
+## Challenges
 
+Describe what was difficult with this assignment, and why you found it to be difficult.
+
+## Testing Plan
+
+Describe how you tested your system.
