@@ -1,5 +1,5 @@
 const db          = require("../database/connection");
-const gameModel   = require('./gameModel')
+const gameModel   = require('./gameModel');
 const playerModel = {};
 const pgarray     = require("pg-array");
 
@@ -32,14 +32,14 @@ playerModel.getChips = async (game_id) => {
 };
 
 playerModel.getHand = async (playerId) => {
-  query  = "SELECT hand FROM players WHERE player_id = $1";
-  result = await db.one(query, [playerId]);
+  const query  = "SELECT hand FROM players WHERE player_id = $1";
+  const result = await db.one(query, [playerId]);
 
   return result.hand;
 }
 
 playerModel.setHand = async (playerId, newHand) => {
-  query = "UPDATE players SET hand = $2 WHERE player_id = $1";
+  const query = "UPDATE players SET hand = $2 WHERE player_id = $1";
   
   await db.none(query, [playerId, newHand]);
 }
@@ -65,55 +65,56 @@ playerModel.removePlayer = async (playerId) => {
 };
 
 playerModel.setToFolded = async (playerId) => {
-  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  const query  = "UPDATE players SET status = $1 WHERE player_id = $2";
+  const values = [ 0, playerId ];
 
-  await db.none(query, [playerId, 0]);
+  await db.none(query, values);
 };
 
 playerModel.setToCalled = async (playerId) => {
-  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
 
   await db.none(query, [playerId, 1]);
 };
 
 playerModel.setToAllIn = async (playerId) => {
-  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
 
   await db.none(query, [playerId, 2]);
 };
 
 playerModel.setToOther = async (playerId) => {
-  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
 
   await db.none(query, [playerId, 3]);
 };
 
 playerModel.getAllPlayers = async (gameId) => {
-  query = "SELECT * FROM players WHERE game_id = $1";
+  const query = "SELECT * FROM players WHERE game_id = $1";
 
   return await db.any(query, [gameId]);
 };
 
 playerModel.getPlayerData = async (playerId) => {
-  query = "SELECT * FROM players WHERE player_id = $1";
+  const query = "SELECT * FROM players WHERE player_id = $1";
 
   return await db.one(query, [playerId]);
 };
 
 playerModel.setChipsAndBet = async (playerId, chips, bet) => {
-  query = "UPDATE players SET chips = $2, bet = $3 WHERE player_id = $1";
+  const query = "UPDATE players SET chips = $2, bet = $3 WHERE player_id = $1";
 
   return await db.none(db.query, [playerId, chips, bet])
 }
 
 playerModel.getPlayerByUserId = async (userId) => {
-  query = "SELECT player_id FROM players WHERE user_id = $1";
+  const query = "SELECT player_id FROM players WHERE user_id = $1";
   
   return await db.one(query, [userId]);
 };
 
 playerModel.getGameIdByUserId = async (userId) => {
-  query = "SELECT game_id FROM players WHERE user_id = $1";
+  const query = "SELECT game_id FROM players WHERE user_id = $1";
  
   return await db.one(query, [userId]);
 };

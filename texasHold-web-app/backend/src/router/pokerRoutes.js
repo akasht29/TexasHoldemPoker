@@ -4,7 +4,7 @@ const pokerController  = require("../controllers/pokerController");
 const playerController = require("../controllers/playerController");
 const gameModel        = require("../models/gameModel");
 const playerModel      = require('../models/playerModel');
-const gameController = require('../controllers/gameController');
+const gameController   = require('../controllers/gameController');
 
 // returns the players current hand as a json object to the client
 router.get('/:gameId/getHandCards', async (_request, _response) => {
@@ -15,20 +15,17 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
     //
 });
 
-universalActionsWrapper = async (request, response, localActions) => {
-    const io       = request.app.get("io");
+universalActionsWrapper = async (request, response, io, localActions) => {
     const username = request.session.user.username;
     const gameId   = request.params.gameId;
     const playerId = request.session.player.playerId;
     
     if (await playerController.isPlayerFolded(playerId)) {
-        response.status(400).json({ message: "You have folded. Please wait for the next round." });
-        return;
+        return false;
     }
 
     if (!(await playerController.isPlayersTurn(playerId))) {
-        response.status(400).json({ message: "Please wait for your turn." });
-        return;
+        return false;
     }
     
     const minBet = await gameModel.getMinBet(gameId);
@@ -55,9 +52,14 @@ universalActionsWrapper = async (request, response, localActions) => {
         );
     }
 
-    await localActions();
+    let ret = await localActions();
+
+    if (!ret) {
+        return ret;
+    }
     
     if (await pokerController.roundOver(gameId)) {
+        console.log('round is over!');
         await gameController.incrementRound(gameId);
         
         if (await gameController.isGameOver(gameId)) {
@@ -75,20 +77,23 @@ universalActionsWrapper = async (request, response, localActions) => {
         }
     }
     else {
+        console.log("going to next player");
         await pokerController.nextTurn(gameId);
     }
 
-    response.status(200).json({ message: "success" });
+    return ret;
 }
 
 router.head('/:gameId/pass', async (request, response) => {
     try {
-        await universalActionsWrapper(request, response, async () => {
+        const io = request.app.get("io");
+        const username = request.session.user.username;
+
+        let success = await universalActionsWrapper(request, response, io, async () => {
             // check if pass is valid
             let canPass = true;
             if (!canPass) {
-                // TODO: CHECK If the current player can pass
-                response.status(400);
+                return false;
             }
 
             await pokerController.nextTurn(gameId);
@@ -98,18 +103,27 @@ router.head('/:gameId/pass', async (request, response) => {
                 username: username
             });
 
-            response.status(200);
+            return true;
         });
+
+        if (success) {
+            response.status(200);
+        }
+    
+        response.status(400)
     }
     catch (error) {
         console.log(error.message);
         response.status(500).json({ message: error.message });
-    }
+    };
 });
 
 router.head('/:gameId/allIn', async (request, response) => {
     try {
-        await universalActionsWrapper(request, response, async () => {
+        const io = request.app.get("io");
+        const username = request.session.user.username;
+
+        let success = await universalActionsWrapper(request, response, io, async () => {
             // all in logic here
             let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
 
@@ -125,7 +139,15 @@ router.head('/:gameId/allIn', async (request, response) => {
                 // info passed to clients goes here
                 username: username
             });
+
+            return true;
         });
+
+        if (success) {
+            response.status(200);
+        }
+    
+        response.status(400);
     }
     catch (error) {
         console.log(error.message);
@@ -135,7 +157,10 @@ router.head('/:gameId/allIn', async (request, response) => {
 
 router.head('/:gameId/call', async (request, response) => {
     try {
-        await universalActionsWrapper(request, response, async () => {
+        const io = request.app.get("io");
+        const username = request.session.user.username;
+
+        let success = await universalActionsWrapper(request, response, io, async () => {
             let highestBet = await pokerController.getHighestBet(request.params.gameId);
             let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
             let amount = highestBet - playerInfo.curr_bet;
@@ -158,6 +183,12 @@ router.head('/:gameId/call', async (request, response) => {
                 curr_bet: playerInfo.curr_bet
             });
         });
+
+        if (success) {
+            response.status(200);
+        }
+    
+        response.status(400);
     }
     catch (error) { 
         console.log(error.message);
@@ -167,7 +198,12 @@ router.head('/:gameId/call', async (request, response) => {
 
 router.head('/:gameId/fold', async (request, response) => {
     try {
-        await universalActionsWrapper(request, response, async () => {
+        const io       = request.app.get("io");
+        const username = request.session.user.username;
+        let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
+
+        let success = await universalActionsWrapper(request, response, io, async () => {
+            console.log("player id:", request.session.player.playerId);
             await playerModel.setToFolded(request.session.player.playerId);
 
             io.in(parseInt(request.params.gameId)).emit("FOLD", {
@@ -175,7 +211,15 @@ router.head('/:gameId/fold', async (request, response) => {
                 chips: playerInfo.chips,
                 curr_bet: playerInfo.curr_bet
             });
+
+            return true;
         });
+
+        if (success) {
+            response.status(200);
+        }
+    
+        response.status(400);
     }
     catch (error) {
         console.log(error.message);
@@ -185,7 +229,10 @@ router.head('/:gameId/fold', async (request, response) => {
 
 router.post('/:gameId/raise', async (request, response) => {
     try {
-        await universalActionsWrapper(request, response, async () => {
+        const io = request.app.get("io");
+        const username = request.session.user.username;
+
+        let success = await universalActionsWrapper(request, response, io, async () => {
             // raise logic here
             let amount = request.body.amount;
 
@@ -200,7 +247,15 @@ router.post('/:gameId/raise', async (request, response) => {
                 chips: playerInfo.chips,
                 curr_bet: playerInfo.curr_bet
             });
+
+            return true;
         });
+
+        if (success) {
+            response.status(200);
+        }
+    
+        response.status(400);
     }
     catch (error) {
         console.log(error.message);

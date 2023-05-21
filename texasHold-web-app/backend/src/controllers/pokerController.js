@@ -2,6 +2,7 @@ const pgarray = require("pg-array");
 const gameModel   = require("../models/gameModel");
 const playerModel = require("../models/playerModel");
 const playerController = require("./playerController");
+const gameController = require("./gameController");
 
 pokerController = {};
 
@@ -98,7 +99,7 @@ pokerController.bet = async (gameId, playerId, amount) => {
 }
 
 pokerController.nextTurn = async (gameId) => {
-    let playerId = await pokerController.getCurrentPlayer(gameId);
+    let playerId = await gameController.getCurrentPlayer(gameId);
     
     while (
         !(await pokerController.isNewRound(gameId)) && (
@@ -107,8 +108,11 @@ pokerController.nextTurn = async (gameId) => {
             (await playerController.isPlayerAllIn(playerId))
         )
     ) {
+        playerId = await gameController.getCurrentPlayer(gameId);
+        console.log('before inc:', playerId);
         await gameController.incrementTurn(gameId);
-        playerId = await pokerController.getCurrentPlayer(gameId);
+        playerId = await gameController.getCurrentPlayer(gameId);
+        console.log('after inc:', playerId);
     }
 }
 
@@ -116,18 +120,19 @@ pokerController.unfoldPlayers = async (gameId) => {
     let players = await playerModel.getAllPlayers(gameId);
 
     for (let i = 0; i < players.length; i++) {
-        await playerModel.setToCalled(players[i].player_id);
+        await playerModel.setToOther(players[i].player_id);
     }
 }
 
 pokerController.roundOver = async (gameId) => {
     const players = await playerModel.getAllPlayers(gameId);
     let remaining = players.length;
-    
+
     for (let i = 0; i < players.length; i++) {
         if (
             (await playerController.isPlayerFolded(players[i].player_id)) ||
-            (await playerController.isPlayerCalled(players[i].player_id))
+            (await playerController.isPlayerCalled(players[i].player_id)) ||
+            (await playerController.isPlayerAllIn(players[i].player_id))
         ) {
             remaining--;
         }
