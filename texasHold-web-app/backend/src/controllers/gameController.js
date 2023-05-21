@@ -12,6 +12,10 @@ gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
     );
 };
 
+gameController.getDealer = async (gameId) => {
+    return await gameModel.getDealer(gameId);
+};
+
 gameController.deleteGameIfEmpty = async (gameId) => {
     let gameData = await gameModel.getGameData(gameId);
 
