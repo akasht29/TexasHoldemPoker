@@ -97,6 +97,7 @@ playerController.isPlayersTurn = async (playerId) => {
     let playerInfo  = await playerModel.getPlayerData(playerId);
     let gameInfo    = await gameModel.getGameData(playerInfo.game_id);
     let playerIndex = await gameController.getCurrentPlayerIndex(playerInfo.game_id);
+    console.log('current player:', gameInfo.players[playerIndex], playerIndex);
     
     if (gameInfo.players[playerIndex] == playerId) {
         return true;
@@ -105,31 +106,20 @@ playerController.isPlayersTurn = async (playerId) => {
     return false;
 }
 
-playerController.isBigBlind = async (playerId) => {
-    let playerInfo     = await playerModel.getPlayerData(playerId);
-    let gameInfo       = await gameModel.getGameData(playerInfo.game_id);
-    let curPlayerIndex = await gameController.getCurrentPlayerIndex(playerInfo.game_id);
-    // ERROR HERE curPlayerIndex is NaN?
-    let bigBlindPlayerIndex = (curPlayerIndex + 2) % gameInfo.players.length;
-    
-    if (gameInfo.players[bigBlindPlayerIndex].player_id == playerId) {
-        return true
-    }
+playerController.isBigBlind = async (gameId, playerId) => {
+    const players = await playerModel.getAllPlayers(gameId);
+    let dealer    = await gameModel.getDealer(gameId);
+    let index     = (dealer + 2) % players.length;
 
-    return false;
+    return players[index].player_id == playerId;
 }
 
-playerController.isSmallBlind = async (playerId) => {
-    let playerInfo     = await playerModel.getPlayerData(playerId);
-    let gameInfo       = await gameModel.getGameData(playerInfo.game_id);
-    let curPlayerIndex = await gameController.getCurrentPlayerIndex(playerInfo.game_id);
-    let smallBlindPlayerIndex = (curPlayerIndex + 1) % gameInfo.players.length;
+playerController.isSmallBlind = async (gameId, playerId) => {
+    const players = await playerModel.getAllPlayers(gameId);
+    let dealer    = await gameModel.getDealer(gameId);
+    let index     = (dealer + 1) % players.length;
 
-    if (gameInfo.players[smallBlindPlayerIndex].player_id == playerId) {
-        return true
-    }
-
-    return false;
+    return players[index].player_id == playerId;
 }
 
 module.exports = playerController;

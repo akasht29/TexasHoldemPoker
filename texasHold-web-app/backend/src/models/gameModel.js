@@ -59,6 +59,13 @@ gameModel.getDeck = async (game_id) => {
     return result.deck;
 }
 
+gameModel.getDealer = async (game_id) => {
+    const query = "SELECT curr_dealer FROM game WHERE game_id = $1";
+    const result = await db.one(query, [game_id]);
+    
+    return result.curr_dealer;
+}
+
 gameModel.popCardOffDeck = async (gameId) => {
     let deck = await gameModel.getDeck(gameId);
     let card = deck.pop();
