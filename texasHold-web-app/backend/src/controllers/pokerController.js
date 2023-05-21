@@ -105,10 +105,14 @@ pokerController.bet = async (gameId, playerId, amount) => {
 
 pokerController.nextTurn = async (gameId) => {
     console.log('in nextTurn')
+    console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn);
     await gameController.incrementTurn(gameId);
+    console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn);
+
     let playerId = await gameController.getCurrentPlayer(gameId);
-    
     let players = await playerModel.getAllPlayers(gameId);
+
+    console.log('got all players!:', players);
 
     for (let i = 0; i < players.length; i++) {
         if (
@@ -116,10 +120,9 @@ pokerController.nextTurn = async (gameId) => {
             (await playerController.isPlayerAllIn(playerId))
         ) {
             await gameController.incrementTurn(gameId);
-            playerId = await gameController.getCurrentPlayer(gameId);
             
             continue;
-        }        
+        }
         
         break;
     }
@@ -154,9 +157,11 @@ pokerController.isNewCycle = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
     const players = await playerModel.getAllPlayers(gameId);
 
+    console.log("players.length:", players.length);
+
     return (
-        (gameInfo.curr_turn % players.length == 0) &&
-        (gameInfo.curr_turn >= players.length)
+        ((gameInfo.curr_turn  - gameInfo.curr_dealer) % players.length == 0) &&
+        ((gameInfo.curr_turn  - gameInfo.curr_dealer) >= players.length)
     );
 }
 

@@ -22,12 +22,12 @@ universalActionsWrapper = async (request, response, io, localActions) => {
     const playerId = request.session.player.playerId;
     
     if (await playerController.isPlayerFolded(playerId)) {
-        console.log('exiting wrapper');
+        console.log('exiting wrapper 1');
         return false;
     }
 
     if (!(await playerController.isPlayersTurn(playerId))) {
-        console.log('exiting wrapper');
+        console.log('exiting wrapper 2');
         return false;
     }
     
@@ -64,23 +64,6 @@ universalActionsWrapper = async (request, response, io, localActions) => {
     const gameInfo = await gameModel.getGameData(gameId);
     let players = JSON.parse(JSON.stringify(gameInfo.players)); 
     
-    if (pokerController.isNewCycle(gameId)) {
-
-        let communityCards = await gameModel.getCommunityCards(
-            request.params.gameId
-        );
-        
-        if (communityCards.length < 4) {
-            console.log("dealing a card to the community!");
-            await pokerController.dealCardToCommunity(gameId);
-
-            io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                // info passed to clients goes here
-                communityCards: communityCards
-            });
-        }
-    }
-    
     if (await pokerController.roundOver(gameId)) {
         console.log('round is over!');
         await gameController.incrementRound(gameId);
@@ -89,9 +72,9 @@ universalActionsWrapper = async (request, response, io, localActions) => {
 
             // TODO: Rediret all players in the current game to the standings page.
             response.redirect(`poker/${gameId}/standings`);
-            return;
         }
         else {
+            console.log('clearing cards!');
             await pokerController.clearCards(gameId);
             await pokerController.dealCardsToPlayers(gameId);
             await pokerController.unfoldPlayers(gameId);
@@ -112,9 +95,29 @@ universalActionsWrapper = async (request, response, io, localActions) => {
     else {
         console.log("going to next player");
         await pokerController.nextTurn(gameId);
+
+        if (await pokerController.isNewCycle(gameId)) {
+            let communityCards = await gameModel.getCommunityCards(
+                request.params.gameId
+            );
+            
+            if (communityCards.length < 4) {
+                console.log("dealing a card to community!");
+                await pokerController.dealCardToCommunity(gameId);
+
+                communityCards = await gameModel.getCommunityCards(
+                    request.params.gameId
+                );
+        
+                io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                    // info passed to clients goes here
+                    communityCards: communityCards
+                });
+            }
+        }
     }
 
-    console.log('exiting wrapper');
+    console.log('exiting wrapper 3');
     return ret;
 }
 
