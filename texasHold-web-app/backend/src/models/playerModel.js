@@ -76,10 +76,16 @@ playerModel.setToCalled = async (playerId) => {
   await db.none(query, [playerId, 1]);
 };
 
-playerModel.setToOther = async (playerId) => {
+playerModel.setToAllIn = async (playerId) => {
   query = "UPDATE players SET status = $2 WHERE player_id = $1";
 
   await db.none(query, [playerId, 2]);
+};
+
+playerModel.setToOther = async (playerId) => {
+  query = "UPDATE players SET status = $2 WHERE player_id = $1";
+
+  await db.none(query, [playerId, 3]);
 };
 
 playerModel.getAllPlayers = async (gameId) => {

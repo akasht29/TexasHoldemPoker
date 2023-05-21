@@ -87,6 +87,12 @@ playerController.isPlayerCalled = async (playerId) => {
     return playerInfo.status == 1;
 }
 
+playerController.isPlayerAllIn = async (playerId) => {
+    let playerInfo = await playerModel.getPlayerData(playerId);
+
+    return playerInfo.status == 2;
+}
+
 playerController.isPlayersTurn = async (playerId) => {
     let playerInfo  = await playerModel.getPlayerData(playerId);
     let gameInfo    = await gameModel.getGameData(playerInfo.game_id);

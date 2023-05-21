@@ -9,7 +9,7 @@ socket.on("error", function (err) {
 });
 
 socket.on("GAME_STARTING", function (destination) {
-  window.location.href = destination;
+  window.location.replace(destination.redirectURL);
 });
 
 socket.on("CHAT_MESSAGE", ({ username, message }) => {
@@ -75,7 +75,7 @@ function clearChat() {
   chatDiv.innerHTML = "";
 }
 
-socket.on("CARDS_DEALT", ({ playername, amount }) => {
+socket.on("", ({ playername, amount }) => {
   // remove the current cards being displayed
   //
 });

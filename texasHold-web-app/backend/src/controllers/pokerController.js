@@ -67,6 +67,19 @@ pokerController.getIndexOfPlayerId = async (gameId, playerId) => {
     return -1;
 }
 
+pokerController.getHighestBet = async (gameId) => {
+    const players = await playerModel.getAllPlayers(gameId);
+    
+    let highestBid = 0;
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].curr_bet > highestBid) {
+            highestBid = players[i].curr_bet;
+        }
+    }
+
+    return highestBid;
+}
+
 pokerController.bet = async (gameId, playerId, amount) => {
     let playerInfo = await playerModel.getPlayerData(playerId);
 
@@ -90,7 +103,8 @@ pokerController.nextTurn = async (gameId) => {
     while (
         !(await pokerController.isNewRound(gameId)) && (
             (await playerController.isPlayerFolded(playerId)) ||
-            (await playerController.isPlayerCalled(playerId))
+            (await playerController.isPlayerCalled(playerId)) ||
+            (await playerController.isPlayerAllIn(playerId))
         )
     ) {
         await gameController.incrementTurn(gameId);

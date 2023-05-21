@@ -15,7 +15,7 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
     //
 });
 
-universalActionsWrapper = async (request, response, action, localActions) => {
+universalActionsWrapper = async (request, response, localActions) => {
     const io       = request.app.get("io");
     const username = request.session.user.username;
     const gameId   = request.params.gameId;
@@ -58,43 +58,47 @@ universalActionsWrapper = async (request, response, action, localActions) => {
     await localActions();
     
     if (await pokerController.roundOver(gameId)) {
-        console.log('round over! round over! round over! round over! ')
         await gameController.incrementRound(gameId);
         
         if (await gameController.isGameOver(gameId)) {
-            console.log("game over! game over! game over! game over! game over!");
 
             // TODO: Rediret all players in the current game to the standings page.
             response.redirect(`poker/${gameId}/standings`);
             return;
         }
-
-        await pokerController.clearCards(gameId);
-        await pokerController.dealCardsToPlayers(gameId);
-        await pokerController.unfoldPlayers(gameId);
-        let newDealer = await gameController.incrementDealer(gameId);
-        await gameModel.setTurn(gameId, newDealer);
+        else {
+            await pokerController.clearCards(gameId);
+            await pokerController.dealCardsToPlayers(gameId);
+            await pokerController.unfoldPlayers(gameId);
+            let newDealer = await gameController.incrementDealer(gameId);
+            await gameModel.setTurn(gameId, newDealer);
+        }
     }
     else {
         await pokerController.nextTurn(gameId);
     }
-    
-    const gameInfo = await gameModel.getGameData(gameId);
-    io.in(parseInt(request.params.gameId)).emit("GAME_UPDATE", {
-        // info passed to clients goes here
-        username,
-        action,
-        gameInfo,
-    });
 
     response.status(200).json({ message: "success" });
 }
 
 router.head('/:gameId/pass', async (request, response) => {
     try {
-        const action = "PASS";
-        await universalActionsWrapper(request, response, action, async () => {
-            // pass logic here
+        await universalActionsWrapper(request, response, async () => {
+            // check if pass is valid
+            let canPass = true;
+            if (!canPass) {
+                // TODO: CHECK If the current player can pass
+                response.status(400);
+            }
+
+            await pokerController.nextTurn(gameId);
+
+            io.in(parseInt(request.params.gameId)).emit("PASS", {
+                // info passed to clients goes here
+                username: username
+            });
+
+            response.status(200);
         });
     }
     catch (error) {
@@ -105,9 +109,22 @@ router.head('/:gameId/pass', async (request, response) => {
 
 router.head('/:gameId/allIn', async (request, response) => {
     try {
-        const action = "ALLIN";
-        await universalActionsWrapper(request, response, action, async () => {
+        await universalActionsWrapper(request, response, async () => {
             // all in logic here
+            let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
+
+            await pokerController.bet(
+                request.params.gameId,
+                request.session.player.playerId,
+                playerInfo.chips
+            );
+
+            await playerModel.setToAllIn(request.session.player.playerId);
+
+            io.in(parseInt(request.params.gameId)).emit("ALLIN", {
+                // info passed to clients goes here
+                username: username
+            });
         });
     }
     catch (error) {
@@ -118,9 +135,28 @@ router.head('/:gameId/allIn', async (request, response) => {
 
 router.head('/:gameId/call', async (request, response) => {
     try {
-        const action = "CALL";
-        await universalActionsWrapper(request, response, action, async () => {
-            // call logic here
+        await universalActionsWrapper(request, response, async () => {
+            let highestBet = await pokerController.getHighestBet(request.params.gameId);
+            let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
+            let amount = highestBet - playerInfo.curr_bet;
+            
+            await pokerController.bet(
+                request.params.gameId,
+                request.session.player.playerId,
+                amount
+            );
+
+            playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
+
+            if (playerInfo.chips == 0) {
+                await playerModel.setToAllIn(request.session.player.playerId);
+            }
+
+            io.in(parseInt(request.params.gameId)).emit("CALL", {
+                username: username,
+                chips: playerInfo.chips,
+                curr_bet: playerInfo.curr_bet
+            });
         });
     }
     catch (error) { 
@@ -131,9 +167,14 @@ router.head('/:gameId/call', async (request, response) => {
 
 router.head('/:gameId/fold', async (request, response) => {
     try {
-        const action = "FOLD";
-        await universalActionsWrapper(request, response, action, async () => {
-            // fold logic here
+        await universalActionsWrapper(request, response, async () => {
+            await playerModel.setToFolded(request.session.player.playerId);
+
+            io.in(parseInt(request.params.gameId)).emit("FOLD", {
+                username: username,
+                chips: playerInfo.chips,
+                curr_bet: playerInfo.curr_bet
+            });
         });
     }
     catch (error) {
@@ -144,9 +185,21 @@ router.head('/:gameId/fold', async (request, response) => {
 
 router.post('/:gameId/raise', async (request, response) => {
     try {
-        const action = "RAISE";
-        await universalActionsWrapper(request, response, action, async () => {
+        await universalActionsWrapper(request, response, async () => {
             // raise logic here
+            let amount = request.body.amount;
+
+            await pokerController.bet(
+                request.params.gameId,
+                request.session.player.playerId,
+                amount
+            );
+
+            io.in(parseInt(request.params.gameId)).emit("RAISE", {
+                username: username,
+                chips: playerInfo.chips,
+                curr_bet: playerInfo.curr_bet
+            });
         });
     }
     catch (error) {
