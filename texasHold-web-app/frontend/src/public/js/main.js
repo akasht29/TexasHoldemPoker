@@ -92,6 +92,7 @@ function clearChat() {
 }
 
 socket.on("NEW_COMMUNITY_CARDS", function (cards) {
+  console.log('dealing a card to the community cards!')
   const communityCards = cards.communityCards;
   console.log(communityCards);
   clearTable();

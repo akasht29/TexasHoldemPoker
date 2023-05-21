@@ -17,44 +17,7 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
 
 universalActionsWrapper = async (request, response, io, localActions) => {
     console.log('entering wrapper');
-    const username = request.session.user.username;
-    const gameId   = request.params.gameId;
-    const playerId = request.session.player.playerId;
     
-    if (await playerController.isPlayerFolded(playerId)) {
-        console.log('exiting wrapper 1');
-        return false;
-    }
-
-    if (!(await playerController.isPlayersTurn(playerId))) {
-        console.log('exiting wrapper 2');
-        return false;
-    }
-    
-    const minBet = await gameModel.getMinBet(gameId);
-    
-    if (
-        (await  playerController.isBigBlind(playerId)) &&
-        ((await pokerController.getPotSize(playerId)) == 0)
-    ) {
-        pokerController.bet(
-            gameId,
-            playerId,
-            minBet
-        );
-    }
-    
-    if (
-        (await playerController.isSmallBlind(playerId)) &&
-        ((await pokerController.getPotSize(playerId)) <= minBet)
-    ) {
-        pokerController.bet(
-            gameId,
-            playerId,
-            minBet / 2
-        );
-    }
-
     let ret = await localActions();
 
     if (!ret) {
@@ -109,7 +72,7 @@ universalActionsWrapper = async (request, response, io, localActions) => {
                     request.params.gameId
                 );
         
-                io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARD", {
                     // info passed to clients goes here
                     communityCards: communityCards
                 });
@@ -196,52 +159,66 @@ router.head('/:gameId/allIn', async (request, response) => {
 });
 
 router.head('/:gameId/call', async (request, response) => {
+    console.log('marker')
     try {
-        const io = request.app.get("io");
+        const gameId   = request.params.gameId;
+        const playerId = request.session.player.playerId;
+        const io       = request.app.get("io");
         const username = request.session.user.username;
 
-        let success = await universalActionsWrapper(request, response, io, async () => {
-            let highestBet = await pokerController.getHighestBet(request.params.gameId);
-            let playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
-            let amount     = highestBet - playerInfo.curr_bet;
-            
-            console.log('marker')
-
-            await pokerController.bet(
-                request.params.gameId,
-                request.session.player.playerId,
-                amount
-            );
-
-            console.log('marker')
-
-            playerInfo = await playerModel.getPlayerData(request.session.player.playerId);
-
-            if (playerInfo.chips == 0) {
-                await playerModel.setToAllIn(request.session.player.playerId);
-            }
-
-            io.in(parseInt(request.params.gameId)).emit("CALL", {
-                username: username,
-                chips: playerInfo.chips,
-                curr_bet: playerInfo.curr_bet
-            });
-
-            return true;
-        });
-
-        if (success) {
-            response.status(200);
+        if (!(await pokerController.canPlayerMove(playerId))) {
+            response.status(400);
         }
-    
-        response.status(400);
+
+        await pokerController.handleBlindBets(gameId, playerId);
+
+        // call logic here
+        {
+            const playerInfo = await playerModel.getPlayerData(playerId);
+            const highestBet = await pokerController.getHighestBet(gameId);
+            console.log("highestBet:", highestBet, "currentBet:", playerInfo.curr_bet);
+            await pokerController.bet(
+                gameId,
+                playerId,
+                highestBet - playerInfo.curr_bet
+            );
+        }
+
+        await pokerController.nextTurn(gameId);
+
+        if (await pokerController.isNewCycle(gameId)) {
+            console.log('new cycle!');
+            const gameInfo   = await gameModel.getGameData(gameId);
+            if (gameInfo.communitycards.length < 4) {
+                console.log('dealing a card to the community cards!');
+
+                await pokerController.dealCardToCommunity(gameId);
+
+                io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                    // info passed to clients goes here
+                    communityCards: (await gameModel.getGameData(gameId)).communitycards
+                });
+            }
+        }
+        else if (await pokerController.roundOver(gameId)) {
+            await pokerController.clearCards(gameId);
+            await pokerController.dealCardsToPlayers(gameId);
+            await pokerController.unfoldPlayers(gameId);
+            let newDealer = await gameController.incrementDealer(gameId);
+            await gameModel.setTurn(gameId, newDealer);
+        }
+
+        if (await gameController.isGameOver(gameId)) {
+            console.log("game over");
+            response.redirect(`poker/${gameId}/standings`);
+        }
+        
+        response.status(200);
     }
     catch (error) { 
         console.log(error.message);
         response.status(500).json({ message: error.message });
     }
-
-    response.status(200);
 });
 
 router.head('/:gameId/fold', async (request, response) => {
