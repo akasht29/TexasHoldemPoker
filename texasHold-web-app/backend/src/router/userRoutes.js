@@ -1,13 +1,11 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const gameController = require('../controllers/gameController');
-const { getUserByUsername } = require('../models/users/userModel');
 const router = express.Router();
 
 // User routes
 router.post('/register', async (request, response) => {
   try {
-    console.log(request);
     // check if request has necessary fields
     if (
       !('username' in request.body) ||
@@ -30,16 +28,12 @@ router.post('/register', async (request, response) => {
     }
     
     request.session.user = {
-      id: newUser.user_id,
+      user_id: newUser.user_id,
       username: newUser.username,
       email: newUser.email
     };
 
-    const games = await gameController.getAllGames();
-
-    response.redirect("/user/lobby",
-      { games: games }
-    );
+    response.redirect("/user/lobby");
   }
   catch (error) {
     response.status(500).json({ message: error.message });
@@ -48,7 +42,6 @@ router.post('/register', async (request, response) => {
 
 router.post('/login', async (request, response) => {
   try {
-    console.log(request.sessionID);
 
     if (
       !("email"    in request.body) ||
@@ -59,7 +52,6 @@ router.post('/login', async (request, response) => {
     }
 
     const { email, password } = request.body;
-    console.log(email, ",", password);
     
     let user = await userController.login(email, password);
 
@@ -67,22 +59,16 @@ router.post('/login', async (request, response) => {
       throw new Error("Could not log in.");
     }
 
-    const {user_id, username } = user;
+    const { userId, username } = user;
 
     request.session.user = {
-      user_id,
-      username,
-      email
+      user_id: userId,
+      username: username,
+      email: email
     };
-
-    const games = await gameController.getAllGames();
-    if (!games) {
-      console.log("Problem will rogers");
-    }
-    console.log("games:", typeof(games[0]));
-
-    request.session.games = games;
-    response.redirect("/user/lobby")
+    
+    request.session.user = user;
+    response.redirect("/user/lobby");
   }
   catch (error) {
     console.log("login error: ", error.message);
@@ -91,7 +77,7 @@ router.post('/login', async (request, response) => {
 });
 
 // we will handle the authMiddleware part differently
-router.post('/logout', userController.logout);
+router.get('/logout', userController.logout);
 
 // Front-end routes
 router.get('/register',(_req, res) => {
@@ -102,8 +88,21 @@ router.get('/login', (_req, res) => {
   res.render('login', {user: res.locals.user});
 });
 
-router.get('/lobby', (req, res) => {
-  res.render('lobby', { games: req.session.games } );
+router.get('/lobby', async (request, response) => {
+  if (request.session?.player?.playerId) {
+    // If this block executes, it just means that the player 
+    // has just returned from a game and no longer need their 
+    // playerId
+    // playerController.removePlayer(request.session.player.playerId)
+    request.session.player = null;
+  }
+
+  const games = await gameController.getAllGames();
+  if (!games) {
+    console.log("Problem will rogers");
+  }
+
+  response.render('lobby', { games: games } );
 });
 
 module.exports = router;

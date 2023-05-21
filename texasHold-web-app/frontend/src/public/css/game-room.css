@@ -28,9 +28,30 @@
 }
 
 #chat-view {
-    height: 100%;
-    width: 15%;
-    overflow-y: scroll;
+    padding-left: 8px;
+    height: 70%;
+    display: flex;
+    overflow-y: visible;
+    flex-direction: column-reverse;
+    justify-content: top;
+    padding-right: 8px;
+    vertical-align: bottom;
+}
+
+#chat-input {
+    font-size: 30px;
+    height: 100px;
+    padding: 10px;
+}
+
+#chat-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#chat-button {
+    padding: 10px;
 }
 
 #game-view {
@@ -79,8 +100,7 @@
     justify-content: space-evenly;
 }
 
-.controls-button {
+.button-action-container {
     height: 80%;
     width: 15%;
-    box-shadow: 2px 2px rgb(87, 87, 87);
 }

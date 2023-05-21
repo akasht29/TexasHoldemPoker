@@ -1,5 +1,4 @@
-const userModel = require('../models/users/userModel');
-const jwt       = require('jsonwebtoken');
+const userModel = require('../models/userModel');
 const bcrypt    = require("bcrypt");
 const userController = {};
 
@@ -13,11 +12,8 @@ userController.getUserById = async (userId) => {
   return await userModel.getUserById(userId);
 };
 
-
-
 userController.login = async (email, password) => {
   let user = await userModel.getUserByEmail(email);
-  console.log("marker", user);
 
   if (!user) {
     return null;
@@ -34,9 +30,9 @@ userController.login = async (email, password) => {
 userController.logout = async (req, res, next) => {
   if (req.method === 'POST' || req.method === 'GET') {
     try {
-      await userModel.clearAuthToken(req.user.sub);
+      //await userModel.clearAuthToken(req.user.sub);
       userModel.logout(req);
-      res.status(200).json({ message: 'User logged out successfully' });
+      res.redirect("/");
     } catch (error) {
       next(error);
     }

@@ -9,10 +9,13 @@
   <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
+  <h1>Welcome</h1>
 
-  <p>Please register or log in to access the game lobby.</p>
-  <a href="/user/register">Register</a>
-  <a href="/user/login">Login</a>
+  <form method="POST" action="/user/login">
+    <p>Login or register to play.</p>
+    <a class="button-styling" href="/user/register">Register</a>
+    <a class="button-styling" href="/user/login">Login</a>
+  </form>
  
   <div id="message" class="message"></div>
   <script src="/dist/bundle.js"></script>

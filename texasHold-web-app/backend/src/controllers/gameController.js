@@ -1,10 +1,8 @@
-const gameModel   = require("../models/game/gameModel");
-const tableModel  = require("../models/table/tableModel");
-const playerModel = require("../models/players/playerModel");
+const gameModel      = require("../models/gameModel");
 const gameController = {};
 
 gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
-    let chips = 10;
+    let chips = 1000;
     return await gameModel.createGame(
         gameName, 
         chips,
@@ -14,78 +12,103 @@ gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
     );
 };
 
+gameController.deleteGameIfEmpty = async (gameId) => {
+    let gameData = await gameModel.getGameData(gameId);
+
+    if (!gameData) {
+        throw new Error(`Game ${gameId} does not exist`);
+    }
+
+    if (gameData.players.length == 0) {
+        await gameModel.deleteGame(gameId);
+    }
+}
+
+gameController.gameFull = async (gameId) => {
+    let gameData = await gameModel.getGameData(gameId);
+
+    return (
+        (gameData.players != null) &&
+        (gameData.players.length == gameData.num_players)
+    );
+}
+
 gameController.getAllGames = async () => {
     return await gameModel.getAllGames();
 };
 
 gameController.gameStarted = async (gameId) => {
     let gameData = await gameModel.getGameData(gameId);
-    console.log("game data:", gameData);
     return gameData.curr_round > 0;
 }
 
-gameController.firstPlayer = async (gameId) => {
+gameController.firstPlayer = async (gameId, playerId) => {
     let gameData = await gameModel.getGameData(gameId);
-    return true; // will be something like gameData.cur_players == 0
+    
+    return (
+        !gameData.players ||
+        gameData.players.length == 0 ||
+        // playerIds are created sequentially 
+        // from lowest to highest
+        gameData.players[0] == playerId
+    );
 }
 
-gameController.joinGame = async (req, res) => {
-    const result = {};
+gameController.incrementTurn = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_turn++;
+    
+    await gameModel.setTurn(gameId, gameInfo.curr_turn);
+}
 
-    const { gameId } = req.params;
-    const { userId} = req.body;
+gameController.incrementRound = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_round++;
+    
+    await gameModel.setRound(gameId, gameInfo.curr_round);
+}
 
-    try {
-        // Create a new player
-        const player = await playerModel.createPlayer(userId, gameId);
+gameController.incrementDealer = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    gameInfo.curr_dealer = (gameInfo.curr_dealer + 1) % gameInfo.players.length;
+    
+    await gameModel.setDealer(gameId, gameInfo.curr_dealer);
 
-        // Retrieve the current game data
-        //const currentGameData = await gameModel.getGameData(gameId);
+    return gameInfo.curr_dealer;
+}
 
-        // Update the game data with the new player
-        //const updatedGameData = currentGameData.joinGame(player);
-
-        // Save the updated game data
-        //await gameModel.updateGame(gameId, updatedGameData);
-
-        result.status = "success";
-        result.message = "Player joined the game successfully.";
-        result.player = player;
-        res.status(200).json(result);
-        res.j
-    } catch (err) {
-        result.error = err.message;
-        res.status(500).json(result);
+gameController.isGameOver = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
+    
+    if (gameInfo.curr_round >= gameInfo.num_rounds) {
+        return true;
     }
-};
 
-gameController.leaveGame = async (req, res) => {
-    const result = {};
+    return false;
+}
 
-    const { gameId, userId } = req.params;
+gameController.dealCardToCommunity = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId)
+    let card     = await gameModel.popCardOffDeck(gameId);
+    
+    gameInfo.communityCards.push(card);
 
-    try {
-        // Remove the player from the game
-        const player = await playerModel.leaveGame(userId, gameId);
+    await gameModel.setCommunityCards(gameId);
+}
 
-        // Retrieve the current game data
-        const currentGameData = await gameModel.getGameData(gameId);
+gameController.getCurrentPlayerIndex = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
 
-        // Update the game data with the player removed
-        const updatedGameData = currentGameData.leaveGame(player);
+    return gameInfo.curr_turn % gameInfo.players.length;
+}
 
-        // Save the updated game data
-        await gameModel.updateGame(gameId, updatedGameData);
+gameController.getCurrentPlayer = async (gameId) => {
+    let gameInfo = await gameModel.getGameData(gameId);
 
-        result.status = "success";
-        result.message = "Player left the game successfully.";
-        result.player = player;
-        res.status(200).json(result);
-    } catch (err) {
-        result.error = err.message;
-        res.status(500).json(result);
-    }
-};
-
+    return gameInfo.players[ await gameController.getCurrentPlayerIndex(gameId) ];
+}
 
 module.exports = gameController;
