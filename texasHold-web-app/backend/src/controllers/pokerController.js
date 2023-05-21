@@ -21,27 +21,28 @@ pokerController.canPlayerMove = async (playerId) => {
 }
 
 pokerController.handleBlindBets = async (gameId, playerId) => {
-    const minBet = await gameModel.getMinBet(gameId);
+    const gameInfo = await gameModel.getGameData(gameId);
+    const players  = await playerModel.getAllPlayers(gameId);
+    const minBet   = gameInfo.min_bet;
 
-    if (
-        (await  playerController.isBigBlind(gameId, playerId)) &&
-        ((await pokerController.getPotSize(playerId)) == 0)
-    ) {
+    if (gameInfo.curr_turn > players.length) {
+        return;
+    }
+
+    if (await  playerController.isBigBlind(gameId, playerId)) {
         console.log(`player is ${playerId} big blind!`);
-        pokerController.bet(
+        
+        await pokerController.bet(
             gameId,
             playerId,
             minBet
         );
     }
     
-    if (
-        (await playerController.isSmallBlind(gameId, playerId)) &&
-        ((await pokerController.getPotSize(playerId)) <= minBet)
-    ) {
+    if (await playerController.isSmallBlind(gameId, playerId)) {
         console.log(`player is ${playerId} small blind!`);
 
-        pokerController.bet(
+        await pokerController.bet(
             gameId,
             playerId,
             minBet / 2
@@ -138,6 +139,8 @@ pokerController.bet = async (gameId, playerId, amount) => {
 
     if (playerInfo.chips < playerInfo.curr_bet + amount) {
         amount = playerInfo.chips - playerInfo.curr_bet;
+
+        await playerModel.setToAllIn(playerId);
     }
 
     playerInfo.chips    -= amount;

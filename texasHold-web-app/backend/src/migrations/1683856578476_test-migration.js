@@ -13,7 +13,6 @@ exports.up = pgm => {
     curr_turn:      { type: 'INTEGER', notNull: true, default: 0 },
     curr_dealer:    { type: 'INTEGER', notNull: true, default: 0 },
     curr_round:     { type: 'INTEGER', notNull: true, default: 0 },
-    curr_round_pot: { type: 'INTEGER', notNull: true, default: 0 },
     deck:           { type: 'INTEGER[]' },
     players:        { type: 'INTEGER[]' }, // stores player id
     communitycards: { type: 'INTEGER[]', default: '{}' },
