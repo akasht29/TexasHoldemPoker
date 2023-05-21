@@ -102,9 +102,9 @@ playerModel.getPlayerData = async (playerId) => {
 };
 
 playerModel.setChipsAndBet = async (playerId, chips, bet) => {
-  const query = "UPDATE players SET chips = $2, bet = $3 WHERE player_id = $1";
+  const query = "UPDATE players SET chips = $1, curr_bet = $2 WHERE player_id = $3";
 
-  return await db.none(db.query, [playerId, chips, bet])
+  return await db.none(query, [ chips, bet, playerId ])
 }
 
 playerModel.getPlayerByUserId = async (userId) => {
