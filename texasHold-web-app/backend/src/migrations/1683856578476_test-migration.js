@@ -6,7 +6,7 @@ exports.up = pgm => {
   pgm.createTable('game', {
     game_id: 'SERIAL PRIMARY KEY',
     game_name:      { type: 'VARCHAR(255)', notNull: true },
-    chips:          { type: 'INTEGER', notNull: true },
+    chips:          { type: 'INTEGER', notNull: true, default: 1000 },
     num_players:    { type: 'INTEGER', notNull: true, default: 3 }, // the maxiumum number of players in the game
     num_rounds:     { type: 'INTEGER', notNull: true, default: 5 }, // the maxiumum number of rounds in the game
     min_bet:        { type: 'INTEGER', notNull: true, default: 0 },
@@ -23,7 +23,7 @@ exports.up = pgm => {
     user_id: 'SERIAL PRIMARY KEY',
     username: { type: 'VARCHAR(255)', notNull: true, unique: true },
     password: { type: 'VARCHAR(255)', notNull: true },
-    email: { type: 'VARCHAR(255)', notNull: true, unique: true },
+    email: { type: 'VARCHAR(255)',    notNull: true, unique: true },
   });
 
   pgm.createTable('players', {
@@ -39,7 +39,7 @@ exports.up = pgm => {
       notNull: true,
       references: 'game(game_id)'
     },
-    chips:    { type: 'INTEGER' },
+    chips:    { type: 'INTEGER', notNull: true, default: 1000 },
     status:   { type: 'INTEGER', default: 3 }, // 0 == folded, 1 == called, 2 == all in, 3 == other
     curr_bet: { type: 'INTEGER', default: 0 },
     hand: { type: 'INTEGER[]' }

@@ -120,7 +120,7 @@ router.head('/:gameId/pass', async (request, response) => {
 
 router.head('/:gameId/allIn', async (request, response) => {
     try {
-        const io = request.app.get("io");
+        const io       = request.app.get("io");
         const username = request.session.user.username;
 
         let success = await universalActionsWrapper(request, response, io, async () => {
@@ -146,13 +146,16 @@ router.head('/:gameId/allIn', async (request, response) => {
         if (success) {
             response.status(200);
         }
-    
-        response.status(400);
+        else {
+            response.status(400);
+        }
     }
     catch (error) {
         console.log(error.message);
         response.status(500).json({ message: error.message });
     }
+
+    response.status(200);
 });
 
 router.head('/:gameId/call', async (request, response) => {
