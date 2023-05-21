@@ -95,7 +95,10 @@ socket.on("NEW_COMMUNITY_CARDS", function (cards) {
   console.log('dealing a card to the community cards!')
   const communityCards = cards.communityCards;
   console.log(communityCards);
-  clearTable();
+
+  const handDiv = document.getElementById("table-cards");
+  handDiv.innerHTML = '';
+
   for (let i = 0; i < communityCards.length; i++) {
     addCardToTable(communityCards[i]);
   }
