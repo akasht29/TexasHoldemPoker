@@ -71,7 +71,6 @@ gameModel.popCardOffDeck = async (gameId) => {
 gameModel.addCards = async (game_id, player_id) => {
     let deck = await gameModel.getDeck(game_id);
     let playerHand = deck.splice(0, 2);
-    console.log(deck);
     let query = "Update players SET hand = $1 WHERE player_id = $2"
     let values = [playerHand, player_id];
 

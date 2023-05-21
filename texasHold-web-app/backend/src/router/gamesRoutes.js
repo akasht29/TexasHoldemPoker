@@ -14,7 +14,6 @@ router.get("/waiting-room/:gameId", async (request, response) => {
     if (await gameController.gameFull(gameId)) {
       response.redirect("/user/lobby");
     }
-
     
     try {
       const value = parseInt(userId, 10);
@@ -23,7 +22,8 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       var connectedGameId = parseInt(result.game_id);
 
       console.log("Player in game_id: ", connectedGameId);
-    } catch (error) {
+    } 
+    catch (error) {
       console.log("Player not connected to a game");
     }
 
@@ -51,7 +51,8 @@ router.get("/waiting-room/:gameId", async (request, response) => {
         } catch (error) {
           console.log("Error getting player_id from player: ", error.message);
         }
-      } else {
+      } 
+      else {
         //if the user is already connected to a different game, return them to the lobby
         response.redirect("/user/lobby");
         console.log(
@@ -59,7 +60,8 @@ router.get("/waiting-room/:gameId", async (request, response) => {
         );
         return;
       }
-    } else {
+    } 
+    else {
       // generate a new player id for the user if needed
       player = {
         playerId: await playerController.addPlayer(gameId, userId),
@@ -79,7 +81,8 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       gameId: gameId,
       lobbyOwner: await gameController.firstPlayer(gameId, playerId),
     });
-  } catch (error) {
+  } 
+  catch (error) {
     console.log("Generic game waiting-room error:", error.message);
   }
 });
@@ -90,11 +93,12 @@ router.get("/room/:gameId/start", (request, response) => {
     // Redirect all players to `/game/room/${gameId}`
     const gameId = request.params.gameId;
     const roomId = parseInt(gameId);
-    const redirectURL = `/game/room/${gameId}`;
-
-    io.in(roomId).emit("GAME_STARTING", redirectURL);
+    const redirectURL = `${process.env.API_BASE_URL}/game/room/${gameId}`;
+    
+    io.in(roomId).emit("GAME_STARTING", { redirectURL });
     response.redirect(redirectURL);
-  } catch (error) {
+  } 
+  catch (error) {
     console.log("game room start error:");
   }
 });
@@ -108,7 +112,8 @@ router.get("/room/:gameId", async (request, response) => {
     }
 
     response.render("game-room", { gameId: gameId, baseUrl: process.env.API_BASE_URL });
-  } catch (error) {
+  } 
+  catch (error) {
     console.log("game room error:", error.message);
     response.redirect("user/lobby");
   }
