@@ -10,63 +10,101 @@ pokerController        = {};
  * return 1 on game over
  */
 pokerController.endOfRoundNonsense = async (gameId, io) => {
-    if (await pokerController.isNewCycle(gameId)) {
-        console.log('new cycle!');
-        let gameInfo   = await gameModel.getGameData(gameId);
-        if (gameInfo.communitycards.length < 5) {
+    if (await pokerController.roundOver(gameId)) {
+        console.log('round is over');
+
+        let gameInfo = await gameModel.getGameData(gameId);
+
+        while (gameInfo.communitycards.length < 5) {
             console.log('dealing a card to the community cards!');
 
-            await pokerController.dealCardToCommunity(gameId);
-
-            io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
-                // info passed to clients goes here
-                communityCards: (await gameModel.getGameData(gameId)).communitycards
-            });
+            await pokerController.dealCardToCommunity(gameId, io);
 
             gameInfo = await gameModel.getGameData(gameId);
         }
 
-        if (await pokerController.roundOver(gameId)) {
-            console.log('round is over');
+        let players = await playerModel.getAllPlayers(gameId);
+        const communityCards = (await gameModel.getGameData(gameId)).communitycards;
+        
+        players.sort((playerA, playerB) => {
+            const scoreA = pokerController.ratePlayerHand(playerA.hand, communityCards);
+            const scoreB = pokerController.ratePlayerHand(playerB.hand, communityCards);
 
-            while (gameInfo.communitycards.length < 5) {
-                console.log('dealing a card to the community cards!');
+            console.log(scoreA, scoreB);
 
-                await pokerController.dealCardToCommunity(gameId);
-
-                io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
-                    // info passed to clients goes here
-                    communityCards: (await gameModel.getGameData(gameId)).communitycards
-                });
-
-                gameInfo = await gameModel.getGameData(gameId);
+            if (scoreA > scoreB) {
+              return -1;
             }
-
-            // TODO:
-            // see who won
-            
-            await pokerController.clearCards(gameId);
-            await pokerController.dealCardsToPlayers(gameId);
-
-            io.in(parseInt(gameId)).emit("NEW_HAND", {
-                // info passed to clients goes here
-                baseUrl: process.env.API_BASE_URL,
-                gameId: gameId
-            });
-
-            await pokerController.unfoldPlayers(gameId);
-            let newDealer = await gameController.incrementDealer(gameId);
-            await gameModel.setTurn(gameId, newDealer);
-
-            await gameController.incrementRound(gameId);
-
-            if (await gameController.isGameOver(gameId)) {
-                console.log("game over");
-                return 1;
+            else if (scoreA < scoreB) {
+              return 1;
             }
+            else {
+                return 0;
+            }
+        });
+
+        await pokerController.distributeWinnings(gameId);
+        
+        await pokerController.clearCards(gameId, io);
+
+        await pokerController.dealCardsToPlayers(gameId, io);
+
+        await pokerController.unfoldPlayers(gameId);
+
+        let newDealer = await gameController.incrementDealer(gameId);
+        await gameModel.setTurn(gameId, newDealer);
+
+        await gameController.incrementRound(gameId);
+
+        if (await gameController.isGameOver(gameId)) {
+            console.log("game over");
+            return 1;
+        }
+    }
+    if (await pokerController.isNewCycle(gameId)) {
+        console.log('new cycle!');
+        let gameInfo = await gameModel.getGameData(gameId);
+        if (gameInfo.communitycards.length < 5) {
+            console.log('dealing a card to the community cards!');
+
+            await pokerController.dealCardToCommunity(gameId, io);
+
+            gameInfo = await gameModel.getGameData(gameId);
         }
     }
     return 0;
+}
+
+pokerController.distributeWinnings = async (gameId) => {
+    let players = await playerModel.getAllPlayers(gameId);
+    let winnings = players[0].curr_bet;
+        
+    for (let i = 1; i < players.length; i++) {
+        if (players[0].curr_bet - players[i].curr_bet < 0) {
+            winnings += players[i].curr_bet;
+                
+            players[i].curr_bet = 0;
+        }
+        else if (players[0].curr_bet - players[i].curr_bet > 0) {
+            winnings += players[0].curr_bet;
+                
+            players[i].curr_bet -= players[0].curr_bet;
+            players[i].chips    += players[i].curr_bet;
+            players[i].curr_bet  = 0;
+        }
+        else {
+            winnings += players[0].curr_bet;
+                
+            players[i].curr_bet = 0;
+        }
+    }
+
+    players[0].curr_bet = 0;
+    players[0].chips += winnings;
+
+    for (let i = 0; i < players.length; i++) {
+        await playerModel.setChipsAndBet(players[i].player_id, players[i].chips, players[i].curr_bet);
+    }
 }
 
 pokerController.canPlayerMove = async (playerId) => {
@@ -123,13 +161,13 @@ pokerController.getPotSize = async (gameId) => {
     let potSize   = 0;
 
     for (let i = 0; i < players.length; i++) {
-        potSize += players.curr_bet;
+        potSize += players[i].curr_bet;
     }
 
     return potSize;
 }
 
-pokerController.clearCards = async (gameId) => {
+pokerController.clearCards = async (gameId, io) => {
     let players = await playerModel.getAllPlayers(gameId);
     
     for (let i = 0; i < players.length; i++) {
@@ -137,9 +175,14 @@ pokerController.clearCards = async (gameId) => {
     }
 
     await gameModel.setCommunityCards(gameId, []);
+
+    io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
+        // info passed to clients goes here
+        communityCards: (await gameModel.getGameData(gameId)).communitycards
+    });
 }
 
-pokerController.dealCardsToPlayers = async (gameId) => {
+pokerController.dealCardsToPlayers = async (gameId, io) => {
     console.log('dealing cards to players!');
     let players = await playerModel.getAllPlayers(gameId);
 
@@ -154,9 +197,15 @@ pokerController.dealCardsToPlayers = async (gameId) => {
             pgarray(newHandStr.substring(1, newHandStr.length - 1))
         );
     }
+
+    io.in(parseInt(gameId)).emit("NEW_HAND", {
+        // info passed to clients goes here
+        baseUrl: process.env.API_BASE_URL,
+        gameId: gameId
+    });
 }
 
-pokerController.dealCardToCommunity = async (gameId) => {
+pokerController.dealCardToCommunity = async (gameId, io) => {
     let gameInfo = await gameModel.getGameData(gameId);
     const card   = await gameModel.popCardOffDeck(gameId);
 
@@ -172,6 +221,11 @@ pokerController.dealCardToCommunity = async (gameId) => {
             communityCardStr.substring(1, communityCardStr.length - 1)
         )
     );
+
+    io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
+        // info passed to clients goes here
+        communityCards: (await gameModel.getGameData(gameId)).communitycards
+    });
 }
 
 pokerController.getIndexOfPlayerId = async (gameId, playerId) => {
@@ -261,25 +315,25 @@ pokerController.roundOver = async (gameId) => {
     let remaining = players.length;
 
     const gameInfo = await gameModel.getGameData(gameId);
-    console.log(gameInfo.communitycards, gameInfo.communitycards.length);
     let called = 0;
-
+    console.log("players:", players)
     for (let i = 0; i < players.length; i++) {
         if (
             (await playerController.isPlayerFolded(players[i].player_id)) ||
             (await playerController.isPlayerAllIn(players[i].player_id))
         ) {
+            console.log(players[i].status);
             remaining--;
         }
         else if (await playerController.isPlayerCalled(players[i].player_id)) {
             called++;
         }
     }
-    console.log(gameInfo.communitycards);
-    console.log(gameInfo.communitycards.length);
-    return (
-        (remaining <= 1) || (remaining == called && gameInfo.communitycards.length == 5)
-    );
+    console.log("players:", players)
+
+    console.log('remaining:', remaining);
+    
+    return (remaining <= 1) || (remaining == called && gameInfo.communitycards.length == 5);
 }
 
 pokerController.isNewCycle = async (gameId) => {
@@ -298,7 +352,7 @@ getScore = (bigRank, littleRank) => {
     return Math.pow(2, (bigRank * 13)) + (bigRank * littleRank);
 }
 
-rateHand = (handCards, communityCards) => {
+pokerController.ratePlayerHand = (handCards, communityCards) => {
     let score             = 0; 
     let rankCounter       = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     let suitCounter       = [ 0, 0, 0, 0 ];
@@ -386,11 +440,6 @@ rateHand = (handCards, communityCards) => {
     }
 
     return score;
-}
-
-pokerController.ratePlayerHand = async (gameId, playerId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
-    console.log("gameInfo:", gameInfo);
 }
 
 module.exports = pokerController;
