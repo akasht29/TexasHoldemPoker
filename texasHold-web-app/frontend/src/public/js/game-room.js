@@ -66,6 +66,23 @@ function addCardToHand(key) {
     handDiv.appendChild(newCardImg);
 }
 
+function getAndSetHandCards() {
+    fetch(`${baseUrl}/poker/${gameId}/getHand`, {
+        method: "GET"
+    })
+    .then(response => response.json()).then(data => {
+        console.log(data.hand);
+        for (let i = 0; i < data.hand.length; i++) {
+            addCardToHand(data.hand[i]);
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+    })
+}
+
+getAndSetHandCards()
+
 function clearHand() {
     const handDiv = document.getElementById("hand-cards");
     handDiv.innerHTML = '';
