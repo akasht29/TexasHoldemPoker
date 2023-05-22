@@ -8,6 +8,14 @@
 |Create the game itself | 1. Game name 2. Max Players 3. Max rounds | Has to be logged in | Game gets created and updated in the database | POST game/create|
 |Player All in | 1. Game id 2. Player id | player can do an action(if they have folded they cannot do anything or if they do not have money) |Takes all the money and puts it in the pot and money is updated in the database,Then continues to next person| HEAD poker/:gameId/allIn (gameId, playerid, username are all provided via sessions)
 |Player Fold | 1. Game id 2. Player id | player can do an action (if they have folded they cannot do anything or if they do not have money)|Sets the player’s status to fold so they cannot participate till the round is over.|HEAD poker/:gameId/fold (gameId, playerid, username are all provided via sessions)
+|Raise | 1. Game id 2. Player id 3. Bet | player can do an action (if they have folded they cannot do anything or if they do not have money)|Increased the minimum bet and adds money to the pot|POST
+poker/:gameId/raise (gameId, playerid, username are all provided via sessions)|
+|Register|1. Username 2. password 3. email | Checks if username or email exists | Adds fields to the database and logs in |POST user/register|
+|Login | 1. Email 2. password | Checks if email exists and checks if password is correct| Logs in and redirects you to login page| POST user/login|
+|Logout| | |Logs player out | GET user/logout|
+
+
+
 
 
 
