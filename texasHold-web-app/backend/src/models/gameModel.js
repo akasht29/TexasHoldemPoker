@@ -100,8 +100,8 @@ gameModel.clearCommunityCards = async (game_id) => {
 }
 
 gameModel.setCommunityCards = async (game_id, cards) => {
-    let query = "UPDATE game SET communitycards = $2 WHERE game_id = $1";
-    let values = [game_id, cards];
+    let query = "UPDATE game SET communitycards = $1 WHERE game_id = $2";
+    let values = [cards, game_id];
 
     await db.none(query, values);
 }
@@ -123,15 +123,15 @@ gameModel.setTurn = async (gameId, newTurn) => {
 }
 
 gameModel.setRound = async (gameId, newRound) => {
-    const query = `UPDATE game SET curr_round = $2 WHERE game_id = $1`;
+    const query = `UPDATE game SET curr_round = $1 WHERE game_id = $2`;
     
-    await db.none(query, [gameId, newRound]);
+    await db.none(query, [newRound, gameId]);
 }
 
 gameModel.setDealer = async (gameId, newDealer) => {
-    const query = `UPDATE game SET curr_dealer = $2 WHERE game_id = $1`;
+    const query = `UPDATE game SET curr_dealer = $1 WHERE game_id = $2`;
     
-    await db.none(query, [gameId, newDealer]);
+    await db.none(query, [newDealer, gameId]);
 }
 
 gameModel.storeGame = (gameId, pokerGame) => {

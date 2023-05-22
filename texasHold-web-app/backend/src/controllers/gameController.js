@@ -106,7 +106,7 @@ gameController.dealCardToCommunity = async (gameId) => {
 gameController.getCurrentPlayerIndex = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
 
-    return gameInfo.curr_turn % gameInfo.players.length;
+    return (gameInfo.curr_turn + gameInfo.curr_dealer) % gameInfo.players.length;
 }
 
 gameController.getCurrentPlayer = async (gameId) => {

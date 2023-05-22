@@ -132,7 +132,7 @@ socket.on("NEW_COMMUNITY_CARDS", function (cards) {
   console.log(communityCards);
 
   const handDiv = document.getElementById("table-cards");
-  handDiv.innerHTML = "";
+  handDiv.innerHTML = '';
 
   for (let i = 0; i < communityCards.length; i++) {
     addCardToTable(communityCards[i]);

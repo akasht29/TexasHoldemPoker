@@ -95,15 +95,11 @@ playerController.isPlayerAllIn = async (playerId) => {
 
 playerController.isPlayersTurn = async (playerId) => {
     let playerInfo  = await playerModel.getPlayerData(playerId);
-    let gameInfo    = await gameModel.getGameData(playerInfo.game_id);
+    let players     = await playerModel.getAllPlayers(playerInfo.game_id);
     let playerIndex = await gameController.getCurrentPlayerIndex(playerInfo.game_id);
-    console.log('current player:', gameInfo.players[playerIndex], playerIndex);
+    console.log('current player:', players[playerIndex], playerIndex);
     
-    if (gameInfo.players[playerIndex] == playerId) {
-        return true;
-    }
-
-    return false;
+    return players[playerIndex].player_id == playerId;
 }
 
 playerController.isBigBlind = async (gameId, playerId) => {
