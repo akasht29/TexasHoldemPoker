@@ -98,7 +98,7 @@ router.head('/:gameId/allIn', async (request, response) => {
 
         await pokerController.handleBlindBets(gameId, playerId);
 
-        // fold logic here
+        // all in logic here
         {
             const playerInfo = await playerModel.getPlayerData(playerId);
             await pokerController.bet(
@@ -130,14 +130,16 @@ router.head('/:gameId/allIn', async (request, response) => {
             await pokerController.unfoldPlayers(gameId);
             let newDealer = await gameController.incrementDealer(gameId);
             await gameModel.setTurn(gameId, newDealer);
+
+            await gameController.incrementRound(gameId);
+
+            if (await gameController.isGameOver(gameId)) {
+                console.log("game over");
+                response.redirect(`poker/${gameId}/standings`);
+            }
         }
 
-        if (await gameController.isGameOver(gameId)) {
-            console.log("game over");
-            response.redirect(`poker/${gameId}/standings`);
-        }
-
-        response.status(200).send("player cant move");
+        response.status(200).send("player moved");
     }
     catch (error) { 
         console.log(error.message);
@@ -195,14 +197,16 @@ router.head('/:gameId/call', async (request, response) => {
             await pokerController.unfoldPlayers(gameId);
             let newDealer = await gameController.incrementDealer(gameId);
             await gameModel.setTurn(gameId, newDealer);
+
+            await gameController.incrementRound(gameId);
+
+            if (await gameController.isGameOver(gameId)) {
+                console.log("game over");
+                response.redirect(`poker/${gameId}/standings`);
+            }
         }
 
-        if (await gameController.isGameOver(gameId)) {
-            console.log("game over");
-            response.redirect(`poker/${gameId}/standings`);
-        }
-
-        response.status(200).send("player cant move");
+        response.status(200).send("player moved");
     }
     catch (error) { 
         console.log(error.message);
@@ -228,13 +232,8 @@ router.head('/:gameId/fold', async (request, response) => {
         {
             const playerInfo = await playerModel.getPlayerData(playerId);
             const highestBet = await pokerController.getHighestBet(gameId);
-            console.log("highestBet:", highestBet, "currentBet:", playerInfo.curr_bet, highestBet - playerInfo.curr_bet);
             
-            await pokerController.bet(
-                gameId,
-                playerId,
-                highestBet - playerInfo.curr_bet
-            );
+            await playerModel.setToFolded(playerId);
         }
         
         await pokerController.nextTurn(gameId);
@@ -254,19 +253,37 @@ router.head('/:gameId/fold', async (request, response) => {
             }
         }
         else if (await pokerController.roundOver(gameId)) {
+            console.log('round is over!');
+
+            // check if player won
+            while (gameInfo.communitycards.length < 5) {
+                console.log('dealing a card to the community cards!');
+
+                await pokerController.dealCardToCommunity(gameId);
+
+                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                    // info passed to clients goes here
+                    communityCards: (await gameModel.getGameData(gameId)).communitycards
+                });
+            }
+
+            // check an see who won
+
             await pokerController.clearCards(gameId);
             await pokerController.dealCardsToPlayers(gameId);
             await pokerController.unfoldPlayers(gameId);
             let newDealer = await gameController.incrementDealer(gameId);
             await gameModel.setTurn(gameId, newDealer);
+
+            await gameController.incrementRound(gameId);
+
+            if (await gameController.isGameOver(gameId)) {
+                console.log("game over");
+                response.redirect(`poker/${gameId}/standings`);
+            }
         }
 
-        if (await gameController.isGameOver(gameId)) {
-            console.log("game over");
-            response.redirect(`poker/${gameId}/standings`);
-        }
-
-        response.status(200).send("player cant move");
+        response.status(200).send("player moved");
     }
     catch (error) { 
         console.log(error.message);
@@ -276,37 +293,66 @@ router.head('/:gameId/fold', async (request, response) => {
 
 router.post('/:gameId/raise', async (request, response) => {
     try {
-        const io = request.app.get("io");
+        const gameId   = request.params.gameId;
+        const playerId = request.session.player.playerId;
+        const io       = request.app.get("io");
         const username = request.session.user.username;
 
-        let success = await universalActionsWrapper(request, response, io, async () => {
-            // raise logic here
-            let amount = request.body.amount;
+        if (!(await pokerController.canPlayerMove(playerId))) {
+            response.status(400).send("player cant move");
+            return;
+        }
 
+        await pokerController.handleBlindBets(gameId, playerId);
+
+        // call logic here
+        {
+            const amount = (await gameModel.getGameData(gameId)).min_bet;
+           
             await pokerController.bet(
-                request.params.gameId,
-                request.session.player.playerId,
+                gameId,
+                playerId,
                 amount
             );
-
-            io.in(parseInt(request.params.gameId)).emit("RAISE", {
-                username: username,
-                chips: playerInfo.chips,
-                curr_bet: playerInfo.curr_bet
-            });
-
-            return true;
-        });
-
-        if (success) {
-            response.status(200);
         }
-    
-        response.status(400);
+
+        await pokerController.nextTurn(gameId);
+
+        if (await pokerController.isNewCycle(gameId)) {
+            console.log('new cycle!');
+            const gameInfo = await gameModel.getGameData(gameId);
+            if (gameInfo.communitycards.length < 5) {
+                console.log('dealing a card to the community cards!');
+
+                await pokerController.dealCardToCommunity(gameId);
+
+                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
+                    // info passed to clients goes here
+                    communityCards: (await gameModel.getGameData(gameId)).communitycards
+                });
+            }
+        }
+        else if (await pokerController.roundOver(gameId)) {
+            console.log('round is over!');
+            await pokerController.clearCards(gameId);
+            await pokerController.dealCardsToPlayers(gameId);
+            await pokerController.unfoldPlayers(gameId);
+            let newDealer = await gameController.incrementDealer(gameId);
+            await gameModel.setTurn(gameId, newDealer);
+
+            await gameController.incrementRound(gameId);
+
+            if (await gameController.isGameOver(gameId)) {
+                console.log("game over");
+                response.redirect(`poker/${gameId}/standings`);
+            }
+        }
+
+        response.status(200).send("player moved");
     }
-    catch (error) {
+    catch (error) { 
         console.log(error.message);
-        response.status(500).json({ message: error.message });
+        response.status(500).send("server error");
     }
 });
 

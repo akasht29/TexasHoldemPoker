@@ -17,6 +17,11 @@ pokerController.canPlayerMove = async (playerId) => {
         return false;
     }
 
+    if (await playerController.isPlayerAllIn(playerId)) {
+        console.log(`is not player ${playerId}'s is all in!`);
+        return false;
+    }
+
     return true;
 }
 
@@ -72,6 +77,7 @@ pokerController.clearCards = async (gameId) => {
 }
 
 pokerController.dealCardsToPlayers = async (gameId) => {
+    console.log('dealing cards to players!');
     let players = await playerModel.getAllPlayers(gameId);
 
     for (let i = 0; i < players.length; i++) {
@@ -137,14 +143,18 @@ pokerController.bet = async (gameId, playerId, amount) => {
         throw new Error("Player not in game.");
     }
 
-    if (playerInfo.chips < playerInfo.curr_bet + amount) {
-        amount = playerInfo.chips - playerInfo.curr_bet;
-
-        await playerModel.setToAllIn(playerId);
+    if (playerInfo.chips < amount) {
+        console.log('truncating bet!');
+        amount = playerInfo.chips;
     }
 
     playerInfo.chips    -= amount;
     playerInfo.curr_bet += amount;
+
+    if (playerInfo.chips == 0) {
+        await playerModel.setToAllIn(playerId);
+    }
+    
     // console.log("players 3:", await playerModel.getAllPlayers(gameId));
     await playerModel.setChipsAndBet(playerId, playerInfo.chips, playerInfo.curr_bet);
     // console.log("players 4:", await playerModel.getAllPlayers(gameId));
@@ -190,7 +200,6 @@ pokerController.roundOver = async (gameId) => {
     for (let i = 0; i < players.length; i++) {
         if (
             (await playerController.isPlayerFolded(players[i].player_id)) ||
-            (await playerController.isPlayerCalled(players[i].player_id)) ||
             (await playerController.isPlayerAllIn(players[i].player_id))
         ) {
             remaining--;
@@ -201,7 +210,7 @@ pokerController.roundOver = async (gameId) => {
 }
 
 pokerController.isNewCycle = async (gameId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
+    let gameInfo  = await gameModel.getGameData(gameId);
     const players = await playerModel.getAllPlayers(gameId);
 
     console.log("players.length:", players.length);
