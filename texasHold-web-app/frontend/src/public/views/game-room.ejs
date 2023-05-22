@@ -17,28 +17,27 @@
     </script>
 </head>
 
-<div id="main-container" class="thin-outline">
+<div id="main-container">
   <%- include("./partials/game-room-navbar", {gameId: gameId}) %>
 
-  <div id="game-container" class="thin-outline">
+  <div id="game-container">
     
     <div id="player-view">
     </div>
 
-    <div id="game-view">
-      <div id="table-view" class="thin-outline">
+    <div id="game-view" class="thin-outline">
+      <div id="table-view">
         <div id="table-cards">
           <!-- CARDS CAN BE ADDED AS CHILDREN WITH THE addCardToTable function -->
         </div>
       </div>
 
-      <div id="hand-cards" class="thin-outline">
+      <div id="hand-cards">
         <!-- CARDS CAN BE ADDED AS CHILDREN WITH THE addCardToHand function -->
       </div>
 
       <!--   <div id="turn-indicator">Turn: {turnIndicator: turnIndicator}</div>   -->
-
-      <div id="game-controls" class="thin-outline">
+        <div id="game-controls">
 
         <!-- Using forms rather than the fetch command is basic, but it might be all we need. -->
         <input id="fold-button" style="width: 20%; height: 90%;" class="button-styling" type="button" value="FOLD">
@@ -50,12 +49,15 @@
         <input id="all-in-button" style="width: 20%; height: 90%;" class="button-styling" type="button" value="ALL IN">
         
       </div>
+
     </div>
 
-    <div>
+    <div id="chat-view-div">
       <%- include("./partials/chat", {gameId: gameId}) %>
     </div>
   </div>
+
+
 </div>
 
 </body>
