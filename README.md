@@ -1,5 +1,9 @@
 # term-project-sl3zt1nhcs-gupeht
+Group Members
+|Name|Student Id|
+------------------
 Project management Link: [https://www.notion.so/c9bb896ddb6d4fbaa63981ied939eff08?v=05286ec6f8d946cca526923d529179d4&pvs=4](https://global-authority-ffd.notion.site/c9bb896ddb6d4fbaa63981ed939eff08?v=05286ec6f8d946cca526923d529179d4)
+Presentation Link: https://docs.google.com/presentation/d/1qBb9bWI7sGHs0tvXnkNjUSVaTwA96lkqp64O7pnf1EE/edit?usp=sharing
 
 Setup
 1. Setup the .env
@@ -15,6 +19,16 @@ Setup
 10. Then you are set and you can open your site
 
 Technology Stack
+-CSS/HTML
+-JavaScript
+-Nodejs and Express
+-Postgresql for Database
+-Render to host the website
+
+Project Architecture
+We used the MVC format which consists of Model, View, and Controller
+
+
 
 
 
