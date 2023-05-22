@@ -83,11 +83,6 @@ socket.on("SESSION_ERROR", () => {
   appendMessage(`Server: `, `Browser session error`);
 });
 
-socket.on("PLAYER_JOINED", ({ username }) => {
-  console.log(username + " connected ");
-  appendMessage(`${username} `, `connected`);
-});
-
 socket.on("PLAYER_LEFT", ({ username }) => {
   console.log(username + " disconnected ");
   appendMessage(`${username} `, `disconnected`);

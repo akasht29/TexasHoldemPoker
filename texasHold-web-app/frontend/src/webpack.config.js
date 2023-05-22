@@ -6,7 +6,7 @@ module.exports = {
     mode: isProduction ? "production" : "development",
 
     entry: [
-        './public/js/game_room.js'
+        './public/js/main.js'
     ],
     output: {
         filename: "bundle.js",
