@@ -59,9 +59,6 @@ socket.on("GAME_STARTING", function (destination) {
 });
 
 socket.on("CHAT_MESSAGE", ({ username, message }) => {
-  console.log("message recieved");
-  socket.id
-  console.log("test" + socket.id);
   appendMessage(`${username}: `, `${message}`);
 });
 
