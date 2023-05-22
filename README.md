@@ -9,11 +9,14 @@ Group Members
 |Mohamed Sharif|920703534|MIA
 
 
-
+Links
+---
 Project management Link: [https://www.notion.so/c9bb896ddb6d4fbaa63981ied939eff08?v=05286ec6f8d946cca526923d529179d4&pvs=4](https://global-authority-ffd.notion.site/c9bb896ddb6d4fbaa63981ed939eff08?v=05286ec6f8d946cca526923d529179d4)
+
 Presentation Link: https://docs.google.com/presentation/d/1qBb9bWI7sGHs0tvXnkNjUSVaTwA96lkqp64O7pnf1EE/edit?usp=sharing
 
 Setup
+-----
 1. Setup the .env
    - Have it contain: DATABASE_URL, API_BASE_URL, SECRET
 2. npm install inside repo folder
@@ -27,6 +30,7 @@ Setup
 10. Then you are set and you can open your site
 
 Technology Stack
+---
 -CSS/HTML
 -JavaScript
 -Nodejs and Express
@@ -34,8 +38,16 @@ Technology Stack
 -Render to host the website
 
 Project Architecture
+---
 We used the MVC format which consists of Model, View, and Controller
 
+Testing Plan
+---
+We played the game to test it. After deployment we had each of us log in onto our own respectice computers
+and tested if we were able to join lobbies and play the game with one another.
+
+Challenges
+---
 
 
 
