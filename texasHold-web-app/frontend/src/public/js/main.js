@@ -19,12 +19,6 @@ function updatePlayers(players) {
   let playersDiv = document.getElementById("player-view");
   playersDiv.innerHTML = "";
 
-  const titleDiv = document.createElement("div");
-  titleDiv.style =
-    "color:black;font-size: 22px; padding: 30px; border: 5px solid green; text-align: center;";
-  const newMessageText = document.createTextNode(`Players`);
-  titleDiv.appendChild(newMessageText);
-  playersDiv.appendChild(titleDiv);
 
   for (let i = 0; i < players.length; i++) {
     players[i].player_id;
@@ -35,7 +29,7 @@ function updatePlayers(players) {
       "color:black;font-size: 22px; padding: 30px; border: 5px solid green; margin: 10px;";
 
     newPlayerDiv.appendChild(document.createTextNode(
-      `Username: ${players[i].player_id}`
+      `${players[i].player_id}`
     ));
 
     newPlayerDiv.appendChild( document.createElement("div"));
