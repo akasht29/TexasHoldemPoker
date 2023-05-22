@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const gameController = require("../controllers/gameController");
 const playerController = require("../controllers/playerController");
+const userModel = require("../models/userModel");
 const db = require("../database/connection");
+const playerModel = require("../models/playerModel");
 
 router.get("/waiting-room/:gameId", async (request, response) => {
   try {
@@ -13,8 +15,9 @@ router.get("/waiting-room/:gameId", async (request, response) => {
     // check if there is room in the game
     if (await gameController.gameFull(gameId)) {
       response.redirect("/user/lobby");
+      return;
     }
-    
+
     try {
       const value = parseInt(userId, 10);
       const query = `SELECT game_id FROM players WHERE user_id = ${userId}`;
@@ -22,8 +25,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       var connectedGameId = parseInt(result.game_id);
 
       console.log("Player in game_id: ", connectedGameId);
-    } 
-    catch (error) {
+    } catch (error) {
       console.log("Player not connected to a game");
     }
 
@@ -51,8 +53,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
         } catch (error) {
           console.log("Error getting player_id from player: ", error.message);
         }
-      } 
-      else {
+      } else {
         //if the user is already connected to a different game, return them to the lobby
         response.redirect("/user/lobby");
         console.log(
@@ -60,8 +61,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
         );
         return;
       }
-    } 
-    else {
+    } else {
       // generate a new player id for the user if needed
       player = {
         playerId: await playerController.addPlayer(gameId, userId),
@@ -80,8 +80,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       gameId: gameId,
       lobbyOwner: await gameController.firstPlayer(gameId, playerId),
     });
-  } 
-  catch (error) {
+  } catch (error) {
     console.log("Generic game waiting-room error:", error.message);
   }
 });
@@ -93,26 +92,37 @@ router.get("/room/:gameId/start", (request, response) => {
     const gameId = request.params.gameId;
     const roomId = parseInt(gameId);
     const redirectURL = `${process.env.API_BASE_URL}/game/room/${gameId}`;
-    
+
     io.in(roomId).emit("GAME_STARTING", { redirectURL });
     response.redirect(redirectURL);
-  } 
-  catch (error) {
+  } catch (error) {
     console.log("game room start error:");
   }
 });
 
 router.get("/room/:gameId", async (request, response) => {
+  const io = request.app.get("io");
   try {
     const gameId = request.params.gameId;
 
     if (await gameController.gameFull(gameId)) {
       response.redirect("user/lobby");
     }
+    // update in game player list
+    let username = request.session.user.username;
+    var players = await playerModel.getAllPlayers(gameId);
+    for (let i = 0; i < players.length; i++) {
+      players[i].player_id = await userModel.getUserNameById(
+        players[i].user_id
+      );
+    }
+    io.in(parseInt(gameId)).emit("PLAYER_JOINED", { username }, players);
 
-    response.render("game-room", { gameId: gameId, baseUrl: process.env.API_BASE_URL });
-  } 
-  catch (error) {
+    response.render("game-room", {
+      gameId: gameId,
+      baseUrl: process.env.API_BASE_URL,
+    });
+  } catch (error) {
     console.log("game room error:", error.message);
     response.redirect("user/lobby");
   }
@@ -126,16 +136,22 @@ router.get("/room/:gameId/leave", async (request, response) => {
     io.in(roomId).emit("SESSION_ERROR");
   } else {
     let username = request.session.user.username;
-    io.in(roomId).emit("PLAYER_LEFT", {
-      username,
-    });
-
-    io.socketsLeave(roomId);
 
     await playerController.removePlayer(
       request.params.gameId,
       request.session.player.playerId
     );
+
+    // update in game player list
+    var players = await playerModel.getAllPlayers(request.params.gameId);
+    for (let i = 0; i < players.length; i++) {
+      players[i].player_id = await userModel.getUserNameById(
+        players[i].user_id
+      );
+    }
+    io.in(parseInt(request.params.gameId)).emit("PLAYER_LEFT", { username }, players);
+
+    //io.socketsLeave(roomId);
 
     await gameController.deleteGameIfEmpty(request.params.gameId);
     request.session.player = null;

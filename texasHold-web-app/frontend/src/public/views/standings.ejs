@@ -1,3 +1,43 @@
-<div>
-    <h1>Thanks for playing!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results</title>
+  <link rel="stylesheet" href="/css/game-room.css">
+  <link rel="stylesheet" href="/css/game-room-navbar.css">
+  <link rel="stylesheet" href="/css/button-styling.css">
+  <script>
+    const gameId = <%= gameId %>;
+    const players = <%= players %>;
+  </script>
+
+</head>
+
+<div id="main-container" class="thin-outline">
+  <%- include("./partials/game-room-navbar", {gameId: gameId}) %>
+
+  <div id="game-container" class="thin-outline">
+    <div></div>
+
+    <div id="player-list"></div>
+
+    <div id="players-list" class="thin-outline">
+        <% for (let i = 0; i < players.length; i++) { %>
+          <div class="list-item-conainer">
+            <div class="one-fourth-horizontal">
+              <%= players[i].player_name; %>
+            </div>
+            <div class="one-fourth-horizontal">
+              <%= players[i].chips; %>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+    <div></div>
+  </div>
 </div>
+
+</body>
+</html>

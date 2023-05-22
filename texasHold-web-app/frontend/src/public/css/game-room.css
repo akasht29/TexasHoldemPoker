@@ -27,6 +27,16 @@
     overflow-y: scroll;
 }
 
+#player-text {
+    font-size: 30px;
+    height: 100%;
+    width: 15%;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 #chat-view {
     padding-left: 8px;
     height: 70%;
