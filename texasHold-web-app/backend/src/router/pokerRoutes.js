@@ -15,74 +15,6 @@ router.get('/:gameId/getCommunityCards', async (_request, _response) => {
     //
 });
 
-universalActionsWrapper = async (request, response, io, localActions) => {
-    console.log('entering wrapper');
-    
-    let ret = await localActions();
-
-    if (!ret) {
-        return ret;
-    }
-
-    const gameInfo = await gameModel.getGameData(gameId);
-    let players = JSON.parse(JSON.stringify(gameInfo.players)); 
-    
-    if (await pokerController.roundOver(gameId)) {
-        console.log('round is over!');
-        await gameController.incrementRound(gameId);
-        
-        if (await gameController.isGameOver(gameId)) {
-
-            // TODO: Rediret all players in the current game to the standings page.
-            response.redirect(`poker/${gameId}/standings`);
-        }
-        else {
-            console.log('clearing cards!');
-            await pokerController.clearCards(gameId);
-            await pokerController.dealCardsToPlayers(gameId);
-            await pokerController.unfoldPlayers(gameId);
-            let newDealer = await gameController.incrementDealer(gameId);
-            await gameModel.setTurn(gameId, newDealer);
-
-            console.log("community cards:", await gameModel.getCommunityCards(
-                request.params.gameId
-            ));
-            io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                // info passed to clients goes here
-                communityCards: await gameModel.getCommunityCards(
-                    request.params.gameId
-                )
-            });
-        }
-    }
-    else {
-        console.log("going to next player");
-        await pokerController.nextTurn(gameId);
-
-        if (await pokerController.isNewCycle(gameId)) {
-            let communityCards = await gameModel.getCommunityCards(
-                request.params.gameId
-            );
-            
-            if (communityCards.length < 4) {
-                console.log("dealing a card to community!");
-                await pokerController.dealCardToCommunity(gameId);
-
-                communityCards = await gameModel.getCommunityCards(
-                    request.params.gameId
-                );
-        
-                io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARD", {
-                    // info passed to clients goes here
-                    communityCards: communityCards
-                });
-            }
-        }
-    }
-
-    console.log('exiting wrapper 3');
-    return ret;
-}
 
 router.head('/:gameId/allIn', async (request, response) => {
     try {
@@ -110,34 +42,9 @@ router.head('/:gameId/allIn', async (request, response) => {
         
         await pokerController.nextTurn(gameId);
 
-        if (await pokerController.isNewCycle(gameId)) {
-            console.log('new cycle!');
-            const gameInfo   = await gameModel.getGameData(gameId);
-            if (gameInfo.communitycards.length < 5) {
-                console.log('dealing a card to the community cards!');
-
-                await pokerController.dealCardToCommunity(gameId);
-
-                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                    // info passed to clients goes here
-                    communityCards: (await gameModel.getGameData(gameId)).communitycards
-                });
-            }
-
-            if (await pokerController.roundOver(gameId)) {
-                await pokerController.clearCards(gameId);
-                await pokerController.dealCardsToPlayers(gameId);
-                await pokerController.unfoldPlayers(gameId);
-                let newDealer = await gameController.incrementDealer(gameId);
-                await gameModel.setTurn(gameId, newDealer);
-    
-                await gameController.incrementRound(gameId);
-    
-                if (await gameController.isGameOver(gameId)) {
-                    console.log("game over");
-                    response.redirect(`poker/${gameId}/standings`);
-                }
-            }
+        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
+            console.log('game over');
+            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
         }
 
         response.status(200).send("player moved");
@@ -178,33 +85,9 @@ router.head('/:gameId/call', async (request, response) => {
 
         await pokerController.nextTurn(gameId);
 
-        if (await pokerController.isNewCycle(gameId)) {
-            console.log('new cycle!');
-            const gameInfo   = await gameModel.getGameData(gameId);
-            if (gameInfo.communitycards.length < 5) {
-                console.log('dealing a card to the community cards!');
-
-                await pokerController.dealCardToCommunity(gameId);
-
-                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                    // info passed to clients goes here
-                    communityCards: (await gameModel.getGameData(gameId)).communitycards
-                });
-            }
-        }
-        else if (await pokerController.roundOver(gameId)) {
-            await pokerController.clearCards(gameId);
-            await pokerController.dealCardsToPlayers(gameId);
-            await pokerController.unfoldPlayers(gameId);
-            let newDealer = await gameController.incrementDealer(gameId);
-            await gameModel.setTurn(gameId, newDealer);
-
-            await gameController.incrementRound(gameId);
-
-            if (await gameController.isGameOver(gameId)) {
-                console.log("game over");
-                response.redirect(`poker/${gameId}/standings`);
-            }
+        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
+            console.log('game over');
+            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
         }
 
         response.status(200).send("player moved");
@@ -231,57 +114,14 @@ router.head('/:gameId/fold', async (request, response) => {
 
         // fold logic here
         {
-            const playerInfo = await playerModel.getPlayerData(playerId);
-            const highestBet = await pokerController.getHighestBet(gameId);
-            
             await playerModel.setToFolded(playerId);
         }
         
         await pokerController.nextTurn(gameId);
 
-        if (await pokerController.isNewCycle(gameId)) {
-            console.log('new cycle!');
-            const gameInfo   = await gameModel.getGameData(gameId);
-            if (gameInfo.communitycards.length < 5) {
-                console.log('dealing a card to the community cards!');
-
-                await pokerController.dealCardToCommunity(gameId);
-
-                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                    // info passed to clients goes here
-                    communityCards: (await gameModel.getGameData(gameId)).communitycards
-                });
-            }
-        }
-        else if (await pokerController.roundOver(gameId)) {
-            console.log('round is over!');
-
-            // check if player won
-            while (gameInfo.communitycards.length < 5) {
-                console.log('dealing a card to the community cards!');
-
-                await pokerController.dealCardToCommunity(gameId);
-
-                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                    // info passed to clients goes here
-                    communityCards: (await gameModel.getGameData(gameId)).communitycards
-                });
-            }
-
-            // check an see who won
-
-            await pokerController.clearCards(gameId);
-            await pokerController.dealCardsToPlayers(gameId);
-            await pokerController.unfoldPlayers(gameId);
-            let newDealer = await gameController.incrementDealer(gameId);
-            await gameModel.setTurn(gameId, newDealer);
-
-            await gameController.incrementRound(gameId);
-
-            if (await gameController.isGameOver(gameId)) {
-                console.log("game over");
-                response.redirect(`poker/${gameId}/standings`);
-            }
+        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
+            console.log('game over');
+            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
         }
 
         response.status(200).send("player moved");
@@ -319,34 +159,9 @@ router.post('/:gameId/raise', async (request, response) => {
 
         await pokerController.nextTurn(gameId);
 
-        if (await pokerController.isNewCycle(gameId)) {
-            console.log('new cycle!');
-            const gameInfo = await gameModel.getGameData(gameId);
-            if (gameInfo.communitycards.length < 5) {
-                console.log('dealing a card to the community cards!');
-
-                await pokerController.dealCardToCommunity(gameId);
-
-                await io.in(parseInt(request.params.gameId)).emit("NEW_COMMUNITY_CARDS", {
-                    // info passed to clients goes here
-                    communityCards: (await gameModel.getGameData(gameId)).communitycards
-                });
-            }
-        }
-        else if (await pokerController.roundOver(gameId)) {
-            console.log('round is over!');
-            await pokerController.clearCards(gameId);
-            await pokerController.dealCardsToPlayers(gameId);
-            await pokerController.unfoldPlayers(gameId);
-            let newDealer = await gameController.incrementDealer(gameId);
-            await gameModel.setTurn(gameId, newDealer);
-
-            await gameController.incrementRound(gameId);
-
-            if (await gameController.isGameOver(gameId)) {
-                console.log("game over");
-                response.redirect(`poker/${gameId}/standings`);
-            }
+        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
+            console.log('game over');
+            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
         }
 
         response.status(200).send("player moved");
