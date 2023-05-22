@@ -16,7 +16,13 @@ function clearTable() {
 }
 
 function updatePlayers(players) {
+  var styling = "color:black;font-size: 22px; padding: 30px; border: 5px solid green; margin: 10px;";
   let playersDiv = document.getElementById("player-view");
+  if(!playersDiv){
+    playersDiv = document.getElementById("player-view-waiting");
+    styling = "color:black;font-size: 14px; padding: 5px; border: 1px solid green; margin: 2px;";
+  }
+  
   playersDiv.innerHTML = "";
 
 
@@ -25,8 +31,7 @@ function updatePlayers(players) {
     players[i].chips;
 
     const newPlayerDiv = document.createElement("div");
-    newPlayerDiv.style =
-      "color:black;font-size: 22px; padding: 30px; border: 5px solid green; margin: 10px;";
+    newPlayerDiv.style = styling
 
     newPlayerDiv.appendChild(document.createTextNode(
       `${players[i].player_id}`

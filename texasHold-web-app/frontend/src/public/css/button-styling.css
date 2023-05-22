@@ -25,6 +25,10 @@
   background-color: #0b5a21;
 }
 
+.button-styling:hover {
+  background-color: #0b5a21;
+}
+
 .navbar-button-stylingOLD {
   background-color: rgb(255, 255, 255);
   font-family: "Courier New", Courier, monospace;
@@ -44,8 +48,6 @@
 }
 
 .navbar-button-styling {
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
   background-color: #108a33;
   border: 1px solid rgba(27, 31, 35, 0.15);
   border-radius: 6px;
@@ -54,9 +56,9 @@
   color: #ffffff;
   font-family: Arial;
   font-size: 14px;
-  padding: 5px 10px;
+  padding: 10px 20px;
   position: relative;
-  margin: 30px;
+  margin: 50px;
 }
 
 .navbar-button-styling:hover {

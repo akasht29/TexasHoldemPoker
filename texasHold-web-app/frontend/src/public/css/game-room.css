@@ -24,7 +24,14 @@
 #player-view {
     height: 80%;
     width: 15%;
-    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#player-view-waiting {
+    height: 40%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     justify-content: center;
