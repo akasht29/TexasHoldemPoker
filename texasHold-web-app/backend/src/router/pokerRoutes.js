@@ -8,12 +8,24 @@ const gameController = require("../controllers/gameController");
 
 // returns the players current hand as a json object to the client
 router.get("/:gameId/getHandCards", async (_request, _response) => {
-  // console.log(request.session);
+//
 });
 
 router.get("/:gameId/getCommunityCards", async (_request, _response) => {
   //
 });
+
+/*
+router.head("/:playerid", async (_request, _response) => {
+    const playerid = _request.params.playerid;
+    const io = _request.app.get("io");
+    const socket_id = playerModel.getSocket(playerid);
+    const message = "Private"
+    const result = io.to(socket_id).emit("PRIVATE_MSG", message);
+    console.log("Listeners = " + result);
+    _response.status(200).send("player moved");
+});
+*/
 
 router.head("/:gameId/allIn", async (request, response) => {
   try {

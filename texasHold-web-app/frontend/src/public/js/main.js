@@ -50,9 +50,14 @@ function updatePlayers(players) {
 
 const messageForm = document.getElementById("send-container");
 const messageInput = document.getElementById("message-input");
+const indicator = document.getElementById("turn-indicator");
 
 socket.on("error", function (err) {
   console.log(err);
+});
+
+socket.on('connect', () => {
+  console.log(socket.id);
 });
 
 socket.on("GAME_STARTING", function (destination) {
@@ -61,7 +66,14 @@ socket.on("GAME_STARTING", function (destination) {
 
 socket.on("CHAT_MESSAGE", ({ username, message }) => {
   console.log("message recieved");
+  socket.id
+  console.log("test" + socket.id);
   appendMessage(`${username}: `, `${message}`);
+});
+
+socket.on("NEXT_TURN", ({ status }) => {
+  indicator.innerHTML = status;
+  appendMessage(``, `${status}`);
 });
 
 socket.on("GAME_UPDATE", ({ username, action, gameData }) => {
@@ -137,6 +149,10 @@ socket.on("NEW_COMMUNITY_CARDS", function (cards) {
   for (let i = 0; i < communityCards.length; i++) {
     addCardToTable(communityCards[i]);
   }
+});
+
+socket.on("PRIVATE_MSG", ({test}) => {
+  console.log(test);
 });
 
 socket.on("FOLD", ({ playername, amount }) => {
