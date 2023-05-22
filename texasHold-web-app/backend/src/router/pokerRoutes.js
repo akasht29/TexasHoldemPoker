@@ -7,13 +7,13 @@ const playerModel = require("../models/playerModel");
 const gameController = require("../controllers/gameController");
 
 // returns the players current hand as a json object to the client
-router.get("/:gameId/getHand", async (request, response) => {
-  // console.log(request.session);
-  const gameId = request.params.gameId;
-  const playerId = request.session.player.playerId;
-  const playerInfo = await playerModel.getPlayerData(playerId);
-  console.log("in hand:", playerInfo, playerInfo.hand);
-  response.status(200).json({ hand: playerInfo.hand });
+router.get('/:gameId/getHand', async (request, response) => {
+    // console.log(request.session);
+    const gameId     = request.params.gameId;
+    const playerId   = request.session.player.playerId;
+    const playerInfo = await playerModel.getPlayerData(playerId);
+    // console.log("in hand:", playerInfo, playerInfo.hand);
+    response.status(200).json({ hand: playerInfo.hand })
 });
 
 router.head("/:gameId/allIn", async (request, response) => {
