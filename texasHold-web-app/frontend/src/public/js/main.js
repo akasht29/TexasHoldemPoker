@@ -16,7 +16,7 @@ function clearTable() {
 }
 
 function updatePlayers(players) {
-  var styling = "color:black;font-size: 22px; padding: 30px; border: 5px solid green; margin: 10px; background: rgb(202, 245, 217);";
+  var styling = "color:black;font-size: 16px; padding: 30px; border: 5px solid green; margin: 10px; background: rgb(202, 245, 217); overflow: hidden;";
   let playersDiv = document.getElementById("player-view");
   if(!playersDiv){
     playersDiv = document.getElementById("player-view-waiting");
