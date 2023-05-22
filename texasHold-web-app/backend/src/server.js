@@ -52,6 +52,11 @@ server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
 
+app.head('/*', function(req, res, next){ 
+  res.setHeader('Last-Modified', (new Date()).toUTCString());
+  next(); 
+});
+
 app.use("/", root);
 app.use("/user", userRoutes);
 app.use("/game", gameRoutes);

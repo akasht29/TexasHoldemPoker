@@ -1,10 +1,62 @@
-const pgarray     = require("pg-array");
-const gameModel   = require("../models/gameModel");
-const playerModel = require("../models/playerModel");
+const pgarray          = require("pg-array");
+const gameModel        = require("../models/gameModel");
+const playerModel      = require("../models/playerModel");
 const playerController = require("./playerController");
-const gameController = require("./gameController");
+const gameController   = require("./gameController");
 
-pokerController = {};
+pokerController        = {};
+
+/**
+ * return 1 on game over
+ */
+pokerController.endOfRoundNonsense = async (gameId, io) => {
+    if (await pokerController.isNewCycle(gameId)) {
+        console.log('new cycle!');
+        const gameInfo   = await gameModel.getGameData(gameId);
+        if (gameInfo.communitycards.length < 5) {
+            console.log('dealing a card to the community cards!');
+
+            await pokerController.dealCardToCommunity(gameId);
+
+            await io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
+                // info passed to clients goes here
+                communityCards: (await gameModel.getGameData(gameId)).communitycards
+            });
+        }
+
+        if (await pokerController.roundOver(gameId)) {
+            console.log('round is over');
+
+            while (gameInfo.communitycards.length < 5) {
+                console.log('dealing a card to the community cards!');
+
+                await pokerController.dealCardToCommunity(gameId);
+
+                await io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
+                    // info passed to clients goes here
+                    communityCards: (await gameModel.getGameData(gameId)).communitycards
+                });
+            }
+
+            // TODO:
+            // see who won
+            
+            await pokerController.clearCards(gameId);
+            await pokerController.dealCardsToPlayers(gameId);
+            await pokerController.unfoldPlayers(gameId);
+            let newDealer = await gameController.incrementDealer(gameId);
+            await gameModel.setTurn(gameId, newDealer);
+
+            await gameController.incrementRound(gameId);
+
+            if (await gameController.isGameOver(gameId)) {
+                console.log("game over");
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 pokerController.canPlayerMove = async (playerId) => {
     if (await playerController.isPlayerFolded(playerId)) {
