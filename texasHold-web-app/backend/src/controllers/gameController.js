@@ -1,4 +1,5 @@
 const gameModel      = require("../models/gameModel");
+const playerModel = require("../models/playerModel");
 const gameController = {};
 
 gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
@@ -85,13 +86,10 @@ gameController.incrementDealer = async (gameId) => {
 }
 
 gameController.isGameOver = async (gameId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
-    
-    if (gameInfo.curr_round >= gameInfo.num_rounds) {
-        return true;
-    }
+    const gameInfo = await gameModel.getGameData(gameId);
+    const players  = await playerModel.getAllPlayers(gameId);
 
-    return false;
+    return (gameInfo.curr_round >= gameInfo.num_rounds) || (players.length <= 1);
 }
 
 gameController.dealCardToCommunity = async (gameId) => {
