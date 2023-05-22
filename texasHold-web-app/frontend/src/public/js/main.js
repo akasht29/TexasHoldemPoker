@@ -151,8 +151,16 @@ socket.on("NEW_COMMUNITY_CARDS", function (cards) {
   }
 });
 
-socket.on("PRIVATE_MSG", ({test}) => {
-  console.log(test);
+socket.on("NEW_HAND", function (requestData) {
+  fetch(`${requestData.baseUrl}/poker/${requestData.gameId}/getHand`, {
+    method: "GET"
+  })
+  .then((response) => {
+    console.log(response);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 });
 
 socket.on("FOLD", ({ playername, amount }) => {

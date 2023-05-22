@@ -85,7 +85,7 @@ router.get("/waiting-room/:gameId", async (request, response) => {
   }
 });
 
-router.get("/room/:gameId/start", (request, response) => {
+router.get("/room/:gameId/start", async (request, response) => {
   const io = request.app.get("io");
   try {
     // Redirect all players to `/game/room/${gameId}`
@@ -94,6 +94,9 @@ router.get("/room/:gameId/start", (request, response) => {
     const redirectURL = `${process.env.API_BASE_URL}/game/room/${gameId}`;
 
     io.in(roomId).emit("GAME_STARTING", { redirectURL });
+    
+    await pokerController.dealCardsToPlayers(gameId);
+
     response.redirect(redirectURL);
   } catch (error) {
     console.log("game room start error:");
