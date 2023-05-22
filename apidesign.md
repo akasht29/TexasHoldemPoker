@@ -7,7 +7,8 @@
 |Allows players to leave the game | 1.Game id 2.Player id | |Player exits the game and they are removed from game and player id is removed from the database | GET game/room/:gameId/leave|
 |Create the game itself | 1. Game name 2. Max Players 3. Max rounds | Has to be logged in | Game gets created and updated in the database | POST game/create|
 |Player All in | 1. Game id 2. Player id | player can do an action(if they have folded they cannot do anything or if they do not have money) |Takes all the money and puts it in the pot and money is updated in the database
-Then continues to next person| HEAD poker/:gameId/allIn (gameId, playerid, username are all provided via sessions)|
+Then continues to next person| HEAD poker/:gameId/allIn (gameId, playerid, username are all provided via sessions)
+|
 
 
 
