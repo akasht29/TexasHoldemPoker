@@ -12,6 +12,9 @@
 |Register|1. Username 2. password 3. email | Checks if username or email exists | Adds fields to the database and logs in |POST user/register|
 |Login | 1. Email 2. password | Checks if email exists and checks if password is correct| Logs in and redirects you to login page| POST user/login|
 |Logout| | |Logs player out | GET user/logout|
+|Register| | |Render register page| GET user/register|
+|Login| | |Render the login page| GET user/login|
+|Lobby|1. Player id| Checks the player id | Makes a lobby page specific to this player | GET user/lobby|
 
 
 
