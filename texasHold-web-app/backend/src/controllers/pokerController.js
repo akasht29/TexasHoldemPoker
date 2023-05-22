@@ -43,7 +43,50 @@ pokerController.endOfRoundNonsense = async (gameId, io) => {
             }
 
             // TODO:
-            // see who won
+            let players = await playerModel.getAllPlayers(gameId);
+            const communityCards = (await gameModel.getGameData(gameId)).communitycards;
+            console.log("pre", players);
+            players.sort((playerA, playerB) => {
+                const scoreA = pokerController.ratePlayerHand(playerA.hand, communityCards);
+                const scoreB = pokerController.ratePlayerHand(playerB.hand, communityCards);
+
+                console.log(scoreA, scoreB);
+
+                if (scoreA > scoreB) {
+                  return -1;
+                }
+                else if (scoreA < scoreB) {
+                  return 1;
+                }
+                else {
+                    return 0;
+                }
+            });
+            console.log("post", players);
+
+            let winner = players[0];
+            let winnings = players[0].curr_bet;
+            for (let i = 1; i < players.length; i++) {
+                if (player[0].curr_bet - player[i].curr_bet < 0) {
+                    winnings += player[i].curr_bet;
+                    player[i].curr_bet = 0;
+                }
+                else if (player[0].curr_bet = player[i].curr_bet > 0) {
+                    winnings += player[0].curr_bet;
+                    player[i].curr_bet -= player[0].curr_bet;
+                    player[i].chips += player[i].curr_bet;
+                    player[i].curr_bet = 0;
+                }
+                else {
+                    winnings += player[0].curr_bet;
+                    player[i].curr_bet = 0;
+                }
+                player[0].curr_bet = 0;
+            }
+
+            for (let i = 0; i < players.length; i++) {
+                await playerModel.setChipsAndBet(players[i].player_id, players[i].chips, players[i].curr_bet);
+            }
             
             await pokerController.clearCards(gameId);
             await pokerController.dealCardsToPlayers(gameId);
@@ -298,7 +341,7 @@ getScore = (bigRank, littleRank) => {
     return Math.pow(2, (bigRank * 13)) + (bigRank * littleRank);
 }
 
-rateHand = (handCards, communityCards) => {
+pokerController.ratePlayerHand = (handCards, communityCards) => {
     let score             = 0; 
     let rankCounter       = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     let suitCounter       = [ 0, 0, 0, 0 ];
@@ -386,11 +429,6 @@ rateHand = (handCards, communityCards) => {
     }
 
     return score;
-}
-
-pokerController.ratePlayerHand = async (gameId, playerId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
-    console.log("gameInfo:", gameInfo);
 }
 
 module.exports = pokerController;

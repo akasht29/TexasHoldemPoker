@@ -12,7 +12,7 @@ router.get('/:gameId/getHand', async (request, response) => {
     const gameId     = request.params.gameId;
     const playerId   = request.session.player.playerId;
     const playerInfo = await playerModel.getPlayerData(playerId);
-    console.log("in hand:", playerInfo, playerInfo.hand)
+    // console.log("in hand:", playerInfo, playerInfo.hand);
     response.status(200).json({ hand: playerInfo.hand })
 });
 
