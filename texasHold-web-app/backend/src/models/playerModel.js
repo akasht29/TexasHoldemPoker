@@ -71,23 +71,18 @@ playerModel.setToFolded = async (playerId) => {
   await db.none(query, values);
 };
 
-playerModel.setToCalled = async (playerId) => {
-  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
-
-  await db.none(query, [playerId, 1]);
-};
-
 playerModel.setToAllIn = async (playerId) => {
-  console.log("player is all in!");
-  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  console.log(`player ${playerId} is all in!`);
+  const query = "UPDATE players SET status = $1 WHERE player_id = $2";
 
-  await db.none(query, [playerId, 2]);
+  await db.none(query, [2, playerId]);
 };
 
 playerModel.setToOther = async (playerId) => {
-  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  console.log(`player ${playerId} is other!`);
+  const query = "UPDATE players SET status = $1 WHERE player_id = $2";
 
-  await db.none(query, [playerId, 3]);
+  await db.none(query, [3, playerId]);
 };
 
 playerModel.getAllPlayers = async (gameId) => {

@@ -123,19 +123,20 @@ router.head('/:gameId/allIn', async (request, response) => {
                     communityCards: (await gameModel.getGameData(gameId)).communitycards
                 });
             }
-        }
-        else if (await pokerController.roundOver(gameId)) {
-            await pokerController.clearCards(gameId);
-            await pokerController.dealCardsToPlayers(gameId);
-            await pokerController.unfoldPlayers(gameId);
-            let newDealer = await gameController.incrementDealer(gameId);
-            await gameModel.setTurn(gameId, newDealer);
 
-            await gameController.incrementRound(gameId);
-
-            if (await gameController.isGameOver(gameId)) {
-                console.log("game over");
-                response.redirect(`poker/${gameId}/standings`);
+            if (await pokerController.roundOver(gameId)) {
+                await pokerController.clearCards(gameId);
+                await pokerController.dealCardsToPlayers(gameId);
+                await pokerController.unfoldPlayers(gameId);
+                let newDealer = await gameController.incrementDealer(gameId);
+                await gameModel.setTurn(gameId, newDealer);
+    
+                await gameController.incrementRound(gameId);
+    
+                if (await gameController.isGameOver(gameId)) {
+                    console.log("game over");
+                    response.redirect(`poker/${gameId}/standings`);
+                }
             }
         }
 
