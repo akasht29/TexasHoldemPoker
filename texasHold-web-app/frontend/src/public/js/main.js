@@ -104,6 +104,18 @@ socket.on("NEW_COMMUNITY_CARDS", function (cards) {
   }
 });
 
+socket.on("NEW_HAND", function (requestData) {
+  fetch(`${requestData.baseUrl}/poker/${requestData.gameId}/getHand`, {
+    method: "GET"
+  })
+  .then((response) => {
+    console.log(response);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+});
+
 socket.on("FOLD", ({ playername, amount }) => {
   // Update the frontend indicateing that the player has bet
 });

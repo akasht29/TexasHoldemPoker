@@ -7,21 +7,20 @@ const playerModel      = require('../models/playerModel');
 const gameController   = require('../controllers/gameController');
 
 // returns the players current hand as a json object to the client
-router.get('/:gameId/getHandCards', async (_request, _response) => {
+router.get('/:gameId/getHand', async (request, response) => {
     // console.log(request.session);
+    const gameId     = request.params.gameId;
+    const playerId   = request.session.player.playerId;
+    const playerInfo = await playerModel.getPlayerData(playerId);
+    console.log("in hand:", playerInfo, playerInfo.hand)
+    response.status(200).json({ hand: playerInfo.hand })
 });
-
-router.get('/:gameId/getCommunityCards', async (_request, _response) => {
-    //
-});
-
 
 router.head('/:gameId/allIn', async (request, response) => {
     try {
         const gameId   = request.params.gameId;
         const playerId = request.session.player.playerId;
         const io       = request.app.get("io");
-        const username = request.session.user.username;
 
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
@@ -62,6 +61,8 @@ router.head('/:gameId/call', async (request, response) => {
         const io       = request.app.get("io");
         const username = request.session.user.username;
 
+        let ids = Object.keys(io.engine.clients);
+
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
             return;
@@ -72,7 +73,6 @@ router.head('/:gameId/call', async (request, response) => {
         // call logic here
         {
             const playerInfo = await playerModel.getPlayerData(playerId);
-            const gameInfo   = await gameModel.getGameData(gameId);
             const highestBet = await pokerController.getHighestBet(gameId);
             const amount     = highestBet - playerInfo.curr_bet;
 
@@ -81,6 +81,8 @@ router.head('/:gameId/call', async (request, response) => {
                 playerId,
                 amount
             );
+
+            await playerModel.setToCalled(playerId);
         }
 
         await pokerController.nextTurn(gameId);
@@ -155,6 +157,8 @@ router.post('/:gameId/raise', async (request, response) => {
                 playerId,
                 amount
             );
+
+            await playerModel.setToOther(playerId);
         }
 
         await pokerController.nextTurn(gameId);
