@@ -24,6 +24,8 @@ Project management Link: [https://www.notion.so/c9bb896ddb6d4fbaa63981ied939eff0
                           do nodemon server.js
                           make sure if you dont have to do npm install but inside frontend/src and backend/src
 
+Project Architecture
+
 
 
 
