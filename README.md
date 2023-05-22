@@ -1,9 +1,12 @@
 # term-project-sl3zt1nhcs-gupeht
 Group Members
 -------------
-|Name|Student Id|
-------|---------|
-|Akash Thiagarajan|920194194|
+|Name|Student Id|Status|
+|------|---------|----|
+|Devin Kern|921938742|Active|
+|Antonio Indindoli|920356733|Active
+|Akash Thiagarajan|920194194|Active
+|Mohamed Sharif|920703534|MIA
 
 
 
