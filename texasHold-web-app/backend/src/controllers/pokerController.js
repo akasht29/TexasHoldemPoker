@@ -1,10 +1,111 @@
-const pgarray     = require("pg-array");
-const gameModel   = require("../models/gameModel");
-const playerModel = require("../models/playerModel");
+const pgarray          = require("pg-array");
+const gameModel        = require("../models/gameModel");
+const playerModel      = require("../models/playerModel");
 const playerController = require("./playerController");
-const gameController = require("./gameController");
+const gameController   = require("./gameController");
 
-pokerController = {};
+pokerController        = {};
+
+/**
+ * return 1 on game over
+ */
+pokerController.endOfRoundNonsense = async (gameId, io) => {
+    if (await pokerController.isNewCycle(gameId)) {
+        console.log('new cycle!');
+        const gameInfo   = await gameModel.getGameData(gameId);
+        if (gameInfo.communitycards.length < 5) {
+            console.log('dealing a card to the community cards!');
+
+            await pokerController.dealCardToCommunity(gameId);
+
+            await io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
+                // info passed to clients goes here
+                communityCards: (await gameModel.getGameData(gameId)).communitycards
+            });
+        }
+
+        if (await pokerController.roundOver(gameId)) {
+            console.log('round is over');
+
+            while (gameInfo.communitycards.length < 5) {
+                console.log('dealing a card to the community cards!');
+
+                await pokerController.dealCardToCommunity(gameId);
+
+                await io.in(parseInt(gameId)).emit("NEW_COMMUNITY_CARDS", {
+                    // info passed to clients goes here
+                    communityCards: (await gameModel.getGameData(gameId)).communitycards
+                });
+            }
+
+            // TODO:
+            // see who won
+            
+            await pokerController.clearCards(gameId);
+            await pokerController.dealCardsToPlayers(gameId);
+            await pokerController.unfoldPlayers(gameId);
+            let newDealer = await gameController.incrementDealer(gameId);
+            await gameModel.setTurn(gameId, newDealer);
+
+            await gameController.incrementRound(gameId);
+
+            if (await gameController.isGameOver(gameId)) {
+                console.log("game over");
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+pokerController.canPlayerMove = async (playerId) => {
+    if (await playerController.isPlayerFolded(playerId)) {
+        console.log(`player ${playerId} has folded`);
+        return false;
+    }
+    
+    if (!(await playerController.isPlayersTurn(playerId))) {
+        console.log(`is not player ${playerId}'s turn`);
+        return false;
+    }
+
+    if (await playerController.isPlayerAllIn(playerId)) {
+        console.log(`is not player ${playerId}'s is all in!`);
+        return false;
+    }
+
+    return true;
+}
+
+pokerController.handleBlindBets = async (gameId, playerId) => {
+    const gameInfo = await gameModel.getGameData(gameId);
+    const players  = await playerModel.getAllPlayers(gameId);
+    const minBet   = gameInfo.min_bet;
+
+    if (gameInfo.curr_turn > players.length) {
+        return;
+    }
+
+    if (await  playerController.isBigBlind(gameId, playerId)) {
+        console.log(`player is ${playerId} big blind!`);
+        
+        await pokerController.bet(
+            gameId,
+            playerId,
+            minBet
+        );
+    }
+    
+    if (await playerController.isSmallBlind(gameId, playerId)) {
+        console.log(`player is ${playerId} small blind!`);
+
+        await pokerController.bet(
+            gameId,
+            playerId,
+            minBet / 2
+        );
+    }
+}
 
 pokerController.getPotSize = async (gameId) => {
     const players = await playerModel.getAllPlayers(gameId);
@@ -28,6 +129,7 @@ pokerController.clearCards = async (gameId) => {
 }
 
 pokerController.dealCardsToPlayers = async (gameId) => {
+    console.log('dealing cards to players!');
     let players = await playerModel.getAllPlayers(gameId);
 
     for (let i = 0; i < players.length; i++) {
@@ -76,14 +178,14 @@ pokerController.getIndexOfPlayerId = async (gameId, playerId) => {
 pokerController.getHighestBet = async (gameId) => {
     const players = await playerModel.getAllPlayers(gameId);
     
-    let highestBid = 0;
+    let highestBet = 0;
     for (let i = 0; i < players.length; i++) {
-        if (players[i].curr_bet > highestBid) {
-            highestBid = players[i].curr_bet;
+        if (players[i].curr_bet > highestBet || players[i].curr_bet == null) {
+            highestBet = players[i].curr_bet;
         }
     }
 
-    return highestBid;
+    return highestBet;
 }
 
 pokerController.bet = async (gameId, playerId, amount) => {
@@ -93,21 +195,30 @@ pokerController.bet = async (gameId, playerId, amount) => {
         throw new Error("Player not in game.");
     }
 
-    if (playerInfo.chips < playerInfo.curr_bet + amount) {
-        amount = playerInfo.chips - playerInfo.curr_bet;
+    if (playerInfo.chips < amount) {
+        console.log('truncating bet!');
+        amount = playerInfo.chips;
     }
 
     playerInfo.chips    -= amount;
     playerInfo.curr_bet += amount;
 
+    if (playerInfo.chips == 0) {
+        await playerModel.setToAllIn(playerId);
+    }
+    
+    // console.log("players 3:", await playerModel.getAllPlayers(gameId));
     await playerModel.setChipsAndBet(playerId, playerInfo.chips, playerInfo.curr_bet);
+    // console.log("players 4:", await playerModel.getAllPlayers(gameId));
 }
 
 pokerController.nextTurn = async (gameId) => {
-    console.log('in nextTurn')
+    console.log('in nextTurn');
+    console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn);
     await gameController.incrementTurn(gameId);
+    console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn);
+
     let playerId = await gameController.getCurrentPlayer(gameId);
-    
     let players = await playerModel.getAllPlayers(gameId);
 
     for (let i = 0; i < players.length; i++) {
@@ -115,11 +226,12 @@ pokerController.nextTurn = async (gameId) => {
             (await playerController.isPlayerFolded(playerId)) ||
             (await playerController.isPlayerAllIn(playerId))
         ) {
+            console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn);
             await gameController.incrementTurn(gameId);
-            playerId = await gameController.getCurrentPlayer(gameId);
+            console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn);
             
             continue;
-        }        
+        }
         
         break;
     }
@@ -140,7 +252,6 @@ pokerController.roundOver = async (gameId) => {
     for (let i = 0; i < players.length; i++) {
         if (
             (await playerController.isPlayerFolded(players[i].player_id)) ||
-            (await playerController.isPlayerCalled(players[i].player_id)) ||
             (await playerController.isPlayerAllIn(players[i].player_id))
         ) {
             remaining--;
@@ -151,12 +262,14 @@ pokerController.roundOver = async (gameId) => {
 }
 
 pokerController.isNewCycle = async (gameId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
+    let gameInfo  = await gameModel.getGameData(gameId);
     const players = await playerModel.getAllPlayers(gameId);
 
+    console.log("players.length:", players.length);
+
     return (
-        (gameInfo.curr_turn % players.length == 0) &&
-        (gameInfo.curr_turn >= players.length)
+        ((gameInfo.curr_turn - gameInfo.curr_dealer) % players.length == 0) &&
+        ((gameInfo.curr_turn - gameInfo.curr_dealer) >= players.length)
     );
 }
 

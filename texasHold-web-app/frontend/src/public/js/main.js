@@ -1,5 +1,21 @@
 import socket from "./common/index.js";
 
+
+function addCardToTable(key) {
+  let handDiv    = document.getElementById("table-cards");
+  let newCardImg = new Image();
+  newCardImg.src = CardImageLinks[key];
+  newCardImg.id  = key;
+  newCardImg.alt = key;
+  newCardImg.style = "height: 90%; padding-left: 0.5em; padding-right: 0.5em;"
+  handDiv.appendChild(newCardImg);
+}
+
+function clearTable() {
+  const handDiv = document.getElementById("hand-cards");
+  handDiv.innerHTML = '';
+}
+
 const loginForm = document.getElementById("login-form");
 const messageForm = document.getElementById("send-container");
 const messageInput = document.getElementById("message-input");
@@ -76,7 +92,16 @@ function clearChat() {
 }
 
 socket.on("NEW_COMMUNITY_CARDS", function (cards) {
-  console.log(cards.communityCards);
+  console.log('dealing a card to the community cards!')
+  const communityCards = cards.communityCards;
+  console.log(communityCards);
+
+  const handDiv = document.getElementById("table-cards");
+  handDiv.innerHTML = '';
+
+  for (let i = 0; i < communityCards.length; i++) {
+    addCardToTable(communityCards[i]);
+  }
 });
 
 socket.on("FOLD", ({ playername, amount }) => {

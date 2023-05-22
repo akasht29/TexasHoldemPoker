@@ -32,7 +32,7 @@ playerModel.getChips = async (game_id) => {
 };
 
 playerModel.getHand = async (playerId) => {
-  const query  = "SELECT hand FROM players WHERE player_id = $1";
+  const query  = "SELECT hand FROM players WHERE player_id = $1 ORDER BY player_id";
   const result = await db.one(query, [playerId]);
 
   return result.hand;
@@ -46,7 +46,7 @@ playerModel.setHand = async (playerId, newHand) => {
 
 playerModel.addPlayer = async (game_id) => {
   let playerArr = [];
-  let query = "SELECT player_id FROM players WHERE game_id = $1";
+  let query = "SELECT player_id FROM players WHERE game_id = $1 ORDER BY player_id";
   let result = await db.many(query, [game_id]);
   
   for (let i = 0; i < result.length; i++) {
@@ -71,32 +71,28 @@ playerModel.setToFolded = async (playerId) => {
   await db.none(query, values);
 };
 
-playerModel.setToCalled = async (playerId) => {
-  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
-
-  await db.none(query, [playerId, 1]);
-};
-
 playerModel.setToAllIn = async (playerId) => {
-  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  console.log(`player ${playerId} is all in!`);
+  const query = "UPDATE players SET status = $1 WHERE player_id = $2";
 
-  await db.none(query, [playerId, 2]);
+  await db.none(query, [2, playerId]);
 };
 
 playerModel.setToOther = async (playerId) => {
-  const query = "UPDATE players SET status = $2 WHERE player_id = $1";
+  console.log(`player ${playerId} is other!`);
+  const query = "UPDATE players SET status = $1 WHERE player_id = $2";
 
-  await db.none(query, [playerId, 3]);
+  await db.none(query, [3, playerId]);
 };
 
 playerModel.getAllPlayers = async (gameId) => {
-  const query = "SELECT * FROM players WHERE game_id = $1";
+  const query = "SELECT * FROM players WHERE game_id = $1 ORDER BY player_id";
 
   return await db.any(query, [gameId]);
 };
 
 playerModel.getPlayerData = async (playerId) => {
-  const query = "SELECT * FROM players WHERE player_id = $1";
+  const query = "SELECT * FROM players WHERE player_id = $1 ORDER BY player_id";
 
   return await db.one(query, [playerId]);
 };
@@ -108,13 +104,13 @@ playerModel.setChipsAndBet = async (playerId, chips, bet) => {
 }
 
 playerModel.getPlayerByUserId = async (userId) => {
-  const query = "SELECT player_id FROM players WHERE user_id = $1";
+  const query = "SELECT player_id FROM players WHERE user_id = $1 ORDER BY player_id";
   
   return await db.one(query, [userId]);
 };
 
 playerModel.getGameIdByUserId = async (userId) => {
-  const query = "SELECT game_id FROM players WHERE user_id = $1";
+  const query = "SELECT game_id FROM players WHERE user_id = $1 ORDER BY player_id";
  
   return await db.one(query, [userId]);
 };
