@@ -96,7 +96,7 @@ router.get("/room/:gameId/start", async (request, response) => {
     
     io.in(roomId).emit("GAME_STARTING", { redirectURL });
     
-    await pokerController.dealCardsToPlayers(gameId);
+    await pokerController.dealCardsToPlayers(gameId, request.app.get("io"));
 
     response.redirect(redirectURL);
   } 
