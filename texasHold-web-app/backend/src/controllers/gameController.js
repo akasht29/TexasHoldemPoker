@@ -1,6 +1,6 @@
-const gameModel      = require("../models/gameModel");
-const playerModel = require("../models/playerModel");
-const gameController = {};
+const gameModel        = require("../models/gameModel");
+const playerModel      = require("../models/playerModel");
+const gameController   = {};
 
 gameController.createGame = async (gameName, numPlayers, numRounds, minBet) => {
     let chips = 1000;
@@ -85,13 +85,6 @@ gameController.incrementDealer = async (gameId) => {
     return gameInfo.curr_dealer;
 }
 
-gameController.isGameOver = async (gameId) => {
-    const gameInfo = await gameModel.getGameData(gameId);
-    const players  = await playerModel.getAllPlayers(gameId);
-
-    return (gameInfo.curr_round >= gameInfo.num_rounds) || (players.length <= 1);
-}
-
 gameController.dealCardToCommunity = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId)
     let card     = await gameModel.popCardOffDeck(gameId);
@@ -108,9 +101,9 @@ gameController.getCurrentPlayerIndex = async (gameId) => {
 }
 
 gameController.getCurrentPlayer = async (gameId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
+    const players = await playerModel.getAllPlayers(gameId);
 
-    return gameInfo.players[ await gameController.getCurrentPlayerIndex(gameId) ];
+    return players[ await gameController.getCurrentPlayerIndex(gameId) ].player_id;
 }
 
 module.exports = gameController;
