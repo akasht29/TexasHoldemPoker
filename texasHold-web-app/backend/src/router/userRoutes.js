@@ -1,6 +1,8 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const userController = require('../controllers/userController');
 const gameController = require('../controllers/gameController');
+const userModel = require('../models/userModel');
 const router = express.Router();
 
 // User routes
@@ -16,12 +18,15 @@ router.post('/register', async (request, response) => {
     }
 
     const { username, email, password } = request.body;
-
+    let hashedPassword =await userModel.generateHashedPassword(password)
+    
+    
     const newUser = await userController.createUser(
       username,
       email,
-      password
+      hashedPassword
     );
+    
 
     if (!newUser) {
       throw new Error("Failed to create user");
@@ -44,23 +49,21 @@ router.post('/login', async (request, response) => {
   try {
 
     if (
-      !("email"    in request.body) ||
+      !("username" in request.body) ||
       !("password" in request.body)
     ) {
 
       response.status(400).json({ message: "Information missing." });
     }
-
-    const { email, password } = request.body;
     
-    let user = await userController.login(email, password);
 
+    let user = await userController.login(request.body.username, request.body.password);
+   
     if (!user) {
       throw new Error("Could not log in.");
     }
-
-    const { userId, username } = user;
-
+    
+    const { userId, username, email } = user;
     request.session.user = {
       user_id: userId,
       username: username,

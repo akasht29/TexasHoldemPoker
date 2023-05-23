@@ -10,13 +10,15 @@ pokerController        = {};
  * return 1 on game over
  */
 pokerController.endOfRoundNonsense = async (gameId, io) => {
+    await pokerController.nextTurn(gameId);
+
     if (await pokerController.roundOver(gameId)) {
         console.log('round is over');
 
         let gameInfo = await gameModel.getGameData(gameId);
 
         while (gameInfo.communitycards.length < 5) {
-            console.log('dealing a card to the community cards!');
+            console.log('dealing a card to the community cards! 1');
 
             await pokerController.dealCardToCommunity(gameId, io);
 
@@ -43,20 +45,24 @@ pokerController.endOfRoundNonsense = async (gameId, io) => {
             }
         });
 
+        console.log("pre distribution:", await playerModel.getAllPlayers(gameId))
         await pokerController.distributeWinnings(gameId);
+        console.log("post distribution:", await playerModel.getAllPlayers(gameId))
         
         await pokerController.clearCards(gameId, io);
 
         await pokerController.dealCardsToPlayers(gameId, io);
 
+        console.log("pre unfolding:", await playerModel.getAllPlayers(gameId))
         await pokerController.unfoldPlayers(gameId);
+        console.log("post unfolding:", await playerModel.getAllPlayers(gameId))
 
         let newDealer = await gameController.incrementDealer(gameId);
         await gameModel.setTurn(gameId, newDealer);
 
         await gameController.incrementRound(gameId);
 
-        if (await gameController.isGameOver(gameId)) {
+        if (await pokerController.isGameOver(gameId)) {
             console.log("game over");
             return 1;
         }
@@ -119,7 +125,6 @@ pokerController.canPlayerMove = async (playerId) => {
     }
 
     if (await playerController.isPlayerAllIn(playerId)) {
-        console.log(`is not player ${playerId}'s is all in!`);
         return false;
     }
 
@@ -269,7 +274,9 @@ pokerController.bet = async (gameId, playerId, amount) => {
     playerInfo.curr_bet += amount;
 
     if (playerInfo.chips == 0) {
+        console.log("player is all in!")
         await playerModel.setToAllIn(playerId);
+        console.log(`${playerId} all in: ${await playerController.isPlayerAllIn(playerId)}`);
     }
     
     // console.log("players 3:", await playerModel.getAllPlayers(gameId));
@@ -279,21 +286,21 @@ pokerController.bet = async (gameId, playerId, amount) => {
 
 pokerController.nextTurn = async (gameId) => {
     console.log('in nextTurn');
-    console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn);
-    await gameController.incrementTurn(gameId);
-    console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn);
 
     let playerId = await gameController.getCurrentPlayer(gameId);
-    let players = await playerModel.getAllPlayers(gameId);
-
+    let players  = await playerModel.getAllPlayers(gameId);
+    
     for (let i = 0; i < players.length; i++) {
+        console.log(`${playerId} folded: ${await playerController.isPlayerFolded(playerId)}`);
+        console.log(`${playerId} all in: ${await playerController.isPlayerAllIn(playerId)}`);
         if (
             (await playerController.isPlayerFolded(playerId)) ||
             (await playerController.isPlayerAllIn(playerId))
         ) {
-            console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn);
+            console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn, (await gameController.getCurrentPlayer(gameId)));
             await gameController.incrementTurn(gameId);
-            console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn);
+            playerId = await gameController.getCurrentPlayer(gameId);
+            console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn, (await gameController.getCurrentPlayer(gameId)));
             
             continue;
         }
@@ -311,34 +318,35 @@ pokerController.unfoldPlayers = async (gameId) => {
 }
 
 pokerController.roundOver = async (gameId) => {
-    const players = await playerModel.getAllPlayers(gameId);
-    let remaining = players.length;
-
+    const players  = await playerModel.getAllPlayers(gameId);
+    let remaining  = players.length;
     const gameInfo = await gameModel.getGameData(gameId);
-    let called = 0;
+    let called     = 0;
+    let allIn      = 0;
+    
     console.log("players:", players)
     for (let i = 0; i < players.length; i++) {
-        if (
-            (await playerController.isPlayerFolded(players[i].player_id)) ||
-            (await playerController.isPlayerAllIn(players[i].player_id))
-        ) {
-            console.log(players[i].status);
+        if (await playerController.isPlayerFolded(players[i].player_id)) {
             remaining--;
         }
         else if (await playerController.isPlayerCalled(players[i].player_id)) {
             called++;
         }
+        else if (await playerController.isPlayerAllIn(players[i].player_id)) {
+            allIn++;
+        }
     }
-    console.log("players:", players)
 
     console.log('remaining:', remaining);
     
-    return (remaining <= 1) || (remaining == called && gameInfo.communitycards.length == 5);
+    return (
+        (remaining <= 1) || (allIn + called == remaining)
+    );
 }
 
 pokerController.isNewCycle = async (gameId) => {
-    let gameInfo  = await gameModel.getGameData(gameId);
-    const players = await playerModel.getAllPlayers(gameId);
+    const gameInfo = await gameModel.getGameData(gameId);
+    const players  = await playerModel.getAllPlayers(gameId);
 
     console.log("players.length:", players.length);
 
@@ -440,6 +448,20 @@ pokerController.ratePlayerHand = (handCards, communityCards) => {
     }
 
     return score;
+}
+
+pokerController.isGameOver = async (gameId) => {
+    const gameInfo = await gameModel.getGameData(gameId);
+    const players  = await playerModel.getAllPlayers(gameId);
+
+    let allIn = 0;
+    for (let i = 0; i < players.length; i++) {
+        if (playerController.isPlayerAllIn(players[i].player_id)) {
+            allIn++;
+        }
+    }
+
+    return (gameInfo.curr_round >= gameInfo.num_rounds) || (players.length <= 1) || (allIn == players.length);
 }
 
 module.exports = pokerController;

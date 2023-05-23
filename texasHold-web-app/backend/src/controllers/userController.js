@@ -8,18 +8,17 @@ userController.createUser = async (newUsername, newEmail, newPassword) => {
   return await userModel.createUser(newUsername, newEmail, newPassword);
 };
 
-userController.getUserById = async (userId) => {
-  return await userModel.getUserById(userId);
-};
 
-userController.login = async (email, password) => {
-  let user = await userModel.getUserByEmail(email);
 
+userController.login = async (username, password) => {
+  let user = await userModel.getUserByUsername(username);
+  
   if (!user) {
     return null;
   }
-
-  if ( !bcrypt.compare(password, user.password) ) {
+  
+  let check = await userModel.comparePassword(password, user.password)
+  if (!check ) {
     console.log("passwords do not match");
     return null;
   }

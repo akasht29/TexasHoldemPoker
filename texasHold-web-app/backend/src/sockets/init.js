@@ -38,7 +38,7 @@ const initSockets = (app, sessionMiddleware) => {
 
     socket.on("disconnect", async () => {
       socket.leave(game_id);
-      console.log("disconnection");
+      
     });
   });
 
