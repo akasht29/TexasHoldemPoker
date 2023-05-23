@@ -113,6 +113,7 @@ router.get("/room/:gameId", async (request, response) => {
     }
     // update in game player list
     let username = request.session.user.username;
+    
     var players = await playerModel.getAllPlayers(gameId);
     for (let i = 0; i < players.length; i++) {
       players[i].player_id = await userModel.getUserNameById(
