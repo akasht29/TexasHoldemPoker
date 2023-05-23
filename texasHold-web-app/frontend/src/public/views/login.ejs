@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,24 +8,26 @@
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/button-styling.css">
 </head>
+
 <body>
   <h1>Login</h1>
-  
+
   <form id="login-form" method="POST" action="/user/login">
-    <label for="email">Email:</label>
-    <input type="email" name="email" required>
-  
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username" required>
+
     <label for="password">Password:</label>
     <input type="password" name="password" required>
-  
+
     <button class="button-styling" type="submit">Login</button>
   </form>
-  
+
   <div id="message" class="message"></div>
-  
+
   <a href="/user/register">Don't have an account? Register</a>
-  
+
   <div id="message" class="message"></div>
   <script src="/dist/bundle.js"></script>
 </body>
+
 </html>
