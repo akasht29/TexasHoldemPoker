@@ -1,6 +1,8 @@
 const express = require('express');
+const bcrypt = require('bcryptjs');
 const userController = require('../controllers/userController');
 const gameController = require('../controllers/gameController');
+const userModel = require('../models/userModel');
 const router = express.Router();
 
 // User routes
@@ -16,12 +18,15 @@ router.post('/register', async (request, response) => {
     }
 
     const { username, email, password } = request.body;
-
+    let hashedPassword =await userModel.generateHashedPassword(password)
+    
+    
     const newUser = await userController.createUser(
       username,
       email,
-      password
+      hashedPassword
     );
+    
 
     if (!newUser) {
       throw new Error("Failed to create user");

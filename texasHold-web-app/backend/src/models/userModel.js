@@ -62,35 +62,27 @@ userModel.getUserByEmail = async (email) => {
     return user;
 };
 
-userModel.comparePassword = (password, hashedPassword) => {
-    return bcrypt.compare(password, hashedPassword);
-};
-
-userModel.login = async (username, password) => {
+userModel.generateHashedPassword = async (password) => {
     try {
-        const user = await userModel.getUserByUsername(username);
-        if (user) {
-            const passwordMatch = await userModel.comparePassword(password, user.password);
-            if (passwordMatch) {
-                delete user.password;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        console.log("hashed password:", hashedPassword);
+        return hashedPassword;
+      } catch (error) {
+        console.error(error);
+        throw error; 
+      }
 
-                const token = jwt.sign({ sub: user.user_id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+}
+userModel.comparePassword = async (password, hashedPassword) => {
+    
+    const result = await bcrypt.compare(password, hashedPassword);
+    console.log(result);
+    return result;
 
-                await userModel.storeAuthToken(user.user_id, token);
-
-                user.auth_token = token;
-
-                return user;
-            } else {
-                throw new CustomError("Incorrect password", 401);
-            }
-        } else {
-            throw new CustomError("User not found", 404);
-        }
-    } catch (err) {
-        throw err;
-    }
 };
+
+
 
 userModel.logout = (req) => {
     // Clear session data
@@ -117,62 +109,10 @@ userModel.getCurrentUser = async (req) => {
     }
 };
 
-userModel.storeAuthToken = (user_id, auth_token) => {
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE users SET auth_token = $1 WHERE user_id = $2`;
-        const values = [auth_token, user_id];
-
-        db.query(query, values)
-            .then((result) => {
-                if (result.rowCount > 0) {
-                    resolve();
-                } else {
-                    reject(new CustomError("No rows affected", 404));
-                }
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
-};
-
-userModel.clearAuthToken = (user_id) => {
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE users SET auth_token = null WHERE user_id = $1`;
-        const values = [user_id];
-
-        db.query(query, values)
-            .then((result) => {
-                if (result.rowCount > 0) {
-                    resolve();
-                } else {
-                    reject(new CustomError("No rows affected", 404));
-                }
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
-};
 
 
-userModel.getAuthTokenByUserId = (user_id) => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT auth_token FROM users WHERE user_id = $1`;
-        const values = [user_id];
 
-        db.query(query, values)
-            .then((result) => {
-                if (result.rows.length > 0) {
-                    resolve(result.rows[0].auth_token);
-                } else {
-                    reject(new CustomError("User not found", 404));
-                }
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
-};
+
+
 
 module.exports = userModel;

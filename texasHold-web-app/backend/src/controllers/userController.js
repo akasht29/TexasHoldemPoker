@@ -18,8 +18,9 @@ userController.login = async (email, password) => {
   if (!user) {
     return null;
   }
-
-  if ( !bcrypt.compare(password, user.password) ) {
+  
+  let check = await userModel.comparePassword(password, user.password)
+  if (!check ) {
     console.log("passwords do not match");
     return null;
   }
