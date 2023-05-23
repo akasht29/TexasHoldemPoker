@@ -49,23 +49,21 @@ router.post('/login', async (request, response) => {
   try {
 
     if (
-      !("email"    in request.body) ||
+      !("username" in request.body) ||
       !("password" in request.body)
     ) {
 
       response.status(400).json({ message: "Information missing." });
     }
-
-    const { email, password } = request.body;
     
-    let user = await userController.login(email, password);
 
+    let user = await userController.login(request.body.username, request.body.password);
+   
     if (!user) {
       throw new Error("Could not log in.");
     }
-
-    const { userId, username } = user;
-
+    
+    const { userId, username, email } = user;
     request.session.user = {
       user_id: userId,
       username: username,
