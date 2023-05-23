@@ -11,6 +11,21 @@ function addCardToTable(key) {
   handDiv.appendChild(newCardImg);
 }
 
+function addCardToHand(key) {
+  let handDiv    = document.getElementById("hand-cards");
+  let newCardImg = new Image();
+  newCardImg.src = CardImageLinks[key];
+  newCardImg.id  = key;
+  newCardImg.alt = key;
+  newCardImg.style = "height: 90%; padding-left: 0.5em; padding-right: 0.5em;"
+  handDiv.appendChild(newCardImg);
+}
+
+function clearHand() {
+  const handDiv = document.getElementById("hand-cards");
+  handDiv.innerHTML = '';
+}
+
 function clearTable() {
   const handDiv = document.getElementById("hand-cards");
   handDiv.innerHTML = '';
@@ -108,8 +123,13 @@ socket.on("NEW_HAND", function (requestData) {
   fetch(`${requestData.baseUrl}/poker/${requestData.gameId}/getHand`, {
     method: "GET"
   })
-  .then((response) => {
-    console.log(response);
+  .then(response => response.json()).then((data) => {
+    clearHand();
+
+    const hand = data.hand;
+    for (let i = 0; i < hand.length; i++) {
+      addCardToHand(hand[i]);
+    }
   })
   .catch((error) => {
     console.log(error);
