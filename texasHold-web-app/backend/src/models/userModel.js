@@ -10,44 +10,17 @@ userModel.createUser = async (username, email, password) => {
     );
 };
 
-userModel.getUserNameById = async (user_id) => {
-    const value = parseInt(user_id, 10);
-    const query = `SELECT username FROM users WHERE user_id = ${user_id}`; 
-    const result = await db.one(query, [value]);
-    console.log("backend = " + result.username);
-    return result.username;
-};
 
-userModel.getUserById = (user_id) => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT user_id, username, email FROM users WHERE user_id = $1`;
-        const values = [user_id];
 
-        db.query(query, values)
-            .then((result) => {
-                if (result.rowCount > 0) {
-                    resolve(result.rows[0]);
-                }
-            })
-            .catch((err) => {
-                reject(err);
-            });
-    });
-};
 
-userModel.getUserByUsername = (username) => {
+userModel.getUserByUsername = async (username) => {
     const query = `SELECT user_id, username, password, email FROM users WHERE username = $1`;
     const values = [username];
-    db.one(
+    let user = await db.one(
         query,
         values
     )
-    .then((user) => {
-        console.log("user:", user);
-        return user;
-    })
-
-    return null;
+    return user;
 };
 
 userModel.getUserByEmail = async (email) => {
