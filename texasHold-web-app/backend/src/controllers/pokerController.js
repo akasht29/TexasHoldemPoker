@@ -453,6 +453,7 @@ pokerController.ratePlayerHand = (handCards, communityCards) => {
 pokerController.isGameOver = async (gameId) => {
     const gameInfo = await gameModel.getGameData(gameId);
     const players  = await playerModel.getAllPlayers(gameId);
+    console.log(players);
 
     let allIn = 0;
     for (let i = 0; i < players.length; i++) {

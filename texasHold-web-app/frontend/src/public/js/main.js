@@ -86,14 +86,12 @@ socket.on("SESSION_ERROR", () => {
 socket.on("PLAYER_JOINED", ({ username }, players) => {
   console.log(username + " connected ");
   appendMessage(`${username} `, `connected`);
-  console.log(players);
   updatePlayers(players);
 });
 
 socket.on("PLAYER_LEFT", ({ username }, players) => {
   console.log(username + " disconnected ");
   appendMessage(`${username} `, `disconnected`);
-  console.log(players);
   updatePlayers(players);
 });
 

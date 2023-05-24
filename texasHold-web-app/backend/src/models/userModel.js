@@ -14,7 +14,7 @@ userModel.getUserNameById = async (user_id) => {
     const value = parseInt(user_id, 10);
     const query = `SELECT username FROM users WHERE user_id = ${user_id}`; 
     const result = await db.one(query, [value]);
-    console.log("backend = " + result.username);
+    //console.log("backend = " + result.username);
     return result.username;
 };
 

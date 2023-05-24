@@ -33,7 +33,7 @@ const initSockets = (app, sessionMiddleware) => {
         players[i].user_id
       );
     }
-    console.log(players);
+    //console.log(players);
     io.in(parseInt(game_id)).emit("PLAYER_JOINED", { username }, players);
 
     socket.on("disconnect", async () => {

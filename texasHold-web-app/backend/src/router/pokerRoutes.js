@@ -105,6 +105,7 @@ router.head('/:gameId/fold', async (request, response) => {
     try {
         const gameId   = request.params.gameId;
         const playerId = request.session.player.playerId;
+        console.log('------------------- '+request.session.player.playerId);
         const io       = request.app.get("io");
         const username = request.session.user.username;
 
