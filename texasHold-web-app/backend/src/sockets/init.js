@@ -1,7 +1,7 @@
-const http = require("http");
-const { Server } = require("socket.io");
+const http        = require("http");
+const { Server }  = require("socket.io");
 const playerModel = require("../models/playerModel");
-const userModel = require('../models/userModel');
+const userModel   = require('../models/userModel');
 
 const initSockets = (app, sessionMiddleware) => {
   const server = http.createServer(app);
@@ -33,7 +33,7 @@ const initSockets = (app, sessionMiddleware) => {
         players[i].user_id
       );
     }
-    //console.log(players);
+
     io.in(parseInt(game_id)).emit("PLAYER_JOINED", { username }, players);
 
     socket.on("disconnect", async () => {

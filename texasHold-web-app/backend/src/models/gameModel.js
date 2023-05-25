@@ -108,17 +108,17 @@ gameModel.setCommunityCards = async (game_id, cards) => {
 
 gameModel.getAllGames = async () => {
     const query = `SELECT game_id, game_name, num_players FROM game`;
+    
     return await db.any(query);
 };
 
 gameModel.getGameData = async (gameId) => {
     const query = `SELECT * FROM game WHERE game_id=${gameId}`;
+
     return await db.one(query);
 }
 
 gameModel.setTurn = async (gameId, newTurn) => {
-    console.log('setting turn!')
-    
     const query = `UPDATE game SET curr_turn = $1 WHERE game_id = $2`;
     
     await db.none(query, [ newTurn, gameId ]);

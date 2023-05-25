@@ -8,8 +8,6 @@ userController.createUser = async (newUsername, newEmail, newPassword) => {
   return await userModel.createUser(newUsername, newEmail, newPassword);
 };
 
-
-
 userController.login = async (username, password) => {
   let user = await userModel.getUserByUsername(username);
   
@@ -19,7 +17,6 @@ userController.login = async (username, password) => {
   
   let check = await userModel.comparePassword(password, user.password)
   if (!check ) {
-    console.log("passwords do not match");
     return null;
   }
 

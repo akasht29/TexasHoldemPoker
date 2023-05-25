@@ -21,14 +21,14 @@ router.get("/waiting-room/:gameId", async (request, response) => {
 
     try {
       playerId = await playerModel.getPlayerbyUserIdInGame(userId, gameId);
-      console.log("The player is in this game");
 
       player = {
         playerId: playerId,
         game_id: parseInt(gameId),
       };
       request.session.player = player;
-    } catch (error) {
+    } 
+    catch (error) {
       console.log("The player is not connected to this game");
     }
 
@@ -40,7 +40,6 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       };
       request.session.player = player;
       playerId = player.playerId;
-      console.log("added to session: " + playerId);
     }
 
     // check if the game has started.
@@ -52,13 +51,15 @@ router.get("/waiting-room/:gameId", async (request, response) => {
       gameId: gameId,
       lobbyOwner: await gameController.firstPlayer(gameId, playerId),
     });
-  } catch (error) {
+  } 
+  catch (error) {
     console.log("Generic game waiting-room error:", error.message);
   }
 });
 
 router.get("/room/:gameId/start", async (request, response) => {
   const io = request.app.get("io");
+  
   try {
     // Redirect all players to `/game/room/${gameId}`
     const gameId = request.params.gameId;
@@ -70,7 +71,8 @@ router.get("/room/:gameId/start", async (request, response) => {
     await pokerController.dealCardsToPlayers(gameId, request.app.get("io"));
 
     response.redirect(redirectURL);
-  } catch (error) {
+  } 
+  catch (error) {
     console.log("game room start error:");
   }
 });
@@ -98,8 +100,8 @@ router.get("/room/:gameId", async (request, response) => {
       gameId: gameId,
       baseUrl: process.env.API_BASE_URL,
     });
-  } catch (error) {
-    console.log("game room error:", error.message);
+  } 
+  catch (error) {
     response.redirect("user/lobby");
   }
 });
@@ -108,9 +110,11 @@ router.get("/room/:gameId/leave", async (request, response) => {
   //console.log("playerId:", JSON.stringify(request.session.player.playerId));
   const io = request.app.get("io");
   const roomId = parseInt(request.params.gameId);
+  
   if (request.session.player == null) {
     io.in(roomId).emit("SESSION_ERROR");
-  } else {
+  } 
+  else {
     let username = request.session.user.username;
 
     try {
@@ -157,8 +161,8 @@ router.post("/create", async (request, response) => {
     }
 
     response.redirect(`/game/waiting-room/${newGameInfo.game_id}`);
-  } catch (error) {
-    console.log(error.message);
+  } 
+  catch (error) {
     response.status(500).json({ message: error.message });
   }
 });

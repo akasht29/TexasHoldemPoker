@@ -40,7 +40,6 @@ function updatePlayers(players) {
   
   playersDiv.innerHTML = "";
 
-
   for (let i = 0; i < players.length; i++) {
     players[i].player_id;
     players[i].chips;
@@ -62,16 +61,16 @@ function updatePlayers(players) {
   }
 }
 
-const messageForm = document.getElementById("send-container");
+const messageForm  = document.getElementById("send-container");
 const messageInput = document.getElementById("message-input");
-const indicator = document.getElementById("turn-indicator");
+const indicator    = document.getElementById("turn-indicator");
 
 socket.on("error", function (err) {
-  console.log(err);
+  //
 });
 
 socket.on('connect', () => {
-  console.log(socket.id);
+  //
 });
 
 socket.on("GAME_STARTING", function (destination) {
@@ -94,7 +93,6 @@ socket.on("GAME_UPDATE", ({ username, action, gameData }) => {
 });
 
 socket.on("SESSION_ERROR", () => {
-  console.log("SESSION_ERROR");
   appendMessage(`Server: `, `Browser session error`);
 });
 
@@ -105,7 +103,6 @@ socket.on("PLAYER_JOINED", ({ username }, players) => {
 });
 
 socket.on("PLAYER_LEFT", ({ username }, players) => {
-  console.log(username + " disconnected ");
   appendMessage(`${username} `, `disconnected`);
   updatePlayers(players);
 });

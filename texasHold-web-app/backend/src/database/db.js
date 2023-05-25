@@ -28,12 +28,13 @@ async function test_connection() {
                 console.log("Connection to the database was successful",res.rows[0].current_database);
             }
         })
-    }catch(err){
+    } 
+    catch(err) {
 
-        if (err){
+        if (err) {
             console.error("there was a error connecting to the database", err);
         }
-}
+    }
 
 }
 

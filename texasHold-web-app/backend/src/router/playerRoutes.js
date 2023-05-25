@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
+const express          = require("express");
+const router           = express.Router();
 const playerController = require("../controllers/playerController");
-const playerModel = require("../models/playerModel");
+const playerModel      = require("../models/playerModel");
 /*
 todo
 
@@ -20,7 +20,7 @@ router.post("/create", async (request, response) => {
     );
 
     let players = await playerModel.getAllPlayers;
-    console.log("Socket message sent", players);
+
     io.in(parseInt(request.params.gameId)).emit("PLAYER_JOINED", {
       // info passed to clients goes here
       username,
@@ -31,8 +31,6 @@ router.post("/create", async (request, response) => {
       throw new Error("Could not make player");
     }
 
-    console.log("Socket message sent", username);
-    //console.log("Print the game room",newPlayerInfo);
   } 
   catch (error) {
     console.log(error.message);
@@ -47,48 +45,11 @@ router.post("/add", async (request, response) => {
     if (!newPlayerInfo) {
       throw new Error("Could not make add players");
     }
-
-    console.log("Print the game room", newPlayerInfo);
-  } catch (error) {
+  } 
+  catch (error) {
     console.log(error.message);
     response.status(500).json({ message: error.message });
   }
 });
 
-//test routes
-router.post('/test', async (request, response) => {
-    try {
-        let newGameInfo = await playerController.testController(
-            request.body.game_id,
-            request.body.player_id
-        );
-
-        if (!newGameInfo) {
-            throw new Error("Test failed");
-        }
-        
-        console.log("end of test")
-    }
-    catch (error) {
-        console.log(error.message);
-        response.status(500).json({ message: error.message });
-    }
-});
-
-//test routes
-router.post('/playerlist', async (request, response) => {
-  try {
-      let playerInfo = await playerModel.getPlayerData();
-
-      if (!playerInfo) {
-          throw new Error("Getting players failed");
-      }
-
-  }
-  catch (error) {
-      console.log(error.message);
-      response.status(500).json({ message: error.message });
-  }
-});
-    
 module.exports = router;

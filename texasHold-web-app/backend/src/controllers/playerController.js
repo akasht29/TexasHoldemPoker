@@ -36,8 +36,6 @@ playerController.addPlayer = async (gameId, userId) => {
 playerController.removePlayer = async (gameId, playerId) => {
     let gameData = await gameModel.getGameData(gameId);
     
-    //console.log("removePlayerGameData:", gameData);
-    //console.log("removePLayerPlayers:", gameData.players);
     // find player to remove
     let playerTargetIndex = -1;
     for (let i = 0; i < gameData.players.length; i++) {
@@ -49,7 +47,6 @@ playerController.removePlayer = async (gameId, playerId) => {
 
     // could not find player
     if (playerTargetIndex == -1) {
-        console.log(`WARNING: player ${playerId} not in game ${gameId}`);
         return;
     }
 
@@ -63,7 +60,6 @@ playerController.removePlayer = async (gameId, playerId) => {
 //test funtion 
 playerController.testController = async(game_id,player_id) =>{
     await gameModel.addToCommunityCards(game_id);
-    console.log("controller success");
 }
 
 playerController.dealCardToPlayer = async (playerId) => {
@@ -97,7 +93,6 @@ playerController.isPlayersTurn = async (playerId) => {
     let playerInfo  = await playerModel.getPlayerData(playerId);
     let players     = await playerModel.getAllPlayers(playerInfo.game_id);
     let playerIndex = await gameController.getCurrentPlayerIndex(playerInfo.game_id);
-    console.log('current player:', players[playerIndex].player_id, " you:", playerId);
     
     return players[playerIndex].player_id == playerId;
 }
