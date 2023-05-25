@@ -136,6 +136,12 @@ socket.on("NEW_HAND", function (requestData) {
   });
 });
 
+socket.on("PLAYER_LOST", function (requestData) {
+  console.log(`player ${requestData.playerId} out of money.`);
+
+  // needs to remove player from game
+});
+
 socket.on("FOLD", ({ playername, amount }) => {
   // Update the frontend indicateing that the player has bet
 });
