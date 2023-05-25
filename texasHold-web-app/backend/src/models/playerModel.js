@@ -95,6 +95,11 @@ playerModel.getAllPlayers = async (gameId) => {
 };
 
 playerModel.getPlayerData = async (playerId) => {
+  if (typeof(playerId) == 'string') {
+    playerIdObj = JSON.parse(playerId);
+    playerId    = playerIdObj.player_id;
+  }
+
   const query = "SELECT * FROM players WHERE player_id = $1 ORDER BY player_id";
 
   return await db.one(query, [playerId]);

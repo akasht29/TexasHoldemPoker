@@ -20,8 +20,9 @@ router.get("/waiting-room/:gameId", async (request, response) => {
     }
 
     try {
+      console.log("userId:", userId);
       playerId = await playerModel.getPlayerbyUserIdInGame(userId, gameId);
-
+      console.log("userId:", playerId);
       player = {
         playerId: playerId,
         game_id: parseInt(gameId),
