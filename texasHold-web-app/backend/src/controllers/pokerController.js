@@ -45,17 +45,15 @@ pokerController.endOfRoundNonsense = async (gameId, io) => {
             }
         });
 
-        console.log("pre distribution:", await playerModel.getAllPlayers(gameId))
         await pokerController.distributeWinnings(gameId);
-        console.log("post distribution:", await playerModel.getAllPlayers(gameId))
+
+        await pokerController.removeDeadPlayers(gameId, io);
         
         await pokerController.clearCards(gameId, io);
 
         await pokerController.dealCardsToPlayers(gameId, io);
 
-        console.log("pre unfolding:", await playerModel.getAllPlayers(gameId))
         await pokerController.unfoldPlayers(gameId);
-        console.log("post unfolding:", await playerModel.getAllPlayers(gameId))
 
         let newDealer = await gameController.incrementDealer(gameId);
         await gameModel.setTurn(gameId, newDealer);
@@ -79,6 +77,21 @@ pokerController.endOfRoundNonsense = async (gameId, io) => {
         }
     }
     return 0;
+}
+
+pokerController.removeDeadPlayers = async (gameId, io) => {
+    const players = await playerModel.getAllPlayers(gameId);
+    
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].chips == 0) {
+            await playerModel.removePlayer(players[i].player_id);
+
+            io.in(parseInt(gameId)).emit("PLAYER_LOST", {
+                // info passed to clients goes here
+                playerId: players[i].player_id
+            });
+        }
+    }
 }
 
 pokerController.distributeWinnings = async (gameId) => {
