@@ -91,17 +91,10 @@ router.get('/login', (_req, res) => {
 
 router.get('/lobby', async (request, response) => {
   if (request.session?.player?.playerId) {
-    // If this block executes, it just means that the player 
-    // has just returned from a game and no longer need their 
-    // playerId
-    // playerController.removePlayer(request.session.player.playerId)
     request.session.player = null;
   }
 
   const games = await gameController.getAllGames();
-  if (!games) {
-    console.log("Problem will rogers");
-  }
 
   response.render('lobby', { games: games } );
 });

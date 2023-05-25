@@ -53,14 +53,11 @@ gameController.firstPlayer = async (gameId, playerId) => {
     return (
         !gameData.players ||
         gameData.players.length == 0 ||
-        // playerIds are created sequentially 
-        // from lowest to highest
         gameData.players[0] == playerId
     );
 }
 
 gameController.incrementTurn = async (gameId) => {
-    console.log('incrementing turn');
     let gameInfo = await gameModel.getGameData(gameId);
     
     gameInfo.curr_turn++;

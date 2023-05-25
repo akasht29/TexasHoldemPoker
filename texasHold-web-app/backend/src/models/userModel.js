@@ -11,10 +11,10 @@ userModel.createUser = async (username, email, password) => {
 };
 
 userModel.getUserNameById = async (user_id) => {
-    const value = parseInt(user_id, 10);
-    const query = `SELECT username FROM users WHERE user_id = ${user_id}`; 
+    const value  = parseInt(user_id, 10);
+    const query  = `SELECT username FROM users WHERE user_id = ${user_id}`; 
     const result = await db.one(query, [value]);
-    //console.log("backend = " + result.username);
+
     return result.username;
 };
 
@@ -46,18 +46,17 @@ userModel.generateHashedPassword = async (password) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         console.log("hashed password:", hashedPassword);
         return hashedPassword;
-      } catch (error) {
+    } 
+    catch (error) {
         console.error(error);
         throw error; 
-      }
+    }
 
 }
 userModel.comparePassword = async (password, hashedPassword) => {
-    
     const result = await bcrypt.compare(password, hashedPassword);
-    console.log(result);
+    
     return result;
-
 };
 
 
@@ -73,16 +72,18 @@ userModel.logout = (req) => {
 
 userModel.getCurrentUser = async (req) => {
     try {
-        // Get user ID from session data
         const userId = req.session.userId;
+
         if (userId) {
-            // Get user by ID
             const user = await userModel.getUserById(userId);
+            
             return user;
-        } else {
+        } 
+        else {
             throw new CustomError("User not authenticated", 401);
         }
-    } catch (err) {
+    } 
+    catch (err) {
         throw err;
     }
 };

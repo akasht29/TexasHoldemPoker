@@ -1,18 +1,15 @@
 const express          = require('express');
 const router           = express.Router();
 const pokerController  = require("../controllers/pokerController");
-const playerController = require("../controllers/playerController");
 const gameModel        = require("../models/gameModel");
 const playerModel      = require('../models/playerModel');
-const gameController   = require('../controllers/gameController');
 
 // returns the players current hand as a json object to the client
 router.get('/:gameId/getHand', async (request, response) => {
-    // console.log(request.session);
     const gameId     = request.params.gameId;
     const playerId   = request.session.player.playerId;
     const playerInfo = await playerModel.getPlayerData(playerId);
-    // console.log("in hand:", playerInfo, playerInfo.hand);
+    
     response.status(200).json({ hand: playerInfo.hand })
 });
 
@@ -21,6 +18,14 @@ router.head('/:gameId/allIn', async (request, response) => {
         const gameId   = request.params.gameId;
         const playerId = request.session.player.playerId;
         const io       = request.app.get("io");
+
+        if (await pokerController.isPlayerDead(gameId, playerId)) {
+            response.status(400).send("player is dead");
+            return;
+        }
+        else {
+            console.log('bye');
+        }
 
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
@@ -39,15 +44,11 @@ router.head('/:gameId/allIn', async (request, response) => {
             );
         }
 
-        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
-            console.log('game over');
-            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
-        }
+        await pokerController.endOfRoundNonsense(gameId, io);
 
         response.status(200).send("player moved");
     }
     catch (error) { 
-        console.log(error.message);
         response.status(500).send("server error");
     }
 });
@@ -57,16 +58,15 @@ router.head('/:gameId/call', async (request, response) => {
         const gameId   = request.params.gameId;
         const playerId = request.session.player.playerId;
         const io       = request.app.get("io");
-        const username = request.session.user.username;
 
-        let ids = Object.keys(io.engine.clients);
+        if (await pokerController.isPlayerDead(gameId, playerId)) {
+            response.status(400).send("player is dead");
+            return 1;
+        }
 
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
             return;
-        }
-        else {
-            console.log("player moving!");
         }
 
         await pokerController.handleBlindBets(gameId, playerId);
@@ -77,7 +77,6 @@ router.head('/:gameId/call', async (request, response) => {
             const highestBet = await pokerController.getHighestBet(gameId);
             const amount     = Math.min(playerInfo.curr_bet, highestBet);
 
-            console.log(`highest: ${highestBet}, current: ${playerInfo.curr_bet}`);
 
             await pokerController.bet(
                 gameId,
@@ -88,10 +87,7 @@ router.head('/:gameId/call', async (request, response) => {
             await playerModel.setToCalled(playerId);
         }
 
-        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
-            console.log('game over');
-            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
-        }
+        await pokerController.endOfRoundNonsense(gameId, io);
 
         response.status(200).send("player moved");
     }
@@ -105,9 +101,12 @@ router.head('/:gameId/fold', async (request, response) => {
     try {
         const gameId   = request.params.gameId;
         const playerId = request.session.player.playerId;
-        console.log('------------------- '+request.session.player.playerId);
         const io       = request.app.get("io");
-        const username = request.session.user.username;
+
+        if (await pokerController.isPlayerDead(gameId, playerId)) {
+            response.status(400).send("player is dead");
+            return;
+        }
 
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
@@ -122,14 +121,12 @@ router.head('/:gameId/fold', async (request, response) => {
         }
 
         if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
-            console.log('game over');
             // response.redirect(`${process.env.API_BASE_URL}/game/over`);
         }
 
         response.status(200).send("player moved");
     }
     catch (error) { 
-        console.log(error.message);
         response.status(500).send("server error");
     }
 });
@@ -139,7 +136,11 @@ router.post('/:gameId/raise', async (request, response) => {
         const gameId   = request.params.gameId;
         const playerId = request.session.player.playerId;
         const io       = request.app.get("io");
-        const username = request.session.user.username;
+
+        if (await pokerController.isPlayerDead(gameId, playerId)) {
+            response.status(400).send("player is dead");
+            return;
+        }
 
         if (!(await pokerController.canPlayerMove(playerId))) {
             response.status(400).send("player cant move");
@@ -161,15 +162,11 @@ router.post('/:gameId/raise', async (request, response) => {
             await playerModel.setToOther(playerId);
         }
 
-        if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
-            console.log('game over');
-            // response.redirect(`${process.env.API_BASE_URL}/game/over`);
-        }
+        await pokerController.endOfRoundNonsense(gameId, io);
 
         response.status(200).send("player moved");
     }
     catch (error) { 
-        console.log(error.message);
         response.status(500).send("server error");
     }
 });
