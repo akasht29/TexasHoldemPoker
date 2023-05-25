@@ -65,6 +65,9 @@ router.head('/:gameId/call', async (request, response) => {
             response.status(400).send("player cant move");
             return;
         }
+        else {
+            console.log("player moving!");
+        }
 
         await pokerController.handleBlindBets(gameId, playerId);
 
@@ -72,7 +75,9 @@ router.head('/:gameId/call', async (request, response) => {
         {
             const playerInfo = await playerModel.getPlayerData(playerId);
             const highestBet = await pokerController.getHighestBet(gameId);
-            const amount     = highestBet - playerInfo.curr_bet;
+            const amount     = Math.min(playerInfo.curr_bet, highestBet);
+
+            console.log(`highest: ${highestBet}, current: ${playerInfo.curr_bet}`);
 
             await pokerController.bet(
                 gameId,
@@ -82,8 +87,6 @@ router.head('/:gameId/call', async (request, response) => {
 
             await playerModel.setToCalled(playerId);
         }
-
-        await pokerController.nextTurn(gameId);
 
         if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
             console.log('game over');
@@ -117,8 +120,6 @@ router.head('/:gameId/fold', async (request, response) => {
         {
             await playerModel.setToFolded(playerId);
         }
-        
-        await pokerController.nextTurn(gameId);
 
         if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
             console.log('game over');
@@ -147,7 +148,7 @@ router.post('/:gameId/raise', async (request, response) => {
 
         await pokerController.handleBlindBets(gameId, playerId);
 
-        // call logic here
+        // raise logic here
         {
             const amount = (await gameModel.getGameData(gameId)).min_bet;
            
@@ -159,8 +160,6 @@ router.post('/:gameId/raise', async (request, response) => {
 
             await playerModel.setToOther(playerId);
         }
-
-        await pokerController.nextTurn(gameId);
 
         if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {
             console.log('game over');

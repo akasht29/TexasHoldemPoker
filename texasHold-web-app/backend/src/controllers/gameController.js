@@ -60,6 +60,7 @@ gameController.firstPlayer = async (gameId, playerId) => {
 }
 
 gameController.incrementTurn = async (gameId) => {
+    console.log('incrementing turn');
     let gameInfo = await gameModel.getGameData(gameId);
     
     gameInfo.curr_turn++;
@@ -76,9 +77,10 @@ gameController.incrementRound = async (gameId) => {
 }
 
 gameController.incrementDealer = async (gameId) => {
-    let gameInfo = await gameModel.getGameData(gameId);
+    const gameInfo = await gameModel.getGameData(gameId);
+    const players = await playerModel.getAllPlayers(gameId);
     
-    gameInfo.curr_dealer = (gameInfo.curr_dealer + 1) % gameInfo.players.length;
+    gameInfo.curr_dealer = (gameInfo.curr_dealer + 1) % players.length;
     
     await gameModel.setDealer(gameId, gameInfo.curr_dealer);
 
@@ -96,8 +98,9 @@ gameController.dealCardToCommunity = async (gameId) => {
 
 gameController.getCurrentPlayerIndex = async (gameId) => {
     let gameInfo = await gameModel.getGameData(gameId);
+    const players = await playerModel.getAllPlayers(gameId);
 
-    return (gameInfo.curr_turn + gameInfo.curr_dealer) % gameInfo.players.length;
+    return (gameInfo.curr_turn + gameInfo.curr_dealer) % players.length;
 }
 
 gameController.getCurrentPlayer = async (gameId) => {
