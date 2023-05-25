@@ -36,7 +36,6 @@ playerController.addPlayer = async (gameId, userId) => {
 playerController.removePlayer = async (gameId, playerId) => {
     let gameData = await gameModel.getGameData(gameId);
     
-    // find player to remove
     let playerTargetIndex = -1;
     for (let i = 0; i < gameData.players.length; i++) {
         if (gameData.players[i] == playerId) {
@@ -45,21 +44,14 @@ playerController.removePlayer = async (gameId, playerId) => {
         }
     }
 
-    // could not find player
     if (playerTargetIndex == -1) {
         return;
     }
 
-    // remove player
     gameData.players.splice(playerTargetIndex, 1);
 
     await gameModel.updateGamePlayers(gameId, gameData.players);
     await playerModel.removePlayer(playerId);
-}
-
-//test funtion 
-playerController.testController = async(game_id,player_id) =>{
-    await gameModel.addToCommunityCards(game_id);
 }
 
 playerController.dealCardToPlayer = async (playerId) => {
