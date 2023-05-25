@@ -78,7 +78,6 @@ router.head('/:gameId/call', async (request, response) => {
             const playerInfo = await playerModel.getPlayerData(playerId);
             const highestBet = await pokerController.getHighestBet(gameId);
             const gameInfo   = await gameModel.getGameData(gameId);
-            console.log(playerInfo)
             let amount       = 0;
             let currentBet   = playerInfo.curr_bet;
 
