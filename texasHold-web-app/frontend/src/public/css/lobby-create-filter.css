@@ -1,7 +1,7 @@
 #game-icons {
     /* */
-    width: 40%;
-    height: 5%;
+    width: 650px;
+    height: 6%;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -18,7 +18,7 @@ dialog::backdrop {
 }
 
 .dialog-contents-header {
-    width: 100%;
+    min-width: 300px;
     height: 15%;
     display: flex;
     flex-direction: column;
@@ -28,7 +28,7 @@ dialog::backdrop {
 }
 
 .dialog-contents-body {
-    width: 100%;
+    min-width: 300px;
     height: 70%;
     display: flex;
     justify-content: space-around;
@@ -36,7 +36,7 @@ dialog::backdrop {
 }
 
 .dialog-contents-footer {
-    width: 100%;
+    min-width: 300px;
     height: 15%;
     display: flex;
     justify-content: space-around;
@@ -45,12 +45,11 @@ dialog::backdrop {
 }
 
 #create-game-form {
-    width: 100%;
+    min-width: 300px;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    outline: 1px solid black;
 }
 
 #create-game-form label {
@@ -72,6 +71,7 @@ dialog::backdrop {
 }
 
 .dialog-popup {
+    min-width: 300px;
     width: 20%;
     height: 55%;
     top: 25%;

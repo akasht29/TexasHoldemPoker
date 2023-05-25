@@ -10,6 +10,8 @@
 .one-third-of-navbar {
     height: 100%;
     width: 33.3%;
+    background-color: rgb(202, 245, 217);
+    border-bottom: 1px rgb(0, 0, 0) solid;
 }
 
 #navbar-center-container {

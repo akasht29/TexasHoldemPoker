@@ -1,5 +1,7 @@
 const http = require("http");
 const { Server } = require("socket.io");
+const playerModel = require("../models/playerModel");
+const userModel = require('../models/userModel');
 
 const initSockets = (app, sessionMiddleware) => {
   const server = http.createServer(app);
@@ -7,7 +9,7 @@ const initSockets = (app, sessionMiddleware) => {
 
   io.engine.use(sessionMiddleware);
 
-  io.on("connection", (socket) => {
+  io.on("connection", async (socket) => {
     let game_id = socket.handshake.query?.path.substring(1);
     const username = socket.request?.session?.user?.username;
 
@@ -25,11 +27,16 @@ const initSockets = (app, sessionMiddleware) => {
 
     socket.join(game_id);
 
-    io.in(game_id).emit("PLAYER_JOINED", {
-      username,
-    });
+    var players = await playerModel.getAllPlayers(game_id);
+    for (let i = 0; i < players.length; i++) {
+      players[i].player_id = await userModel.getUserNameById(
+        players[i].user_id
+      );
+    }
+    //console.log(players);
+    io.in(parseInt(game_id)).emit("PLAYER_JOINED", { username }, players);
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       socket.leave(game_id);
       
     });

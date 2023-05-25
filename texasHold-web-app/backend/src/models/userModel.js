@@ -10,8 +10,13 @@ userModel.createUser = async (username, email, password) => {
     );
 };
 
-
-
+userModel.getUserNameById = async (user_id) => {
+    const value = parseInt(user_id, 10);
+    const query = `SELECT username FROM users WHERE user_id = ${user_id}`; 
+    const result = await db.one(query, [value]);
+    //console.log("backend = " + result.username);
+    return result.username;
+};
 
 userModel.getUserByUsername = async (username) => {
     const query = `SELECT user_id, username, password, email FROM users WHERE username = $1`;
