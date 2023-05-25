@@ -3,6 +3,8 @@ const router           = express.Router();
 const pokerController  = require("../controllers/pokerController");
 const gameModel        = require("../models/gameModel");
 const playerModel      = require('../models/playerModel');
+const { isBigBlind } = require('../controllers/playerController');
+const playerController = require('../controllers/playerController');
 
 // returns the players current hand as a json object to the client
 router.get('/:gameId/getHand', async (request, response) => {
@@ -75,8 +77,21 @@ router.head('/:gameId/call', async (request, response) => {
         {
             const playerInfo = await playerModel.getPlayerData(playerId);
             const highestBet = await pokerController.getHighestBet(gameId);
-            const amount     = Math.min(playerInfo.curr_bet, highestBet);
+            const gameInfo   = await gameModel.getGameData(gameId);
+            console.log(playerInfo)
+            let amount       = 0;
+            let currentBet   = playerInfo.curr_bet;
 
+            if (playerController.isBigBlind(gameId, playerId)) {
+                currentBet -= gameInfo.min_bet;
+            }
+            else if (playerController.isSmallBlind(gameId, playerId)) {
+                currentBet -= gameInfo.min_bet / 2; 
+            }
+
+            if (highestBet > currentBet) {
+                amount = highestBet - currentBet;
+            }
 
             await pokerController.bet(
                 gameId,
