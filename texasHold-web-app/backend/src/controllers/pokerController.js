@@ -6,6 +6,10 @@ const gameController   = require("./gameController");
 
 pokerController        = {};
 
+pokerController.isPlayerDead = async (gameId, playerId) => {
+    const players = await playerModel.getAllPlayers(gameId)
+}
+
 /**
  * return 1 on game over
  */
@@ -260,11 +264,21 @@ pokerController.getIndexOfPlayerId = async (gameId, playerId) => {
 
 pokerController.getHighestBet = async (gameId) => {
     const players = await playerModel.getAllPlayers(gameId);
-    
+    const gameData = await gameModel.getGameData(gameId);
     let highestBet = 0;
     for (let i = 0; i < players.length; i++) {
-        if (players[i].curr_bet > highestBet || players[i].curr_bet == null) {
-            highestBet = players[i].curr_bet;
+        let currBet = players[i].curr_bet;
+        let playerId = players[i].player_id;
+
+        if (await playerController.isBigBlind(gameId, playerId)) {
+            currBet = Math.max(0, currBet -= gameData.min_bet);
+        }
+        else if (await playerController.isSmallBlind(gameId, playerId)) {
+            currBet = Math.max(0, currBet -= gameData.min_bet / 2);
+        }
+
+        if (currBet > highestBet) {
+            highestBet = currBet
         }
     }
 
@@ -300,8 +314,14 @@ pokerController.bet = async (gameId, playerId, amount) => {
 pokerController.nextTurn = async (gameId) => {
     console.log('in nextTurn');
 
+
     let playerId = await gameController.getCurrentPlayer(gameId);
     let players  = await playerModel.getAllPlayers(gameId);
+
+    console.log('pre increment:', (await gameModel.getGameData(gameId)).curr_turn, (await gameController.getCurrentPlayer(gameId)));
+    await gameController.incrementTurn(gameId);
+    playerId = await gameController.getCurrentPlayer(gameId);
+    console.log('post increment:', (await gameModel.getGameData(gameId)).curr_turn, (await gameController.getCurrentPlayer(gameId)));
     
     for (let i = 0; i < players.length; i++) {
         console.log(`${playerId} folded: ${await playerController.isPlayerFolded(playerId)}`);
@@ -337,7 +357,7 @@ pokerController.roundOver = async (gameId) => {
     let called     = 0;
     let allIn      = 0;
     
-    console.log("players:", players)
+    // console.log("players:", players)
     for (let i = 0; i < players.length; i++) {
         if (await playerController.isPlayerFolded(players[i].player_id)) {
             remaining--;
@@ -353,7 +373,9 @@ pokerController.roundOver = async (gameId) => {
     console.log('remaining:', remaining);
     
     return (
-        (remaining <= 1) || (allIn + called == remaining)
+        (remaining <= 1) || 
+        ((allIn + called == remaining) && (gameInfo.curr_round >= players.length)) ||
+        (allIn == remaining)
     );
 }
 
@@ -466,7 +488,6 @@ pokerController.ratePlayerHand = (handCards, communityCards) => {
 pokerController.isGameOver = async (gameId) => {
     const gameInfo = await gameModel.getGameData(gameId);
     const players  = await playerModel.getAllPlayers(gameId);
-    console.log(players);
 
     let allIn = 0;
     for (let i = 0; i < players.length; i++) {

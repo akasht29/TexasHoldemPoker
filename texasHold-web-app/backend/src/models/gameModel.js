@@ -117,6 +117,8 @@ gameModel.getGameData = async (gameId) => {
 }
 
 gameModel.setTurn = async (gameId, newTurn) => {
+    console.log('setting turn!')
+    
     const query = `UPDATE game SET curr_turn = $1 WHERE game_id = $2`;
     
     await db.none(query, [ newTurn, gameId ]);
