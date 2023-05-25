@@ -20,14 +20,12 @@ router.post('/register', async (request, response) => {
     const { username, email, password } = request.body;
     let hashedPassword =await userModel.generateHashedPassword(password)
     
-    
     const newUser = await userController.createUser(
       username,
       email,
       hashedPassword
     );
     
-
     if (!newUser) {
       throw new Error("Failed to create user");
     }

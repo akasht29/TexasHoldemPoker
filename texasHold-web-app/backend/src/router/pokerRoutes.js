@@ -31,15 +31,12 @@ router.head('/:gameId/allIn', async (request, response) => {
 
         // all in logic here
         {
-            console.log('hi')
             const playerInfo = await playerModel.getPlayerData(playerId);
-            console.log('hi')
             await pokerController.bet(
                 gameId,
                 playerId,
                 playerInfo.chips
             );
-            console.log('hi')
         }
 
         if (await pokerController.endOfRoundNonsense(gameId, io) == 1) {

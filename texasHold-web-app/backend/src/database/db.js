@@ -17,7 +17,7 @@ const db = {
     },
 };
 
-async function test_connection(){
+async function test_connection() {
 
     try{    
         pool.query('SELECT current_database();',(err, res)=>{
